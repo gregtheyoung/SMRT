@@ -38,6 +38,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.testOneButton = new System.Windows.Forms.Button();
             this.testTwoButton = new System.Windows.Forms.Button();
+            this.testThreeButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -132,11 +133,22 @@
             this.testTwoButton.UseVisualStyleBackColor = true;
             this.testTwoButton.Click += new System.EventHandler(this.testTwoButton_Click);
             // 
+            // testThreeButton
+            // 
+            this.testThreeButton.Location = new System.Drawing.Point(148, 152);
+            this.testThreeButton.Name = "testThreeButton";
+            this.testThreeButton.Size = new System.Drawing.Size(75, 23);
+            this.testThreeButton.TabIndex = 9;
+            this.testThreeButton.Text = "Test 3";
+            this.testThreeButton.UseVisualStyleBackColor = true;
+            this.testThreeButton.Click += new System.EventHandler(this.testThreeButton_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(505, 262);
+            this.Controls.Add(this.testThreeButton);
             this.Controls.Add(this.testTwoButton);
             this.Controls.Add(this.testOneButton);
             this.Controls.Add(this.label3);
@@ -165,6 +177,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button testOneButton;
         private System.Windows.Forms.Button testTwoButton;
+        private System.Windows.Forms.Button testThreeButton;
     }
 }
 

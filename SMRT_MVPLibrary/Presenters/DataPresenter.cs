@@ -9,7 +9,7 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
 {
     public class DataPresenter : Presenter<ISMRTMainView>
     {
-        public DataPresenter(ISMRTMainView view, bool useAutomation)
+        public DataPresenter(ISMRTMainView view, int useAutomation)
             : base(view, useAutomation)
         {
         }

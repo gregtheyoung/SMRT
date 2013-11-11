@@ -17,12 +17,12 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
         {
         }
 
-        public Presenter(T view, bool useAutomation)
+        public Presenter(T view, int useAutomation)
         {
-            if (useAutomation)
+            if (useAutomation==0)
                 Model = new ExcelAutomationModel();
             else
-                Model = new OLEDBModel();
+                Model = new OLEDBModel(useAutomation==1);
             View = view;
         }
     }

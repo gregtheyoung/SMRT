@@ -62,7 +62,7 @@ namespace TwinArch.SMRT
 
         private void testOneButton_Click(object sender, EventArgs e)
         {
-            _presenter = new DataPresenter(this, true);
+            _presenter = new DataPresenter(this, 0);
             _presenter.EmptySheetNames();
             _presenter.EmptyColumnNames();
             _presenter.DisplaySheetNames(fileName);
@@ -71,7 +71,16 @@ namespace TwinArch.SMRT
 
         private void testTwoButton_Click(object sender, EventArgs e)
         {
-            _presenter = new DataPresenter(this, false);
+            _presenter = new DataPresenter(this, 1);
+            _presenter.EmptySheetNames();
+            _presenter.EmptyColumnNames();
+            _presenter.DisplaySheetNames(fileName);
+            sheetNameCombo.Enabled = true;
+        }
+
+        private void testThreeButton_Click(object sender, EventArgs e)
+        {
+            _presenter = new DataPresenter(this, 2);
             _presenter.EmptySheetNames();
             _presenter.EmptyColumnNames();
             _presenter.DisplaySheetNames(fileName);

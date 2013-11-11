@@ -14,19 +14,28 @@ namespace TwinArch.SMRT_MVPLibrary.Models
     {
 
         private OleDbConnection conn;
+        private bool useJetEngine;
+
+        public OLEDBModel(bool _useJetEngine)
+        {
+            useJetEngine = _useJetEngine;
+        }
 
         private OleDbConnection Connect(string fileName)
         {
-            string connectionString = "provider=Microsoft.Jet.OLEDB.4.0; data source=" + fileName + "; Extended Properties=Excel 8.0;";
+            string connectionStringJet = "provider=Microsoft.Jet.OLEDB.4.0; data source='" + fileName + "'; Extended Properties='Excel 8.0;'";
+            // The following is supposedly the one to use for 2007+, but the driver doesn't work on 64-bit without a patch.
+            // Downloaded the MS Access Database Engine 2010 Redist: http://www.microsoft.com/en-us/download/details.aspx?id=13255
+            string connectionStringACE = "provider=Microsoft.ACE.OLEDB.12.0; data source=" + fileName + "; Extended Properties=Excel 12.0;";
             if (conn == null)
             {
-                conn = new OleDbConnection(connectionString);
+                conn = new OleDbConnection(useJetEngine ? connectionStringJet : connectionStringACE);
                 conn.Open();
             }
-            else if (!conn.ConnectionString.Equals(connectionString))
+            else if (!conn.ConnectionString.Equals(useJetEngine ? connectionStringJet : connectionStringACE))
             {
                 conn.Close();
-                conn = new OleDbConnection(connectionString);
+                conn = new OleDbConnection(useJetEngine ? connectionStringJet : connectionStringACE);
                 conn.Open();
             }
 
@@ -54,6 +63,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                         sheetNames.Add(sheetName);
                     }
                 }
+                conn.Close();
             }
                             
             return sheetNames;
@@ -74,6 +84,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
                 foreach (DataColumn column in table.Columns)
                     columnNames.Add(column.ColumnName);
+                conn.Close();
             }
 
             return columnNames;

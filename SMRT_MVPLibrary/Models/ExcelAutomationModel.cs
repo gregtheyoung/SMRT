@@ -35,6 +35,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 foreach (Worksheet sheet in book.Sheets)
                     sheetNames.Add(sheet.Name);
 
+                book.Close(false);
                 ExcelApp.Quit();
             }
                             
@@ -57,6 +58,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 foreach (Range cell in firstRow.Cells)
                     columnNames.Add(cell.get_Value().ToString());
 
+                book.Close(false);
                 ExcelApp.Quit();
             }
 
