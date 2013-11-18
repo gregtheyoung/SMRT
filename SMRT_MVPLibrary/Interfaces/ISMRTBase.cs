@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TwinArch.SMRT_MVPLibrary.Interfaces
 {
-    public interface ISMRTBaseInterface
+    public interface ISMRTBase
     {
     }
 }

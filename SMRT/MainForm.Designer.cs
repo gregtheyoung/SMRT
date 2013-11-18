@@ -39,6 +39,8 @@
             this.testOneButton = new System.Windows.Forms.Button();
             this.testTwoButton = new System.Windows.Forms.Button();
             this.testThreeButton = new System.Windows.Forms.Button();
+            this.testURLParseButton = new System.Windows.Forms.Button();
+            this.getSheetsAndColumnsButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -79,7 +81,7 @@
             this.sheetNameCombo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.sheetNameCombo.FormattingEnabled = true;
-            this.sheetNameCombo.Location = new System.Drawing.Point(148, 68);
+            this.sheetNameCombo.Location = new System.Drawing.Point(148, 97);
             this.sheetNameCombo.Name = "sheetNameCombo";
             this.sheetNameCombo.Size = new System.Drawing.Size(264, 21);
             this.sheetNameCombo.TabIndex = 3;
@@ -88,7 +90,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 71);
+            this.label2.Location = new System.Drawing.Point(13, 100);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(69, 13);
             this.label2.TabIndex = 4;
@@ -99,15 +101,16 @@
             this.columnsComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.columnsComboBox.FormattingEnabled = true;
-            this.columnsComboBox.Location = new System.Drawing.Point(148, 96);
+            this.columnsComboBox.Location = new System.Drawing.Point(148, 125);
             this.columnsComboBox.Name = "columnsComboBox";
             this.columnsComboBox.Size = new System.Drawing.Size(264, 21);
             this.columnsComboBox.TabIndex = 5;
+            this.columnsComboBox.SelectedIndexChanged += new System.EventHandler(this.columnsComboBox_SelectedIndexChanged);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 99);
+            this.label3.Location = new System.Drawing.Point(13, 128);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(129, 13);
             this.label3.TabIndex = 6;
@@ -117,37 +120,59 @@
             // 
             this.testOneButton.Location = new System.Drawing.Point(148, 39);
             this.testOneButton.Name = "testOneButton";
-            this.testOneButton.Size = new System.Drawing.Size(75, 23);
+            this.testOneButton.Size = new System.Drawing.Size(122, 23);
             this.testOneButton.TabIndex = 7;
-            this.testOneButton.Text = "Test 1";
+            this.testOneButton.Text = "Test Excel Automation";
             this.testOneButton.UseVisualStyleBackColor = true;
             this.testOneButton.Click += new System.EventHandler(this.testOneButton_Click);
             // 
             // testTwoButton
             // 
-            this.testTwoButton.Location = new System.Drawing.Point(148, 123);
+            this.testTwoButton.Location = new System.Drawing.Point(276, 39);
             this.testTwoButton.Name = "testTwoButton";
-            this.testTwoButton.Size = new System.Drawing.Size(75, 23);
+            this.testTwoButton.Size = new System.Drawing.Size(97, 23);
             this.testTwoButton.TabIndex = 8;
-            this.testTwoButton.Text = "Test 2";
+            this.testTwoButton.Text = "Test OLEDB Jet";
             this.testTwoButton.UseVisualStyleBackColor = true;
             this.testTwoButton.Click += new System.EventHandler(this.testTwoButton_Click);
             // 
             // testThreeButton
             // 
-            this.testThreeButton.Location = new System.Drawing.Point(148, 152);
+            this.testThreeButton.Location = new System.Drawing.Point(379, 39);
             this.testThreeButton.Name = "testThreeButton";
-            this.testThreeButton.Size = new System.Drawing.Size(75, 23);
+            this.testThreeButton.Size = new System.Drawing.Size(114, 23);
             this.testThreeButton.TabIndex = 9;
-            this.testThreeButton.Text = "Test 3";
+            this.testThreeButton.Text = "Test OLEDB ACE";
             this.testThreeButton.UseVisualStyleBackColor = true;
             this.testThreeButton.Click += new System.EventHandler(this.testThreeButton_Click);
+            // 
+            // testURLParseButton
+            // 
+            this.testURLParseButton.Location = new System.Drawing.Point(148, 152);
+            this.testURLParseButton.Name = "testURLParseButton";
+            this.testURLParseButton.Size = new System.Drawing.Size(91, 23);
+            this.testURLParseButton.TabIndex = 10;
+            this.testURLParseButton.Text = "Test URL Parse";
+            this.testURLParseButton.UseVisualStyleBackColor = true;
+            this.testURLParseButton.Click += new System.EventHandler(this.testURLParseButton_Click);
+            // 
+            // getSheetsAndColumnsButton
+            // 
+            this.getSheetsAndColumnsButton.Location = new System.Drawing.Point(148, 68);
+            this.getSheetsAndColumnsButton.Name = "getSheetsAndColumnsButton";
+            this.getSheetsAndColumnsButton.Size = new System.Drawing.Size(122, 23);
+            this.getSheetsAndColumnsButton.TabIndex = 11;
+            this.getSheetsAndColumnsButton.Text = "Get Sheets/Columns";
+            this.getSheetsAndColumnsButton.UseVisualStyleBackColor = true;
+            this.getSheetsAndColumnsButton.Click += new System.EventHandler(this.getSheetsAndColumnsButton_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(505, 262);
+            this.Controls.Add(this.getSheetsAndColumnsButton);
+            this.Controls.Add(this.testURLParseButton);
             this.Controls.Add(this.testThreeButton);
             this.Controls.Add(this.testTwoButton);
             this.Controls.Add(this.testOneButton);
@@ -178,6 +203,8 @@
         private System.Windows.Forms.Button testOneButton;
         private System.Windows.Forms.Button testTwoButton;
         private System.Windows.Forms.Button testThreeButton;
+        private System.Windows.Forms.Button testURLParseButton;
+        private System.Windows.Forms.Button getSheetsAndColumnsButton;
     }
 }
 

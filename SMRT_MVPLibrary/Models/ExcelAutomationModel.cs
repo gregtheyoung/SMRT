@@ -9,7 +9,7 @@ using Microsoft.Office.Interop.Excel;
 
 namespace TwinArch.SMRT_MVPLibrary.Models
 {
-    public class ExcelAutomationModel : ISMRTModel
+    public class ExcelAutomationModel : ISMRTDataModel
     {
 
         private Application app;
@@ -24,45 +24,81 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             }
         }
 
+        public void Dispose()
+        {
+            if (app != null)
+                app.Quit();
+        }
+
+        private Workbook OpenWorkbook(string fileName)
+        {
+            Workbook book = null;
+
+            if (!String.IsNullOrEmpty(fileName))
+                book = ExcelApp.Workbooks.Open(fileName);
+
+            return book;
+        }
+
         public List<string> GetSheetNames(string fileName)
         {
             List<string> sheetNames = new List<string>();
 
-            if (!String.IsNullOrEmpty(fileName))
+            Workbook book = OpenWorkbook(fileName);
+            if (book != null)
             {
-                Workbook book = ExcelApp.Workbooks.Open(fileName);
-
                 foreach (Worksheet sheet in book.Sheets)
                     sheetNames.Add(sheet.Name);
 
                 book.Close(false);
-                ExcelApp.Quit();
             }
                             
             return sheetNames;
         }
 
-        public List<string> GetColumnNames(string fileName, string sheetName)
+        public Dictionary<string, string> GetColumnNames(string fileName, string sheetName)
         {
-            List<string> columnNames = new List<string>();
+            Dictionary<string, string> columnNames = new Dictionary<string, string>();
 
-            if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName))
+            Workbook book = OpenWorkbook(fileName);
+            if ((book != null) && !String.IsNullOrEmpty(sheetName))
             {
-
-                Workbook book = ExcelApp.Workbooks.Open(fileName);
                 Worksheet sheet = book.Sheets[sheetName];
-                Range range = sheet.get_Range("A1");
-
                 Range firstRow = sheet.get_Range("A1", sheet.get_Range("A1").get_End(XlDirection.xlToRight));
 
                 foreach (Range cell in firstRow.Cells)
-                    columnNames.Add(cell.get_Value().ToString());
+                    columnNames.Add(cell.get_Address(Type.Missing, false).Substring(0,1), cell.get_Value().ToString());
 
                 book.Close(false);
-                ExcelApp.Quit();
             }
 
             return columnNames;
         }
+
+
+        public List<KeyValuePair<string, string>> GetColumnValues(string fileName, string sheetName, string columnName)
+        {
+            List<KeyValuePair<string, string>> columnValues = new List<KeyValuePair<string, string>>();
+
+            Workbook book = OpenWorkbook(fileName);
+
+            if ((book != null) && !String.IsNullOrEmpty(sheetName) && !String.IsNullOrEmpty(columnName))
+            {
+                Worksheet sheet = book.Sheets[sheetName];
+                Range range = sheet.get_Range(columnName + ":" + columnName);
+
+                foreach (Range cell in range.Cells)
+                {
+                    if (cell.Value2 != null)
+                        columnValues.Add(new KeyValuePair<string, string>(cell.get_Address(), cell.Value2));
+                }
+
+                book.Close(false);
+            }
+
+            return columnValues;
+        }
+
+
     }
 }

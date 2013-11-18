@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -39,9 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interfaces\IBaseInterface.cs" />
-    <Compile Include="Interfaces\IMainView.cs" />
-    <Compile Include="Interfaces\IModel.cs" />
+    <Compile Include="Interfaces\ISMRTBase.cs" />
+    <Compile Include="Interfaces\ISMRTDoman.cs" />
+    <Compile Include="Interfaces\ISMRTMainView.cs" />
+    <Compile Include="Interfaces\ISMRTDataModel.cs" />
+    <Compile Include="Models\DomainModel.cs" />
     <Compile Include="Models\OLEDBModel.cs" />
     <Compile Include="Models\ExcelAutomationModel.cs" />
     <Compile Include="Presenters\DataPresenter.cs" />

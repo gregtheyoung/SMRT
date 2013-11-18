@@ -22,9 +22,17 @@ namespace TwinArch.SMRT
             set { sheetNameCombo.DataSource = value; }
         }
 
-        public List<string> ColumnNames
+        public Dictionary<string, string> ColumnNames
         {
-            set { columnsComboBox.DataSource = value; }
+            set
+            {
+                if (value != null)
+                {
+                    columnsComboBox.DataSource = new BindingSource(value, null);
+                    columnsComboBox.DisplayMember = "Value";
+                    columnsComboBox.ValueMember = "Key";
+                }
+            }
         }
 
         public MainForm()
@@ -34,6 +42,9 @@ namespace TwinArch.SMRT
             columnsComboBox.Enabled = false;
             testOneButton.Enabled = false;
             testTwoButton.Enabled = false;
+            testThreeButton.Enabled = false;
+            testURLParseButton.Enabled = false;
+            getSheetsAndColumnsButton.Enabled = false;
         }
 
         private void selectFileButton_Click(object sender, EventArgs e)
@@ -51,6 +62,7 @@ namespace TwinArch.SMRT
 
                 testOneButton.Enabled = true;
                 testTwoButton.Enabled = true;
+                testThreeButton.Enabled = true;
             }
         }
 
@@ -62,29 +74,41 @@ namespace TwinArch.SMRT
 
         private void testOneButton_Click(object sender, EventArgs e)
         {
+            if (_presenter != null) _presenter.Dispose();
             _presenter = new DataPresenter(this, 0);
-            _presenter.EmptySheetNames();
-            _presenter.EmptyColumnNames();
-            _presenter.DisplaySheetNames(fileName);
-            sheetNameCombo.Enabled = true;
+            getSheetsAndColumnsButton.Enabled = true;
         }
 
         private void testTwoButton_Click(object sender, EventArgs e)
         {
+            if (_presenter != null) _presenter.Dispose();
             _presenter = new DataPresenter(this, 1);
+            getSheetsAndColumnsButton.Enabled = true;
+        }
+
+        private void testThreeButton_Click(object sender, EventArgs e)
+        {
+            if (_presenter != null) _presenter.Dispose();
+            _presenter = new DataPresenter(this, 2);
+            getSheetsAndColumnsButton.Enabled = true;
+        }
+
+        private void testURLParseButton_Click(object sender, EventArgs e)
+        {
+            _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString());
+        }
+
+        private void getSheetsAndColumnsButton_Click(object sender, EventArgs e)
+        {
             _presenter.EmptySheetNames();
             _presenter.EmptyColumnNames();
             _presenter.DisplaySheetNames(fileName);
             sheetNameCombo.Enabled = true;
         }
 
-        private void testThreeButton_Click(object sender, EventArgs e)
+        private void columnsComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _presenter = new DataPresenter(this, 2);
-            _presenter.EmptySheetNames();
-            _presenter.EmptyColumnNames();
-            _presenter.DisplaySheetNames(fileName);
-            sheetNameCombo.Enabled = true;
+            testURLParseButton.Enabled = true;
         }
     }
 }

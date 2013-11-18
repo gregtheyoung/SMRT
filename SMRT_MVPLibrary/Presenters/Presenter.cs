@@ -8,9 +8,9 @@ using TwinArch.SMRT_MVPLibrary.Models;
 
 namespace TwinArch.SMRT_MVPLibrary.Presenters
 {
-    public class Presenter<T> where T : ISMRTBaseInterface
+    public class Presenter<T> where T : ISMRTBase
     {
-        protected ISMRTModel Model { get; private set; }
+        protected ISMRTDoman Model { get; private set; }
         protected T View { get; private set; }
 
         static Presenter()
@@ -19,10 +19,7 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
 
         public Presenter(T view, int useAutomation)
         {
-            if (useAutomation==0)
-                Model = new ExcelAutomationModel();
-            else
-                Model = new OLEDBModel(useAutomation==1);
+            Model = new DomainModel(useAutomation);
             View = view;
         }
     }

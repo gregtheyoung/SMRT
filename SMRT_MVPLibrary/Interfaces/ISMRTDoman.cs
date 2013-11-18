@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace TwinArch.SMRT_MVPLibrary.Interfaces
 {
-    public interface ISMRTModel : ISMRTBaseInterface
+    public interface ISMRTDoman : ISMRTBase, IDisposable
     {
         List<string> GetSheetNames(string fileName);
-        List<string> GetColumnNames(string fileName, string sheetName);
+        Dictionary<string, string> GetColumnNames(string fileName, string sheetName);
+        bool SplitURLs(string fileName, string sheetName, string urlColumnName);
     }
 }

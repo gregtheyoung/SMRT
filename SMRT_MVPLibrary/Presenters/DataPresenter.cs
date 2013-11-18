@@ -7,11 +7,16 @@ using TwinArch.SMRT_MVPLibrary.Interfaces;
 
 namespace TwinArch.SMRT_MVPLibrary.Presenters
 {
-    public class DataPresenter : Presenter<ISMRTMainView>
+    public class DataPresenter : Presenter<ISMRTMainView>, IDisposable
     {
         public DataPresenter(ISMRTMainView view, int useAutomation)
             : base(view, useAutomation)
         {
+        }
+
+        public void Dispose()
+        {
+            Model.Dispose();
         }
 
         public void DisplaySheetNames(string filename)
@@ -32,6 +37,11 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
         public void EmptyColumnNames()
         {
             if (View != null) View.ColumnNames = null;
+        }
+
+        public void ParseURLs(string fileName, string sheetName, string columnName)
+        {
+            Model.SplitURLs(fileName, sheetName, columnName);
         }
 
 

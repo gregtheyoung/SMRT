@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace TwinArch.SMRT_MVPLibrary.Interfaces
 {
-    public interface ISMRTMainView : ISMRTBaseInterface
+    public interface ISMRTMainView : ISMRTBase
     {
         List<string> SheetNames { set; }
-        List<string> ColumnNames { set; }
+        Dictionary<string, string> ColumnNames { set; }
     }
 }

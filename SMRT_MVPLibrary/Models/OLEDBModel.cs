@@ -10,7 +10,7 @@ using TwinArch.SMRT_MVPLibrary.Interfaces;
 
 namespace TwinArch.SMRT_MVPLibrary.Models
 {
-    public class OLEDBModel : ISMRTModel
+    public class OLEDBModel : ISMRTDataModel
     {
 
         private OleDbConnection conn;
@@ -19,6 +19,12 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         public OLEDBModel(bool _useJetEngine)
         {
             useJetEngine = _useJetEngine;
+        }
+
+        public void Dispose()
+        {
+            if (conn != null)
+                conn.Close();
         }
 
         private OleDbConnection Connect(string fileName)
@@ -69,9 +75,9 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return sheetNames;
         }
 
-        public List<string> GetColumnNames(string fileName, string sheetName)
+        public Dictionary<string, string> GetColumnNames(string fileName, string sheetName)
         {
-            List<string> columnNames = new List<string>();
+            Dictionary<string, string> columnNames = new Dictionary<string, string>();
 
             if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName))
             {
@@ -83,11 +89,33 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 adapter.Fill(table);
 
                 foreach (DataColumn column in table.Columns)
-                    columnNames.Add(column.ColumnName);
+                    columnNames.Add(column.ColumnName, column.ColumnName);
                 conn.Close();
             }
 
             return columnNames;
+        }
+
+        public List<KeyValuePair<string, string>> GetColumnValues(string fileName, string sheetName, string columnName)
+        {
+            List<KeyValuePair<string, string>> columnValues = new List<KeyValuePair<string, string>>();
+
+            if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName) && !string.IsNullOrEmpty(columnName))
+            {
+                Connect(fileName);
+
+                string query = "select " + columnName + " from [" + sheetName + "]";
+                OleDbDataAdapter adapter = new OleDbDataAdapter(query, conn);
+                DataTable table = new DataTable();
+                adapter.Fill(table);
+
+                foreach (DataRow row in table.Rows)
+                    columnValues.Add(new KeyValuePair<string,string>(row[0].ToString(), row[0].ToString()));
+
+                conn.Close();
+            }
+
+            return columnValues;
         }
     }
 }
