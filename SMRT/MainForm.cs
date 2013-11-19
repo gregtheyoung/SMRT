@@ -26,13 +26,18 @@ namespace TwinArch.SMRT
         {
             set
             {
-                if (value != null)
+                if ((value != null) && (value.Count > 0))
                 {
                     columnsComboBox.DataSource = new BindingSource(value, null);
                     columnsComboBox.DisplayMember = "Value";
                     columnsComboBox.ValueMember = "Key";
                 }
             }
+        }
+
+        public string AlertMessage
+        {
+            set { MessageBox.Show(value); }
         }
 
         public MainForm()
@@ -89,13 +94,27 @@ namespace TwinArch.SMRT
         private void testThreeButton_Click(object sender, EventArgs e)
         {
             if (_presenter != null) _presenter.Dispose();
-            _presenter = new DataPresenter(this, 2);
+            _presenter = new DataPresenter(this, 3);
             getSheetsAndColumnsButton.Enabled = true;
         }
 
         private void testURLParseButton_Click(object sender, EventArgs e)
         {
-            _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString());
+            SMRT_MVPLibrary.ReturnCode rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString(), false);
+            if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsAlreadyExist)
+            {
+                DialogResult result = MessageBox.Show("The columns into which the parts of the URL are to be placed already exist in this Excel file. Do you want to overwrite the data that already exists in those columns?",
+                    "Columns already exist",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+                if (result == DialogResult.Yes)
+                    rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString(), true);
+            }
+            if (rc == SMRT_MVPLibrary.ReturnCode.NotURLColumn)
+                MessageBox.Show("The column you selected does not appear to contain URLs. Please select another column.",
+                    "Column does not contain URLs.",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
         }
 
         private void getSheetsAndColumnsButton_Click(object sender, EventArgs e)
@@ -110,5 +129,6 @@ namespace TwinArch.SMRT
         {
             testURLParseButton.Enabled = true;
         }
+
     }
 }

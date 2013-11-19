@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EPPlus">
+      <HintPath>..\ThirdParty\EPPlus.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -40,10 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums.cs" />
     <Compile Include="Interfaces\ISMRTBase.cs" />
     <Compile Include="Interfaces\ISMRTDoman.cs" />
     <Compile Include="Interfaces\ISMRTMainView.cs" />
     <Compile Include="Interfaces\ISMRTDataModel.cs" />
+    <Compile Include="Models\EPPlusModel.cs" />
     <Compile Include="Models\DomainModel.cs" />
     <Compile Include="Models\OLEDBModel.cs" />
     <Compile Include="Models\ExcelAutomationModel.cs" />

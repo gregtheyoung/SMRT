@@ -10,6 +10,7 @@ namespace TwinArch.SMRT_MVPLibrary.Interfaces
     {
         List<string> GetSheetNames(string fileName);
         Dictionary<string, string> GetColumnNames(string fileName, string sheetName);
-        bool SplitURLs(string fileName, string sheetName, string urlColumnName);
+        ReturnCode SplitURLs(string fileName, string sheetName, string urlColumnName, bool overwriteExistingData);
+
     }
 }

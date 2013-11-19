@@ -39,11 +39,10 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             if (View != null) View.ColumnNames = null;
         }
 
-        public void ParseURLs(string fileName, string sheetName, string columnName)
+        public ReturnCode ParseURLs(string fileName, string sheetName, string columnName, bool overwriteExistingData)
         {
-            Model.SplitURLs(fileName, sheetName, columnName);
+            return Model.SplitURLs(fileName, sheetName, columnName, overwriteExistingData);
         }
-
 
     }
 }

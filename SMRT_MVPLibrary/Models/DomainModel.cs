@@ -12,6 +12,8 @@ namespace TwinArch.SMRT_MVPLibrary.Models
     public class DomainModel : ISMRTDoman, IDisposable
     {
 
+        string[] newURLSplitColumns = { "Domain", "PosterID", "MentionID" };
+
         protected ISMRTDataModel dataModel;
         /// <summary>
         /// 
@@ -36,6 +38,11 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     dataModel = new OLEDBModel(false);
                     break;
                 }
+                case (3):
+                {
+                    dataModel = new EPPlusModel();
+                    break;
+                }
 
             }
         }
@@ -55,10 +62,35 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return dataModel.GetColumnNames(fileName, sheetName);
         }
 
-        public bool SplitURLs(string fileName, string sheetName, string urlColumnName)
+        private bool DoURLSplitColumnsAlreadyExist(string fileName, string sheetName)
         {
+            // Check to make sure the new columns don't exist yet.
+            Dictionary<string, string> columnNames = GetColumnNames(fileName, sheetName);
+
+            bool newColumnAlreadyExists = false;
+
+            foreach (string newColumnName in newURLSplitColumns)
+            {
+                if (columnNames.ContainsValue(newColumnName))
+                    newColumnAlreadyExists = true;
+            }
+
+            return newColumnAlreadyExists;
+        }
+
+        public ReturnCode SplitURLs(string fileName, string sheetName, string urlColumnName, bool overwriteExistingData)
+        {
+            ReturnCode rc = ReturnCode.Success;
+
+            if (!overwriteExistingData && DoURLSplitColumnsAlreadyExist(fileName, sheetName))
+                return ReturnCode.ColumnsAlreadyExist;
+            else
+                AddURLSplitColumns(fileName, sheetName);
+
             List<KeyValuePair<string, string>> columnValues = dataModel.GetColumnValues(fileName, sheetName, urlColumnName);
 
+            int numprocessed = 0;
+            int numFailed = 0;
             foreach (KeyValuePair<string, string> pair in columnValues)
             {
                 try
@@ -83,10 +115,26 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 }
                 catch (UriFormatException e)
                 {
+                    numFailed++;
+                }
+                numprocessed++;
+
+                // If more than 1/2 have failed, then this likely is not a column that contains URLs.
+                // Only check this condition after we have processed some of them - don't want to error just because 
+                // one of the first two failed.
+                if ((numprocessed >= 50) && (numFailed >= numprocessed/2))
+                {
+                    rc = ReturnCode.NotURLColumn;
+                    break;
                 }
             }
 
-            return true;
+            return rc;
+        }
+
+        private void AddURLSplitColumns(string fileName, string sheetName)
+        {
+            dataModel.AddColumn(fileName, sheetName, newURLSplitColumns);
         }
 
         private void GetFacebookParts(Uri uri)

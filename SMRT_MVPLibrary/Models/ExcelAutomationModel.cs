@@ -100,5 +100,11 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         }
 
 
+
+
+        public ReturnCode AddColumn(string fileName, string sheetName, string[] columnNames)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
