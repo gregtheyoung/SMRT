@@ -130,19 +130,19 @@
             // 
             this.testTwoButton.Location = new System.Drawing.Point(276, 39);
             this.testTwoButton.Name = "testTwoButton";
-            this.testTwoButton.Size = new System.Drawing.Size(97, 23);
+            this.testTwoButton.Size = new System.Drawing.Size(117, 23);
             this.testTwoButton.TabIndex = 8;
-            this.testTwoButton.Text = "Test OLEDB Jet";
+            this.testTwoButton.Text = "Test OLEDB ACE";
             this.testTwoButton.UseVisualStyleBackColor = true;
             this.testTwoButton.Click += new System.EventHandler(this.testTwoButton_Click);
             // 
             // testThreeButton
             // 
-            this.testThreeButton.Location = new System.Drawing.Point(379, 39);
+            this.testThreeButton.Location = new System.Drawing.Point(399, 39);
             this.testThreeButton.Name = "testThreeButton";
-            this.testThreeButton.Size = new System.Drawing.Size(114, 23);
+            this.testThreeButton.Size = new System.Drawing.Size(94, 23);
             this.testThreeButton.TabIndex = 9;
-            this.testThreeButton.Text = "Test OLEDB ACE";
+            this.testThreeButton.Text = "Test EPPlus";
             this.testThreeButton.UseVisualStyleBackColor = true;
             this.testThreeButton.Click += new System.EventHandler(this.testThreeButton_Click);
             // 

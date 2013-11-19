@@ -21,12 +21,26 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
 
         public void DisplaySheetNames(string filename)
         {
-            if (View != null) View.SheetNames = Model.GetSheetNames(filename);
+            try
+            {
+                if (View != null) View.SheetNames = Model.GetSheetNames(filename);
+            }
+            catch (System.IO.FileNotFoundException e)
+            {
+                View.IsFileValid = false;
+            }
         }
 
         public void DisplayColumnNames(string filename, string sheetname)
         {
-            if (View != null) View.ColumnNames = Model.GetColumnNames(filename, sheetname);
+            try
+            {
+                if (View != null) View.ColumnNames = Model.GetColumnNames(filename, sheetname);
+            }
+            catch (System.IO.FileNotFoundException e)
+            {
+                View.IsFileValid = false;
+            }
         }
 
         public void EmptySheetNames()
@@ -39,9 +53,20 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             if (View != null) View.ColumnNames = null;
         }
 
-        public ReturnCode ParseURLs(string fileName, string sheetName, string columnName, bool overwriteExistingData)
+        public ReturnCode ParseURLs(string fileName, string sheetName, string columnName, bool overwriteExistingData, bool ignoreFirstRow)
         {
-            return Model.SplitURLs(fileName, sheetName, columnName, overwriteExistingData);
+            ReturnCode rc = ReturnCode.Failed;
+
+            try
+            {
+                rc = Model.SplitURLs(fileName, sheetName, columnName, overwriteExistingData, ignoreFirstRow);
+            }
+            catch (System.IO.FileNotFoundException e)
+            {
+                View.IsFileValid = false;
+            }
+
+            return rc;
         }
 
     }

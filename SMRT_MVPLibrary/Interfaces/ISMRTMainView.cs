@@ -11,5 +11,6 @@ namespace TwinArch.SMRT_MVPLibrary.Interfaces
         List<string> SheetNames { set; }
         Dictionary<string, string> ColumnNames { set; }
         String AlertMessage { set; }
+        bool IsFileValid { set; }
     }
 }

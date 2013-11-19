@@ -40,6 +40,20 @@ namespace TwinArch.SMRT
             set { MessageBox.Show(value); }
         }
 
+
+        public bool IsFileValid
+        {
+            set
+            {
+                MessageBox.Show("The file selected is not a valid Excel for this tool. Double-check that the file exists, " +
+                    "that it is not in use by any other program, and that it is an XLSX file (XLS files cannot be used).",
+                "Invalid file",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+
+            }
+        }
+
         public MainForm()
         {
             InitializeComponent();
@@ -57,7 +71,7 @@ namespace TwinArch.SMRT
             fileOpenDialog.FileName = excelFileNameTextBox.Text;
 
             fileOpenDialog.CheckFileExists = true;
-            fileOpenDialog.Filter = "Excel files (*.xlsx, *.xls)|*.xlsx;*.xls|All files (*.*)|*.*";
+            fileOpenDialog.Filter = "Excel files (*.xlsx, *.xls, *.xlsm)|*.xlsx;*.xls;*.xlsm|All files (*.*)|*.*";
             fileOpenDialog.Multiselect = false;
 
             if (fileOpenDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -87,7 +101,7 @@ namespace TwinArch.SMRT
         private void testTwoButton_Click(object sender, EventArgs e)
         {
             if (_presenter != null) _presenter.Dispose();
-            _presenter = new DataPresenter(this, 1);
+            _presenter = new DataPresenter(this, 2);
             getSheetsAndColumnsButton.Enabled = true;
         }
 
@@ -100,15 +114,15 @@ namespace TwinArch.SMRT
 
         private void testURLParseButton_Click(object sender, EventArgs e)
         {
-            SMRT_MVPLibrary.ReturnCode rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString(), false);
+            SMRT_MVPLibrary.ReturnCode rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString(), false, true);
             if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsAlreadyExist)
             {
-                DialogResult result = MessageBox.Show("The columns into which the parts of the URL are to be placed already exist in this Excel file. Do you want to overwrite the data that already exists in those columns?",
+                DialogResult result = MessageBox.Show("The columns that will contain the Domain Name, Poster ID, and Mention ID already exist in this Excel file. Do you want to overwrite the data that already exists in those columns?",
                     "Columns already exist",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
-                    rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString(), true);
+                    rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString(), true, true);
             }
             if (rc == SMRT_MVPLibrary.ReturnCode.NotURLColumn)
                 MessageBox.Show("The column you selected does not appear to contain URLs. Please select another column.",
@@ -129,6 +143,7 @@ namespace TwinArch.SMRT
         {
             testURLParseButton.Enabled = true;
         }
+
 
     }
 }

@@ -122,7 +122,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return columnNames;
         }
 
-        public List<KeyValuePair<string, string>> GetColumnValues(string fileName, string sheetName, string columnName)
+        public List<KeyValuePair<string, string>> GetColumnValues(string fileName, string sheetName, string columnName, bool ignoreFirstRow)
         {
             List<KeyValuePair<string, string>> columnValues = new List<KeyValuePair<string, string>>();
 
@@ -207,10 +207,21 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
         }
 
-        public ReturnCode AddColumn(string fileName, string sheetName, string[] columnNames)
+        public ReturnCode AddColumns(string fileName, string sheetName, string[] columnNames)
         {
-            ReturnCode rc = ReturnCode.Failed;
-            return rc;
+            throw new NotImplementedException();
+        }
+
+
+        public bool FileIsValid(string fileName)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public ReturnCode WriteColumnValues(string fileName, string sheetName, string[] columnNames, List<MentionPart> newValues, int firstRow)
+        {
+            throw new NotImplementedException();
         }
     }
 }

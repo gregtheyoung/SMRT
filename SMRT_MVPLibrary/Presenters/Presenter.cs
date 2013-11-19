@@ -10,7 +10,7 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
 {
     public class Presenter<T> where T : ISMRTBase
     {
-        protected ISMRTDoman Model { get; private set; }
+        protected ISMRTDomain Model { get; private set; }
         protected T View { get; private set; }
 
         static Presenter()

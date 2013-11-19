@@ -14,6 +14,8 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 {
     public class EPPlusModel : ISMRTDataModel
     {
+        string MaxColumnID = "XFD"; // With Excel 2010+ there are 16384 columns available
+        string MaxRowID = "1000000"; // With Eccel 2010+ there are a little more than 1 million rows available
 
         public void Dispose()
         {
@@ -47,7 +49,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 using (ExcelPackage pkg = new ExcelPackage(new FileInfo(fileName)))
                 {
                     ExcelWorksheet sheet = pkg.Workbook.Worksheets[sheetName];
-                    ExcelRange firstRow = sheet.Cells["A1:XDR1"];
+                    ExcelRange firstRow = sheet.Cells["A1:"+MaxColumnID+"1"];
                     foreach (ExcelRangeBase cell in firstRow)
                         columnNames.Add(cell.Address, cell.Text);
                 }
@@ -56,7 +58,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return columnNames;
         }
 
-        public List<KeyValuePair<string, string>> GetColumnValues(string fileName, string sheetName, string columnID)
+        public List<KeyValuePair<string, string>> GetColumnValues(string fileName, string sheetName, string columnID, bool ignoreFirstRow)
         {
             List<KeyValuePair<string, string>> columnValues = new List<KeyValuePair<string, string>>();
 
@@ -66,7 +68,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 {
                     ExcelWorksheet sheet = pkg.Workbook.Worksheets[sheetName];
 
-                    ExcelRange cells = sheet.Cells[columnID + ":" + columnID[0] + "1000000"];
+                    ExcelRange cells = sheet.Cells[columnID + ":" + columnID[0] + MaxRowID];
                     foreach (ExcelRangeBase cell in cells)
                     {
                         columnValues.Add(new KeyValuePair<string, string>(cell.Address, cell.Text));
@@ -78,7 +80,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return columnValues;
         }
 
-        public ReturnCode AddColumn(string fileName, string sheetName, string[] columnNames)
+        public ReturnCode AddColumns(string fileName, string sheetName, string[] columnNames)
         {
             ReturnCode rc = ReturnCode.Failed;
 
@@ -88,7 +90,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 {
                     ExcelWorksheet sheet = pkg.Workbook.Worksheets[sheetName];
 
-                    ExcelRange firstRow = sheet.Cells["A1:XDR1"];
+                    ExcelRange firstRow = sheet.Cells["A1:"+MaxColumnID+"1"];
                     foreach (string columnName in columnNames)
                     {
                         if (firstRow.FirstOrDefault<ExcelRangeBase>(cell => cell.Text.Equals(columnName)) == null)
@@ -103,6 +105,49 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 }
             }
         
+
+            return rc;
+        }
+
+
+        public bool FileIsValid(string fileName)
+        {
+            bool isValid = false;
+
+            if (!String.IsNullOrEmpty(fileName))
+            {
+                try
+                {
+                    ExcelPackage pkg = new ExcelPackage(new FileInfo(fileName));
+                    isValid = true;
+                }
+                catch (Exception e)
+                {
+                }
+            }
+
+            return isValid;
+        }
+
+
+        public ReturnCode WriteColumnValues(string fileName, string sheetName, string[] columnNames, List<MentionPart> newValues, int firstRow)
+        {
+            // Remember that firstRow is 0-based, but in EPPlus rows are 1-based
+            firstRow++;
+
+            ReturnCode rc = ReturnCode.Failed;
+
+            if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName) && (columnNames.Length >= 0))
+            {
+                using (ExcelPackage pkg = new ExcelPackage(new FileInfo(fileName)))
+                {
+                    ExcelWorksheet sheet = pkg.Workbook.Worksheets[sheetName];
+
+                    sheet.Cells[firstRow, 1, 10, 10].LoadFromCollection(from part in newValues select new { Type = part.Type, Domain = part.Domain, PosterID = part.PosterID, MentionID = part.MentionID });
+
+                    pkg.Save();
+                }
+            }
 
             return rc;
         }
