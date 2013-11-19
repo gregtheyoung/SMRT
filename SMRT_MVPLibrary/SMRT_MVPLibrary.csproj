@@ -50,9 +50,6 @@
     <Compile Include="Interfaces\ISMRTDataModel.cs" />
     <Compile Include="Models\EPPlusModel.cs" />
     <Compile Include="Models\DomainModel.cs" />
-    <Compile Include="Interfaces\MentionPart.cs" />
-    <Compile Include="Models\OLEDBModel.cs" />
-    <Compile Include="Models\ExcelAutomationModel.cs" />
     <Compile Include="Presenters\DataPresenter.cs" />
     <Compile Include="Presenters\Presenter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

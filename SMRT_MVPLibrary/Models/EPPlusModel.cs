@@ -130,20 +130,44 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         }
 
 
-        public ReturnCode WriteColumnValues(string fileName, string sheetName, string[] columnNames, List<MentionPart> newValues, int firstRow)
+        public ReturnCode WriteColumnValues(string fileName, string sheetName, Dictionary<string,List<string>> newValues, int firstRowNumber)
         {
             // Remember that firstRow is 0-based, but in EPPlus rows are 1-based
-            firstRow++;
+            firstRowNumber++;
 
             ReturnCode rc = ReturnCode.Failed;
 
-            if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName) && (columnNames.Length >= 0))
+            if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName))
             {
                 using (ExcelPackage pkg = new ExcelPackage(new FileInfo(fileName)))
                 {
                     ExcelWorksheet sheet = pkg.Workbook.Worksheets[sheetName];
 
-                    sheet.Cells[firstRow, 1, 10, 10].LoadFromCollection(from part in newValues select new { Type = part.Type, Domain = part.Domain, PosterID = part.PosterID, MentionID = part.MentionID });
+                    // For each KeyValuePair... Each KeyValuePair contains a string that is the column name and
+                    // a list of strings that are the values.
+                    // So we will write the new values one column at a time.
+                    foreach (KeyValuePair<string, List<string>> columnSet in newValues)
+                    {
+                        string columnName = columnSet.Key;
+                        List<string> valueList = columnSet.Value;
+
+                        // Find the location of the column in the sheet
+                        ExcelRange firstRow = sheet.Cells["A1:" + MaxColumnID + "1"];
+                        ExcelRangeBase headerCell = firstRow.FirstOrDefault<ExcelRangeBase>(cell => cell.Text.Equals(columnName));
+                        if (headerCell != null)
+                        {
+                            // We will fill in N cells in the column that had the column name in the top cell.
+                            // N will be the number of values in the valueList.
+                            // So this range will be one cell wide and N tall.
+                            ExcelRangeBase firstCell = headerCell.Offset(1, 0);
+                            ExcelRangeBase lastCell = firstCell.Offset(valueList.Count-1, 0);
+
+                            // Fill them in.
+                            sheet.Cells[firstCell.Address + ":" + lastCell.Address].LoadFromCollection(from s in valueList select s);
+
+                            rc = ReturnCode.Success;
+                        }
+                    }
 
                     pkg.Save();
                 }

@@ -23,21 +23,21 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         {
             switch (dataModelToUse)
             {
-                case (0):
-                {
-                    dataModel = new ExcelAutomationModel();
-                    break;
-                }
-                case (1):
-                {
-                    dataModel = new OLEDBModel(true);
-                    break;
-                }
-                case (2):
-                {
-                    dataModel = new OLEDBModel(false);
-                    break;
-                }
+                //case (0):
+                //{
+                //    dataModel = new ExcelAutomationModel();
+                //    break;
+                //}
+                //case (1):
+                //{
+                //    dataModel = new OLEDBModel(true);
+                //    break;
+                //}
+                //case (2):
+                //{
+                //    dataModel = new OLEDBModel(false);
+                //    break;
+                //}
                 case (3):
                 {
                     dataModel = new EPPlusModel();
@@ -155,12 +155,16 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     int numFailed = 0;
 
                     // Keep a list of all the split out info. Ensure that there is exactly one for each value in the column.
-                    List<MentionPart> newValues = new List<MentionPart>();
+                    //List<MentionPart> newValues = new List<MentionPart>();
+                    //List<KeyValuePair<string, List<string>>> newValues = new List<KeyValuePair<string, List<string>>>();
+                    Dictionary<string, List<string>> newValues = new Dictionary<string,List<string>>();
+                    foreach (string splitColumnName in newURLSplitColumns)
+                        newValues.Add(splitColumnName, new List<string>());
+                    List<string> splitOutValues;
 
                     // For each cell/value...
                     foreach (KeyValuePair<string, string> pair in columnValues)
                     {
-                        MentionPart part;
                         try
                         {
                             // Try to parse it as a URI
@@ -175,23 +179,23 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
                             if (domain.Equals("twitter.com"))
                             {
-                                part = GetTwitterParts(uri, domain, segments, queryCollection);
+                                splitOutValues = GetTwitterParts(uri, domain, segments, queryCollection);
                             }
                             else if (domain.Equals("facebook.com"))
                             {
-                                part = GetFacebookParts(uri, domain, segments, queryCollection);
+                                splitOutValues = GetFacebookParts(uri, domain, segments, queryCollection);
                             }
                             else if (domain.Contains("blogspot.com"))
                             {
-                                part = GetBloggerParts(uri, domain, segments, queryCollection);
+                                splitOutValues = GetBloggerParts(uri, domain, segments, queryCollection);
                             }
                             else
-                                part = new MentionPart();
+                                splitOutValues = new List<string>() { "", "", "", "" };
                         }
                         catch (UriFormatException e)
                         {
                             numFailed++;
-                            part = new MentionPart();
+                            splitOutValues = new List<string>() {"", "", "", ""};
                         }
                         numprocessed++;
 
@@ -204,12 +208,18 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                             break;
                         }
 
-                        newValues.Add(part);
+                        int columnNumber = 0;
+                        foreach (string columnName in newURLSplitColumns)
+                        {
+                            newValues[columnName].Add(splitOutValues[columnNumber]);
+                            columnNumber++;
+                        }
+
                     }
 
                     if (rc == ReturnCode.Success)
                     {
-                        dataModel.WriteColumnValues(fileName, sheetName, newURLSplitColumns, newValues, 1);
+                        dataModel.WriteColumnValues(fileName, sheetName, newValues, 1);
                     }
                 }
             }
@@ -221,48 +231,50 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return rc;
         }
 
-        private MentionPart GetFacebookParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection)
+        private List<string> GetFacebookParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection)
         {
-            MentionPart part = new MentionPart();
-            part.Type = "Facebook";
-            part.Domain = domain;
+            List<string> newvalues = new List<string>();
+            newvalues.Add("Facebook");
+            newvalues.Add(domain);
 
             if (segments[1].Equals("permalink.php"))
             {
-                part.PosterID = queryCollection["id"];
-                part.MentionID = queryCollection["story_fbid"];
+                newvalues.Add(queryCollection["id"]);
+                newvalues.Add(queryCollection["story_fbid"]);
             }
             else
             {
-                part.PosterID = segments[1].Trim('/');
-                part.MentionID = segments[3].Trim('/');
+                newvalues.Add(segments[1].Trim('/'));
+                newvalues.Add(segments[3].Trim('/'));
             }
 
-            return part;
+            return newvalues;
         }
 
-        private MentionPart GetTwitterParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection)
+        private List<string> GetTwitterParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection)
         {
-            MentionPart part = new MentionPart();
-            part.Type = "Twitter";
-            part.Domain = domain;
+            List<string> newvalues = new List<string>();
+            newvalues.Add("Twitter");
+            newvalues.Add(domain);
 
-            part.PosterID = segments[1].Trim('/');
-            part.MentionID = segments[3].Trim('/');
+            newvalues.Add(segments[1].Trim('/'));
+            newvalues.Add(segments[3].Trim('/'));
 
-            return part;
+            return newvalues;
         }
 
-        private MentionPart GetBloggerParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection)
+        private List<string> GetBloggerParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection)
         {
-            MentionPart part = new MentionPart();
-            part.Type = "Blogger";
-            part.Domain = domain;
+            List<string> newvalues = new List<string>();
+            newvalues.Add("Blogger");
+            newvalues.Add(domain);
 
             // Call blogs/byurl with the full URL
             // Then call posts/bypath using the user ID from the first one and the part of the URL after the domain.
+            newvalues.Add("");
+            newvalues.Add("");
 
-            return part;
+            return newvalues;
         }
 
 
