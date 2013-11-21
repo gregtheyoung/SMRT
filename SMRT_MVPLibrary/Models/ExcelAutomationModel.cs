@@ -120,3 +120,39 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         }
     }
 }
+
+
+// Just need somewhere to put this sample code. Ended up being too slow.
+
+
+//string connectionStringACE = "provider=Microsoft.ACE.OLEDB.12.0; data source='" + fileName + "'; Extended Properties='Excel 12.0;HDR=YES'";
+//OleDbConnection conn = new OleDbConnection(connectionStringACE);
+//conn.Open();
+//string query = "select ID, MentionType, [Domain], PosterID, MentionID from [" + sheetName + "$]";
+//OleDbDataAdapter adapter = new OleDbDataAdapter(query, conn);
+//System.Data.DataTable table = new System.Data.DataTable();
+//adapter.Fill(table);
+
+//foreach (KeyValuePair<string, List<string>> columnSet in newValues)
+//{
+//    for (int i = 0; i < columnSet.Value.Count; i++)
+//    {
+//        table.Rows[i][columnSet.Key] = columnSet.Value[i];
+//    }
+//}
+
+//adapter.UpdateCommand = new OleDbCommand("UPDATE [" + sheetName + "$] SET MentionType = ?, [Domain] = ?, PosterID = ?, MentionID = ? WHERE ID = ?" , conn);
+//adapter.UpdateCommand.Parameters.Add("@MentionType", OleDbType.VarChar, 255).SourceColumn = "MentionType";
+//adapter.UpdateCommand.Parameters.Add("@Domain", OleDbType.VarChar, 255).SourceColumn = "Domain";
+//adapter.UpdateCommand.Parameters.Add("@PosterID", OleDbType.VarChar, 255).SourceColumn = "PosterID";
+//adapter.UpdateCommand.Parameters.Add("@MentionID", OleDbType.VarChar, 255).SourceColumn = "MentionID";
+//adapter.UpdateCommand.Parameters.Add("@ID", OleDbType.VarChar, 255).SourceColumn = "ID";
+//adapter.Update(table);
+
+//OleDbCommand cmd;
+//for (int i = 0; i < newValues["MentionType"].Count; i++)
+//{
+//    string cellAddress = "G" + (i + 2);
+//    cmd = new OleDbCommand("UPDATE [" + sheetName + "$" + cellAddress + ":" + cellAddress + "] SET F1='" + newValues["MentionType"][i] + "'", conn);
+//    cmd.ExecuteNonQuery();
+//}

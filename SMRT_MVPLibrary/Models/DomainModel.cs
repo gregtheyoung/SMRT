@@ -233,19 +233,58 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
         private List<string> GetFacebookParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection)
         {
-            List<string> newvalues = new List<string>();
-            newvalues.Add("Facebook");
-            newvalues.Add(domain);
+            // http://facebook.com/105indaklubb/posts/10151141293211990
+            // http://facebook.com/events/122767261239362/permalink/122767264572695
+            // http://facebook.com/media/set/?set=a.10151209676509212.454268.38951299211&type=1
+            // http://facebook.com/notes/complex-child-e-magazine/childrens-mental-health-edition/10151458448874231
+            // http://facebook.com/permalink.php?story_fbid=100127316863475&id=100005986200023
 
-            if (segments[1].Equals("permalink.php"))
+
+            List<string> newvalues = new List<string>();
+            try
             {
-                newvalues.Add(queryCollection["id"]);
-                newvalues.Add(queryCollection["story_fbid"]);
+                if (segments[1].Equals("permalink.php"))
+                {
+                    newvalues.Add("FacebookPost");
+                    newvalues.Add(domain);
+                    newvalues.Add(queryCollection["id"]);
+                    newvalues.Add(queryCollection["story_fbid"]);
+                }
+                else if (segments[1].Equals("events/"))
+                {
+                    newvalues.Add("FacebookEvent");
+                    newvalues.Add(domain);
+                    newvalues.Add(segments[4].Trim('/'));
+                    newvalues.Add(segments[2].Trim('/'));
+                }
+                else if (segments[1].Equals("media/"))
+                {
+                    newvalues.Add("FacebookMedia");
+                    newvalues.Add(domain);
+                    newvalues.Add("");
+                    newvalues.Add(queryCollection["set"]);
+                }
+                else if (segments[1].Equals("notes/"))
+                {
+                    newvalues.Add("FacebookNote");
+                    newvalues.Add(domain);
+                    newvalues.Add(segments[2].Trim('/'));
+                    newvalues.Add(segments[4].Trim('/'));
+                }
+                else
+                {
+                    newvalues.Add("FacebookGroupPost");
+                    newvalues.Add(domain);
+                    newvalues.Add(segments[1].Trim('/'));
+                    newvalues.Add(segments[3].Trim('/'));
+                }
             }
-            else
+            catch (Exception e)
             {
-                newvalues.Add(segments[1].Trim('/'));
-                newvalues.Add(segments[3].Trim('/'));
+                newvalues.Add("Facebook");
+                newvalues.Add(domain);
+                newvalues.Add("");
+                newvalues.Add("");
             }
 
             return newvalues;
