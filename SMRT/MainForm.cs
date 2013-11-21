@@ -59,11 +59,9 @@ namespace TwinArch.SMRT
             InitializeComponent();
             sheetNameCombo.Enabled = false;
             columnsComboBox.Enabled = false;
-            testOneButton.Enabled = false;
-            testTwoButton.Enabled = false;
-            testThreeButton.Enabled = false;
-            testURLParseButton.Enabled = false;
+            splitSourceButton.Enabled = false;
             getSheetsAndColumnsButton.Enabled = false;
+            _presenter = new DataPresenter(this, 3);
         }
 
         private void selectFileButton_Click(object sender, EventArgs e)
@@ -78,70 +76,60 @@ namespace TwinArch.SMRT
             {
                 fileName = fileOpenDialog.FileName;
                 excelFileNameTextBox.Text = fileName;
-
-                testOneButton.Enabled = true;
-                testTwoButton.Enabled = true;
-                testThreeButton.Enabled = true;
+                getSheetsAndColumnsButton.Enabled = true;
             }
         }
 
         private void sheetNameCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
+            this.Cursor = Cursors.WaitCursor;
             _presenter.DisplayColumnNames(excelFileNameTextBox.Text, sheetNameCombo.Text);
+            this.Cursor = Cursors.Default;
             columnsComboBox.Enabled = true;
         }
 
-        private void testOneButton_Click(object sender, EventArgs e)
+        private void splitSourceButton_Click(object sender, EventArgs e)
         {
-            if (_presenter != null) _presenter.Dispose();
-            _presenter = new DataPresenter(this, 0);
-            getSheetsAndColumnsButton.Enabled = true;
-        }
-
-        private void testTwoButton_Click(object sender, EventArgs e)
-        {
-            if (_presenter != null) _presenter.Dispose();
-            _presenter = new DataPresenter(this, 2);
-            getSheetsAndColumnsButton.Enabled = true;
-        }
-
-        private void testThreeButton_Click(object sender, EventArgs e)
-        {
-            if (_presenter != null) _presenter.Dispose();
-            _presenter = new DataPresenter(this, 3);
-            getSheetsAndColumnsButton.Enabled = true;
-        }
-
-        private void testURLParseButton_Click(object sender, EventArgs e)
-        {
-            SMRT_MVPLibrary.ReturnCode rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString(), false, true);
+            this.Cursor = Cursors.WaitCursor;
+            SMRT_MVPLibrary.ReturnCode rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString(), false, firstRowIsAColumnHeaderCheckBox.Checked);
             if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsAlreadyExist)
             {
+                this.Cursor = Cursors.Default;
                 DialogResult result = MessageBox.Show("The columns that will contain the Domain Name, Poster ID, and Mention ID already exist in this Excel file. Do you want to overwrite the data that already exists in those columns?",
                     "Columns already exist",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
-                    rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString(), true, true);
+                {
+                    this.Cursor = Cursors.WaitCursor;
+                    rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString(), true, firstRowIsAColumnHeaderCheckBox.Checked);
+                    this.Cursor = Cursors.Default;
+                }
             }
             if (rc == SMRT_MVPLibrary.ReturnCode.NotURLColumn)
+            {
+                this.Cursor = Cursors.Default;
                 MessageBox.Show("The column you selected does not appear to contain URLs. Please select another column.",
                     "Column does not contain URLs.",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
+            }
+            this.Cursor = Cursors.Default;
         }
 
         private void getSheetsAndColumnsButton_Click(object sender, EventArgs e)
         {
             _presenter.EmptySheetNames();
             _presenter.EmptyColumnNames();
+            this.Cursor = Cursors.WaitCursor;
             _presenter.DisplaySheetNames(fileName);
+            this.Cursor = Cursors.Default;
             sheetNameCombo.Enabled = true;
         }
 
         private void columnsComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            testURLParseButton.Enabled = true;
+            splitSourceButton.Enabled = true;
         }
 
 

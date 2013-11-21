@@ -80,7 +80,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return columnNames;
         }
 
-        public List<KeyValuePair<string, string>> GetColumnValues(string fileName, string sheetName, string columnID, bool ignoreFirstRow)
+        public List<KeyValuePair<string, string>> GetColumnValues(string fileName, string sheetName, string columnID, bool firstRowHasHeaders)
         {
             List<KeyValuePair<string, string>> columnValues = new List<KeyValuePair<string, string>>();
 
@@ -93,7 +93,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 foreach (ExcelRangeBase cell in cells)
                     columnValues.Add(new KeyValuePair<string, string>(cell.Address, cell.Text));
                 cells.Dispose();
-                if (ignoreFirstRow)
+                if (firstRowHasHeaders)
                     columnValues.RemoveAt(0);
             }
 
@@ -123,7 +123,10 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 firstRow.Dispose();
 
                 if (columnAdded)
+                {
                     pkg.Save();
+                    PackageDispose();
+                }
                 rc = ReturnCode.Success;
             }
         
@@ -153,10 +156,8 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
 
 
-        public ReturnCode WriteColumnValues(string fileName, string sheetName, Dictionary<string, List<string>> newValues, int firstRowNumber)
+        public ReturnCode WriteColumnValues(string fileName, string sheetName, Dictionary<string, List<string>> newValues, bool firstRowHasHeaders)
         {
-            // Remember that firstRow is 0-based, but in EPPlus rows are 1-based
-            firstRowNumber++;
             string tempSheetName = "SMRT_Work";
 
             ReturnCode rc = ReturnCode.Failed;
@@ -218,18 +219,23 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 foreach (KeyValuePair<string, List<string>> columnSet in newValues)
                 {
 
-                    // Find the first cell below the header column in the from and to sheets
+                    // Find the first cell below the header column in the from sheet - there will always be a header because
+                    // we put it there when we wrote it out from the datatable.
                     Range fromCell=null, toCell=null;
                     foreach (Range cell in firstRowSheetFrom.Cells)
-                        if (cell.Value2.Equals(columnSet.Key))
+                        if ((cell.Value2 != null) && (cell.Value2.Equals(columnSet.Key)))
                         {
-                            fromCell = cell;
+                            fromCell = cell.Offset[1, 0];
                             break;
                         }
+                    // Find the first cell below the header. The header text will be there because we put it there,
+                    // but if it wasn't supposed to be there (since the others don't), then overwrite it.
                     foreach (Range cell in firstRowSheetTo.Cells)
-                        if (cell.Value2.Equals(columnSet.Key))
+                        if ((cell.Value2 != null) && (cell.Value2.Equals(columnSet.Key)))
                         {
                             toCell = cell;
+                            if (firstRowHasHeaders) // Then don't overwrite it - start one row down
+                                toCell = cell.Offset[1, 0];
                             break;
                         }
 
@@ -250,8 +256,6 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 rc = ReturnCode.Success;
 
             }
-
-
 
             return rc;
         }

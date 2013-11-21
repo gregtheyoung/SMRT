@@ -129,7 +129,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         /// <returns>A return code indicating success of failure</returns>
         /// <exception cref="System.IO.FileNotFoundException">Thrown when the file is not a valid Excel file. It must
         /// exist, not be open by another process, and be an XLSX file (not an older XLS file).</exception>
-        public ReturnCode SplitURLs(string fileName, string sheetName, string urlColumnName, bool overwriteExistingData, bool ignoreFirstRow)
+        public ReturnCode SplitURLs(string fileName, string sheetName, string urlColumnName, bool overwriteExistingData, bool firstRowHasHeaders)
         {
             ReturnCode rc = ReturnCode.Success;
 
@@ -148,7 +148,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 {
                     // Get the contents of the column. This will provide the row/cell identifier (depends on the
                     // underlying data model implementation) and the value of column for that row/cell.
-                    List<KeyValuePair<string, string>> columnValues = dataModel.GetColumnValues(fileName, sheetName, urlColumnName, ignoreFirstRow);
+                    List<KeyValuePair<string, string>> columnValues = dataModel.GetColumnValues(fileName, sheetName, urlColumnName, firstRowHasHeaders);
 
                     // Keep track of processing and failure counts for a short-circuit abort if needed
                     int numprocessed = 0;
@@ -190,12 +190,12 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                                 splitOutValues = GetBloggerParts(uri, domain, segments, queryCollection);
                             }
                             else
-                                splitOutValues = new List<string>() { "", "", "", "" };
+                                splitOutValues = new List<string>() { null, null, null, null };
                         }
                         catch (UriFormatException e)
                         {
                             numFailed++;
-                            splitOutValues = new List<string>() {"", "", "", ""};
+                            splitOutValues = new List<string>() {null, null, null, null};
                         }
                         numprocessed++;
 
@@ -219,7 +219,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
                     if (rc == ReturnCode.Success)
                     {
-                        dataModel.WriteColumnValues(fileName, sheetName, newValues, 1);
+                        dataModel.WriteColumnValues(fileName, sheetName, newValues, firstRowHasHeaders);
                     }
                 }
             }
@@ -283,8 +283,8 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             {
                 newvalues.Add("Facebook");
                 newvalues.Add(domain);
-                newvalues.Add("");
-                newvalues.Add("");
+                newvalues.Add(null);
+                newvalues.Add(null);
             }
 
             return newvalues;
