@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Data;
 using TwinArch.SMRT_MVPLibrary.Interfaces;
 
 namespace TwinArch.SMRT_MVPLibrary.Models
@@ -12,7 +13,9 @@ namespace TwinArch.SMRT_MVPLibrary.Models
     public class DomainModel : ISMRTDomain, IDisposable
     {
 
-        string[] newURLSplitColumns = { "MentionType", "Domain", "PosterID", "MentionID" };
+        const string numPostsColumnName = "NumPosts";
+        string[] newURLSplitColumns = { "MentionType", "Domain", "PosterID", "MentionID", numPostsColumnName };
+        enum NewValueIndex {MentionType, Domain, PosterID, MentionID, NumPosts};
 
         protected ISMRTDataModel dataModel;
         /// <summary>
@@ -155,8 +158,6 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     int numFailed = 0;
 
                     // Keep a list of all the split out info. Ensure that there is exactly one for each value in the column.
-                    //List<MentionPart> newValues = new List<MentionPart>();
-                    //List<KeyValuePair<string, List<string>>> newValues = new List<KeyValuePair<string, List<string>>>();
                     Dictionary<string, List<string>> newValues = new Dictionary<string,List<string>>();
                     foreach (string splitColumnName in newURLSplitColumns)
                         newValues.Add(splitColumnName, new List<string>());
@@ -190,12 +191,12 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                                 splitOutValues = GetBloggerParts(uri, domain, segments, queryCollection);
                             }
                             else
-                                splitOutValues = new List<string>() { null, null, null, null };
+                                splitOutValues = new List<string>() { null, null, null, null, null };
                         }
                         catch (UriFormatException e)
                         {
                             numFailed++;
-                            splitOutValues = new List<string>() {null, null, null, null};
+                            splitOutValues = new List<string>() {null, null, null, null, null};
                         }
                         numprocessed++;
 
@@ -219,6 +220,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
                     if (rc == ReturnCode.Success)
                     {
+                        AddNumPostCounts(newValues);
                         dataModel.WriteColumnValues(fileName, sheetName, newValues, firstRowHasHeaders);
                     }
                 }
@@ -231,13 +233,39 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return rc;
         }
 
+        private void AddNumPostCounts(Dictionary<string, List<string>> newValues)
+        {
+            Dictionary<string, int> postCounts = new Dictionary<string, int>(); ;
+
+            foreach (string posterID in newValues["PosterID"])
+            {
+                if (posterID != null)
+                {
+                    if (postCounts.ContainsKey(posterID))
+                        postCounts[posterID] = postCounts[posterID] + 1;
+                    else
+                        postCounts.Add(posterID, 1);
+                }
+            }
+
+            foreach (KeyValuePair<string, List<string>> row in newValues)
+            {
+                string posterID = row.Value[(int)NewValueIndex.PosterID];
+                if (posterID != null)
+                    row.Value[(int)NewValueIndex.NumPosts] = postCounts[row.Value[(int)NewValueIndex.PosterID]].ToString();
+            }
+            
+
+        }
+
         private List<string> GetFacebookParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection)
         {
-            // http://facebook.com/105indaklubb/posts/10151141293211990
+            // Patterns of URLs
+            // http://facebook.com/permalink.php?story_fbid=100127316863475&id=100005986200023
             // http://facebook.com/events/122767261239362/permalink/122767264572695
             // http://facebook.com/media/set/?set=a.10151209676509212.454268.38951299211&type=1
             // http://facebook.com/notes/complex-child-e-magazine/childrens-mental-health-edition/10151458448874231
-            // http://facebook.com/permalink.php?story_fbid=100127316863475&id=100005986200023
+            // http://facebook.com/105indaklubb/posts/10151141293211990
 
 
             List<string> newvalues = new List<string>();
@@ -249,6 +277,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     newvalues.Add(domain);
                     newvalues.Add(queryCollection["id"]);
                     newvalues.Add(queryCollection["story_fbid"]);
+                    newvalues.Add(null);
                 }
                 else if (segments[1].Equals("events/"))
                 {
@@ -256,6 +285,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     newvalues.Add(domain);
                     newvalues.Add(segments[4].Trim('/'));
                     newvalues.Add(segments[2].Trim('/'));
+                    newvalues.Add(null);
                 }
                 else if (segments[1].Equals("media/"))
                 {
@@ -263,6 +293,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     newvalues.Add(domain);
                     newvalues.Add("");
                     newvalues.Add(queryCollection["set"]);
+                    newvalues.Add(null);
                 }
                 else if (segments[1].Equals("notes/"))
                 {
@@ -270,6 +301,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     newvalues.Add(domain);
                     newvalues.Add(segments[2].Trim('/'));
                     newvalues.Add(segments[4].Trim('/'));
+                    newvalues.Add(null);
                 }
                 else
                 {
@@ -277,12 +309,14 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     newvalues.Add(domain);
                     newvalues.Add(segments[1].Trim('/'));
                     newvalues.Add(segments[3].Trim('/'));
+                    newvalues.Add(null);
                 }
             }
             catch (Exception e)
             {
                 newvalues.Add("Facebook");
                 newvalues.Add(domain);
+                newvalues.Add(null);
                 newvalues.Add(null);
                 newvalues.Add(null);
             }
@@ -293,11 +327,23 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         private List<string> GetTwitterParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection)
         {
             List<string> newvalues = new List<string>();
-            newvalues.Add("Twitter");
-            newvalues.Add(domain);
 
-            newvalues.Add(segments[1].Trim('/'));
-            newvalues.Add(segments[3].Trim('/'));
+            try
+            {
+                newvalues.Add("Twitter");
+                newvalues.Add(domain);
+                newvalues.Add(segments[1].Trim('/'));
+                newvalues.Add(segments[3].Trim('/'));
+                newvalues.Add(null);
+            }
+            catch (Exception e)
+            {
+                newvalues.Add("Twitter");
+                newvalues.Add(domain);
+                newvalues.Add(null);
+                newvalues.Add(null);
+                newvalues.Add(null);
+            }
 
             return newvalues;
         }
@@ -305,13 +351,26 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         private List<string> GetBloggerParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection)
         {
             List<string> newvalues = new List<string>();
-            newvalues.Add("Blogger");
-            newvalues.Add(domain);
 
-            // Call blogs/byurl with the full URL
-            // Then call posts/bypath using the user ID from the first one and the part of the URL after the domain.
-            newvalues.Add("");
-            newvalues.Add("");
+            try
+            {
+                newvalues.Add("Blogger");
+                newvalues.Add(domain);
+
+                // Call blogs/byurl with the full URL
+                // Then call posts/bypath using the user ID from the first one and the part of the URL after the domain.
+                newvalues.Add(null);
+                newvalues.Add(null);
+                newvalues.Add(null);
+            }
+            catch (Exception e)
+            {
+                newvalues.Add("Blogger");
+                newvalues.Add(domain);
+                newvalues.Add(null);
+                newvalues.Add(null);
+                newvalues.Add(null);
+            }
 
             return newvalues;
         }
