@@ -156,7 +156,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
 
 
-        public ReturnCode WriteColumnValues(string fileName, string sheetName, Dictionary<string, List<string>> newValues, bool firstRowHasHeaders)
+        public ReturnCode WriteColumnValues(string fileName, string sheetName, System.Data.DataTable newValuesTable, bool firstRowHasHeaders)
         {
             string tempSheetName = "SMRT_Work";
 
@@ -175,25 +175,8 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     pkg.Workbook.Worksheets.Delete(tempSheetName);
                 ExcelWorksheet tempWorkSheet = pkg.Workbook.Worksheets.Add(tempSheetName);
 
-                // We're going to get all the values from the dictionary passed in into a Datatable. So then
-                // we can use a built-in method, LoadFromDataTable.
-                System.Data.DataTable dt = new System.Data.DataTable();
-
-                // Set the columns for the datatable.
-                foreach (KeyValuePair<string, List<string>> columnSet in newValues)
-                    dt.Columns.Add(columnSet.Key);
-
-                // Load the elements into the data table, one row at a time.
-                for (int i = 0; i < newValues.ElementAt(0).Value.Count; i++)
-                {
-                    DataRow row = dt.NewRow();
-                    foreach (KeyValuePair<string, List<string>> columnSet in newValues)
-                        row[columnSet.Key] = columnSet.Value[i];
-                    dt.Rows.Add(row);
-                }
-
                 // Load from the datatable into the worksheet.
-                tempWorkSheet.Cells["A1"].LoadFromDataTable(dt, true);
+                tempWorkSheet.Cells["A1"].LoadFromDataTable(newValuesTable, true);
 
                 // Save it off.
                 pkg.Save();
@@ -213,17 +196,17 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
                 Range firstRowSheetFrom = sheetFrom.get_Range("A1", MaxColumnID+"1");
                 Range firstRowSheetTo = sheetTo.get_Range("A1", MaxColumnID+"1");
-                int numRows = newValues.ElementAt(0).Value.Count() + 1; // Need + 1 to account for the header
+                int numRows = newValuesTable.Rows.Count;
 
                 // Do this one column at a time...
-                foreach (KeyValuePair<string, List<string>> columnSet in newValues)
+                foreach (DataColumn col in newValuesTable.Columns)
                 {
 
                     // Find the first cell below the header column in the from sheet - there will always be a header because
                     // we put it there when we wrote it out from the datatable.
                     Range fromCell=null, toCell=null;
                     foreach (Range cell in firstRowSheetFrom.Cells)
-                        if ((cell.Value2 != null) && (cell.Value2.Equals(columnSet.Key)))
+                        if ((cell.Value2 != null) && (cell.Value2.Equals(col.ColumnName)))
                         {
                             fromCell = cell.Offset[1, 0];
                             break;
@@ -231,7 +214,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     // Find the first cell below the header. The header text will be there because we put it there,
                     // but if it wasn't supposed to be there (since the others don't), then overwrite it.
                     foreach (Range cell in firstRowSheetTo.Cells)
-                        if ((cell.Value2 != null) && (cell.Value2.Equals(columnSet.Key)))
+                        if ((cell.Value2 != null) && (cell.Value2.Equals(col.ColumnName)))
                         {
                             toCell = cell;
                             if (firstRowHasHeaders) // Then don't overwrite it - start one row down
@@ -259,7 +242,6 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
             return rc;
         }
-
     }
 }
 

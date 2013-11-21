@@ -13,8 +13,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
     public class DomainModel : ISMRTDomain, IDisposable
     {
 
-        const string numPostsColumnName = "NumPosts";
-        string[] newURLSplitColumns = { "MentionType", "Domain", "PosterID", "MentionID", numPostsColumnName };
+        string[] newURLSplitColumns = { "MentionType", "Domain", "PosterID", "MentionID", "NumPosts" };
         enum NewValueIndex {MentionType, Domain, PosterID, MentionID, NumPosts};
 
         protected ISMRTDataModel dataModel;
@@ -151,21 +150,24 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 {
                     // Get the contents of the column. This will provide the row/cell identifier (depends on the
                     // underlying data model implementation) and the value of column for that row/cell.
-                    List<KeyValuePair<string, string>> columnValues = dataModel.GetColumnValues(fileName, sheetName, urlColumnName, firstRowHasHeaders);
+                    List<KeyValuePair<string, string>> urlStrings = dataModel.GetColumnValues(fileName, sheetName, urlColumnName, firstRowHasHeaders);
 
                     // Keep track of processing and failure counts for a short-circuit abort if needed
                     int numprocessed = 0;
                     int numFailed = 0;
 
                     // Keep a list of all the split out info. Ensure that there is exactly one for each value in the column.
-                    Dictionary<string, List<string>> newValues = new Dictionary<string,List<string>>();
+                    DataTable newValuesTable = new DataTable();
                     foreach (string splitColumnName in newURLSplitColumns)
-                        newValues.Add(splitColumnName, new List<string>());
-                    List<string> splitOutValues;
+                        if (splitColumnName.Equals("NumPosts"))
+                            newValuesTable.Columns.Add(splitColumnName, System.Type.GetType("System.Int16"));
+                        else
+                            newValuesTable.Columns.Add(splitColumnName);
 
                     // For each cell/value...
-                    foreach (KeyValuePair<string, string> pair in columnValues)
+                    foreach (KeyValuePair<string, string> pair in urlStrings)
                     {
+                        DataRow newRow = newValuesTable.NewRow();
                         try
                         {
                             // Try to parse it as a URI
@@ -178,25 +180,36 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                             string[] segments = uri.Segments;
                             NameValueCollection queryCollection = HttpUtility.ParseQueryString(uri.Query);
 
-                            if (domain.Equals("twitter.com"))
+                            if (domain.EndsWith("twitter.com"))
                             {
-                                splitOutValues = GetTwitterParts(uri, domain, segments, queryCollection);
+                                GetTwitterParts(uri, domain, segments, queryCollection, ref newRow);
                             }
-                            else if (domain.Equals("facebook.com"))
+                            else if (domain.EndsWith("facebook.com"))
                             {
-                                splitOutValues = GetFacebookParts(uri, domain, segments, queryCollection);
+                                GetFacebookParts(uri, domain, segments, queryCollection, ref newRow);
                             }
-                            else if (domain.Contains("blogspot.com"))
+                            else if (domain.EndsWith("blogspot.com"))
                             {
-                                splitOutValues = GetBloggerParts(uri, domain, segments, queryCollection);
+                                GetBloggerParts(uri, domain, segments, queryCollection, ref newRow);
+                            }
+                            else if (domain.EndsWith("tumblr.com"))
+                            {
+                                GetTumblrParts(uri, domain, segments, queryCollection, ref newRow);
                             }
                             else
-                                splitOutValues = new List<string>() { null, null, null, null, null };
+                            {
+                                GetUnknownParts(uri, domain, segments, queryCollection, ref newRow);
+                            }
                         }
+
                         catch (UriFormatException e)
                         {
+                            newRow[(int)NewValueIndex.Domain] = null;
+                            newRow[(int)NewValueIndex.MentionID] = null;
+                            newRow[(int)NewValueIndex.MentionType] = "Failed";
+                            newRow[(int)NewValueIndex.NumPosts] = DBNull.Value;
+                            newRow[(int)NewValueIndex.PosterID] = null;
                             numFailed++;
-                            splitOutValues = new List<string>() {null, null, null, null, null};
                         }
                         numprocessed++;
 
@@ -209,19 +222,14 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                             break;
                         }
 
-                        int columnNumber = 0;
-                        foreach (string columnName in newURLSplitColumns)
-                        {
-                            newValues[columnName].Add(splitOutValues[columnNumber]);
-                            columnNumber++;
-                        }
+                        newValuesTable.Rows.Add(newRow);
 
                     }
 
                     if (rc == ReturnCode.Success)
                     {
-                        AddNumPostCounts(newValues);
-                        dataModel.WriteColumnValues(fileName, sheetName, newValues, firstRowHasHeaders);
+                        AddNumPostCounts(newValuesTable);
+                        dataModel.WriteColumnValues(fileName, sheetName, newValuesTable, firstRowHasHeaders);
                     }
                 }
             }
@@ -233,13 +241,14 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return rc;
         }
 
-        private void AddNumPostCounts(Dictionary<string, List<string>> newValues)
+        private void AddNumPostCounts(DataTable newValuesTable)
         {
             Dictionary<string, int> postCounts = new Dictionary<string, int>(); ;
 
-            foreach (string posterID in newValues["PosterID"])
+            foreach(DataRow row in newValuesTable.Rows)
             {
-                if (posterID != null)
+                string posterID = row[(int)NewValueIndex.PosterID].ToString();
+                if ((posterID != null) && !String.IsNullOrEmpty(posterID))
                 {
                     if (postCounts.ContainsKey(posterID))
                         postCounts[posterID] = postCounts[posterID] + 1;
@@ -248,17 +257,17 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 }
             }
 
-            foreach (KeyValuePair<string, List<string>> row in newValues)
+            foreach (DataRow row in newValuesTable.Rows)
             {
-                string posterID = row.Value[(int)NewValueIndex.PosterID];
-                if (posterID != null)
-                    row.Value[(int)NewValueIndex.NumPosts] = postCounts[row.Value[(int)NewValueIndex.PosterID]].ToString();
+                string posterID = row[(int)NewValueIndex.PosterID].ToString();
+                if ((posterID != null) && !String.IsNullOrEmpty(posterID))
+                    row[(int)NewValueIndex.NumPosts] = postCounts[row[(int)NewValueIndex.PosterID].ToString()];
             }
             
 
         }
 
-        private List<string> GetFacebookParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection)
+        private void GetFacebookParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection, ref DataRow newRow)
         {
             // Patterns of URLs
             // http://facebook.com/permalink.php?story_fbid=100127316863475&id=100005986200023
@@ -267,114 +276,133 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             // http://facebook.com/notes/complex-child-e-magazine/childrens-mental-health-edition/10151458448874231
             // http://facebook.com/105indaklubb/posts/10151141293211990
 
-
-            List<string> newvalues = new List<string>();
             try
             {
                 if (segments[1].Equals("permalink.php"))
                 {
-                    newvalues.Add("FacebookPost");
-                    newvalues.Add(domain);
-                    newvalues.Add(queryCollection["id"]);
-                    newvalues.Add(queryCollection["story_fbid"]);
-                    newvalues.Add(null);
+                    newRow[(int)NewValueIndex.MentionType] = "FacebookPost";
+                    newRow[(int)NewValueIndex.Domain] = domain;
+                    newRow[(int)NewValueIndex.PosterID] = queryCollection["id"];
+                    newRow[(int)NewValueIndex.MentionID] = queryCollection["story_fbid"];
                 }
                 else if (segments[1].Equals("events/"))
                 {
-                    newvalues.Add("FacebookEvent");
-                    newvalues.Add(domain);
-                    newvalues.Add(segments[4].Trim('/'));
-                    newvalues.Add(segments[2].Trim('/'));
-                    newvalues.Add(null);
+                    newRow[(int)NewValueIndex.MentionType] = "FacebookEvent";
+                    newRow[(int)NewValueIndex.Domain] = domain;
+                    newRow[(int)NewValueIndex.PosterID] = segments[4].Trim('/');
+                    newRow[(int)NewValueIndex.MentionID] = segments[2].Trim('/');
                 }
                 else if (segments[1].Equals("media/"))
                 {
-                    newvalues.Add("FacebookMedia");
-                    newvalues.Add(domain);
-                    newvalues.Add("");
-                    newvalues.Add(queryCollection["set"]);
-                    newvalues.Add(null);
+                    newRow[(int)NewValueIndex.MentionType] = "FacebookMedia";
+                    newRow[(int)NewValueIndex.Domain] = domain;
+                    newRow[(int)NewValueIndex.PosterID] = "";
+                    newRow[(int)NewValueIndex.MentionID] = queryCollection["set"];
                 }
                 else if (segments[1].Equals("notes/"))
                 {
-                    newvalues.Add("FacebookNote");
-                    newvalues.Add(domain);
-                    newvalues.Add(segments[2].Trim('/'));
-                    newvalues.Add(segments[4].Trim('/'));
-                    newvalues.Add(null);
+                    newRow[(int)NewValueIndex.MentionType] = "FacebookNote";
+                    newRow[(int)NewValueIndex.Domain] = domain;
+                    newRow[(int)NewValueIndex.PosterID] = segments[2].Trim('/');
+                    newRow[(int)NewValueIndex.MentionID] = segments[4].Trim('/');
                 }
                 else
                 {
-                    newvalues.Add("FacebookGroupPost");
-                    newvalues.Add(domain);
-                    newvalues.Add(segments[1].Trim('/'));
-                    newvalues.Add(segments[3].Trim('/'));
-                    newvalues.Add(null);
+                    newRow[(int)NewValueIndex.MentionType] = "FacebookGroupPost";
+                    newRow[(int)NewValueIndex.Domain] = domain;
+                    newRow[(int)NewValueIndex.PosterID] = segments[1].Trim('/');
+                    newRow[(int)NewValueIndex.MentionID] = segments[3].Trim('/');
                 }
             }
             catch (Exception e)
             {
-                newvalues.Add("Facebook");
-                newvalues.Add(domain);
-                newvalues.Add(null);
-                newvalues.Add(null);
-                newvalues.Add(null);
+                newRow[(int)NewValueIndex.MentionType] = "Facebook";
+                newRow[(int)NewValueIndex.Domain] = domain;
+                newRow[(int)NewValueIndex.PosterID] = null;
+                newRow[(int)NewValueIndex.MentionID] = null;
             }
-
-            return newvalues;
         }
 
-        private List<string> GetTwitterParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection)
+        private void GetTwitterParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection, ref DataRow newRow)
         {
-            List<string> newvalues = new List<string>();
-
             try
             {
-                newvalues.Add("Twitter");
-                newvalues.Add(domain);
-                newvalues.Add(segments[1].Trim('/'));
-                newvalues.Add(segments[3].Trim('/'));
-                newvalues.Add(null);
+                newRow[(int)NewValueIndex.MentionType] = "Twitter";
+                newRow[(int)NewValueIndex.Domain] = domain;
+                newRow[(int)NewValueIndex.PosterID] = segments[1].Trim('/');
+                newRow[(int)NewValueIndex.MentionID] = segments[3].Trim('/');
             }
             catch (Exception e)
             {
-                newvalues.Add("Twitter");
-                newvalues.Add(domain);
-                newvalues.Add(null);
-                newvalues.Add(null);
-                newvalues.Add(null);
+                newRow[(int)NewValueIndex.MentionType] = "Twitter";
+                newRow[(int)NewValueIndex.Domain] = domain;
+                newRow[(int)NewValueIndex.PosterID] = null;
+                newRow[(int)NewValueIndex.MentionID] = null;
             }
-
-            return newvalues;
         }
 
-        private List<string> GetBloggerParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection)
+        private void GetBloggerParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection, ref DataRow newRow)
         {
-            List<string> newvalues = new List<string>();
-
             try
             {
-                newvalues.Add("Blogger");
-                newvalues.Add(domain);
+                newRow[(int)NewValueIndex.MentionType] = "Blogger";
+                newRow[(int)NewValueIndex.Domain] = domain;
 
                 // Call blogs/byurl with the full URL
                 // Then call posts/bypath using the user ID from the first one and the part of the URL after the domain.
-                newvalues.Add(null);
-                newvalues.Add(null);
-                newvalues.Add(null);
+                newRow[(int)NewValueIndex.PosterID] = uri.Host.Replace(".blogspot.com", "");
+                newRow[(int)NewValueIndex.MentionID] = uri.PathAndQuery;
             }
             catch (Exception e)
             {
-                newvalues.Add("Blogger");
-                newvalues.Add(domain);
-                newvalues.Add(null);
-                newvalues.Add(null);
-                newvalues.Add(null);
+                newRow[(int)NewValueIndex.MentionType] = "Blogger";
+                newRow[(int)NewValueIndex.Domain] = domain;
+                newRow[(int)NewValueIndex.PosterID] = null;
+                newRow[(int)NewValueIndex.MentionID] = null;
             }
-
-            return newvalues;
         }
 
+        private void GetTumblrParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection, ref DataRow newRow)
+        {
+            try
+            {
+                newRow[(int)NewValueIndex.MentionType] = "Tumblr";
+                newRow[(int)NewValueIndex.Domain] = domain;
+
+                // Call blogs/byurl with the full URL
+                // Then call posts/bypath using the user ID from the first one and the part of the URL after the domain.
+                newRow[(int)NewValueIndex.PosterID] = uri.Host.Replace(".tumblr.com", "");
+                newRow[(int)NewValueIndex.MentionID] = segments[2].Trim('/');
+            }
+            catch (Exception e)
+            {
+                newRow[(int)NewValueIndex.MentionType] = "Tumblr";
+                newRow[(int)NewValueIndex.Domain] = domain;
+                newRow[(int)NewValueIndex.PosterID] = null;
+                newRow[(int)NewValueIndex.MentionID] = null;
+            }
+        }
+
+        private void GetUnknownParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection, ref DataRow newRow)
+        {
+            try
+            {
+                newRow[(int)NewValueIndex.MentionType] = "Unknown";
+                newRow[(int)NewValueIndex.Domain] = domain;
+
+                // Call blogs/byurl with the full URL
+                // Then call posts/bypath using the user ID from the first one and the part of the URL after the domain.
+                newRow[(int)NewValueIndex.PosterID] = domain;
+                newRow[(int)NewValueIndex.MentionID] = uri.PathAndQuery;
+            }
+            catch (Exception e)
+            {
+                newRow[(int)NewValueIndex.MentionType] = "Unknown";
+                newRow[(int)NewValueIndex.Domain] = domain;
+                newRow[(int)NewValueIndex.PosterID] = null;
+                newRow[(int)NewValueIndex.MentionID] = null;
+            }
+        }
 
     }
 }
