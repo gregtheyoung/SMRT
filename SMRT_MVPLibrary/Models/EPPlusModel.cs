@@ -25,6 +25,10 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         ExcelPackage _pkg = null;
         TweetinCore.Interfaces.TwitterToken.IToken _token = null;
 
+        // Need a place to cache the user info that was already obtained to we don't ask Twitter
+        // for the same info repeatedly - Twitter does have a rate limit on the API use
+        Dictionary<string, TwitterUserInfo> cachedUserInfo = new Dictionary<string, TwitterUserInfo>();
+
         public void Dispose()
         {
             PackageDispose();
@@ -103,44 +107,46 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return columnNames;
         }
 
-        public List<KeyValuePair<string, string>> GetColumnValuesForColumnID(string fileName, string sheetName, string columnID, bool firstRowHasHeaders)
+        public System.Data.DataTable GetColumnValuesForColumnNames(string fileName, string sheetName, string[] newColumnNames, bool firstRowHasHeaders)
         {
-            List<KeyValuePair<string, string>> columnValues = new List<KeyValuePair<string, string>>();
+            System.Data.DataTable table = new System.Data.DataTable();
 
-            if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName) && !string.IsNullOrEmpty(columnID))
+            if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName) && (newColumnNames.Count()>0))
             {
-                ExcelPackage pkg = Package(fileName);
-                ExcelWorksheet sheet = pkg.Workbook.Worksheets[sheetName];
+                Dictionary<string, string> columnNamesInFile = GetColumnNames(fileName, sheetName);
 
-                ExcelRange cells = sheet.Cells[columnID + ":" + columnID[0] + MaxRowID];
-                foreach (ExcelRangeBase cell in cells)
-                    columnValues.Add(new KeyValuePair<string, string>(cell.Address, cell.Text));
-                cells.Dispose();
-                if (firstRowHasHeaders)
-                    columnValues.RemoveAt(0);
-            }
-
-            return columnValues;
-        }
-
-        public List<KeyValuePair<string, string>> GetColumnValuesForColumnName(string fileName, string sheetName, string columnName, bool firstRowHasHeaders)
-        {
-            List<KeyValuePair<string, string>> columnValues = new List<KeyValuePair<string, string>>();
-
-            if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName) && !string.IsNullOrEmpty(columnName))
-            {
-                Dictionary<string, string> columnNames = GetColumnNames(fileName, sheetName);
-                foreach (KeyValuePair<string, string> column in columnNames)
+                foreach (string newColumnName in newColumnNames)
                 {
-                    if (column.Value.Equals(columnName))
+                    table.Columns.Add(newColumnName);
+
+                    int iRowNumber = 0;
+
+                    foreach (KeyValuePair<string, string> columnNameInFile in columnNamesInFile)
                     {
-                        string columnID = column.Key;
-                        columnValues = GetColumnValuesForColumnID(fileName, sheetName, columnID, firstRowHasHeaders);
+                        if (columnNameInFile.Value.Equals(newColumnName))
+                        {
+                            string columnID = columnNameInFile.Key;
+                            ExcelPackage pkg = Package(fileName);
+                            ExcelWorksheet sheet = pkg.Workbook.Worksheets[sheetName];
+
+                            ExcelRange cells = sheet.Cells[columnID + ":" + columnID[0] + MaxRowID];
+                            foreach (ExcelRangeBase cell in cells)
+                            {
+                                if (iRowNumber >= table.Rows.Count)
+                                    table.Rows.Add(table.NewRow()[newColumnName] = cell.Text);
+                                else
+                                    table.Rows[iRowNumber][newColumnName] = cell.Text;
+                                iRowNumber++;
+                            }
+                            cells.Dispose();
+                        }
                     }
                 }
+                if (firstRowHasHeaders && (table.Rows.Count > 0))
+                    table.Rows[0].Delete();
             }
 
-            return columnValues;
+            return table;
         }
 
         public ReturnCode AddColumns(string fileName, string sheetName, string[] columnNames)
@@ -291,12 +297,49 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         {
             ReturnCode rc = ReturnCode.Failed;
 
-            User user = new User(userID, Token);
+            if (cachedUserInfo.ContainsKey(userID))
+                userInfo = cachedUserInfo[userID];
+            else
+            {
+                try
+                {
+                    User user = new User(userID, Token);
 
-            userInfo.Location = user.Location;
-            userInfo.Name = user.Name;
-            userInfo.NumberOfFollowers = user.FollowersCount.HasValue ? user.FollowersCount.Value : 0;
-            userInfo.NumberFollowing = user.FriendsCount.HasValue ? user.FriendsCount.Value : 0;
+                    userInfo.Location = user.Location;
+                    userInfo.Name = user.Name;
+                    userInfo.NumberOfFollowers = user.FollowersCount.HasValue ? user.FollowersCount.Value : 0;
+                    userInfo.NumberFollowing = user.FriendsCount.HasValue ? user.FriendsCount.Value : 0;
+                    userInfo.Description = user.Description;
+
+                }
+                catch (System.Net.WebException e)
+                {
+                    userInfo.Location = "";
+                    userInfo.NumberOfFollowers = 0;
+                    userInfo.NumberFollowing = 0;
+                    userInfo.Description = "";
+                    if (e.Message.Contains("403"))
+                        userInfo.Name = "<error - forbidden>";
+                    else if (e.Message.Contains("429"))
+                        userInfo.Name = "<error - client error>";
+                    else if (e.Message.Contains("404"))
+                        userInfo.Name = "<error - not found>";
+                    else
+                        userInfo.Name = "error - " + e.Message + ">";
+                }
+                catch (Exception e)
+                {
+                    userInfo.Location = "";
+                    userInfo.Name = "<error - unknown>";
+                    userInfo.NumberOfFollowers = 0;
+                    userInfo.NumberFollowing = 0;
+                    userInfo.Description = "";
+                }
+
+                // We should cache this info just in case it is asked for again
+                cachedUserInfo.Add(userID, userInfo);
+            }
+
 
             return rc;
 

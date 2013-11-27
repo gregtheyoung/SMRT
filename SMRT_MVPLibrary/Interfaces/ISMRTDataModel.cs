@@ -30,18 +30,9 @@ namespace TwinArch.SMRT_MVPLibrary.Interfaces
         /// </summary>
         /// <param name="fileName">The full path to the Excel workbook</param>
         /// <param name="sheetName">The name of the sheet</param>
-        /// <param name="columnID">The identifier of the column</param>
+        /// <param name="columnNames">The name of the column</param>
         /// <returns>A list of cell identifiers and values for all cells in the column that contain a value</returns>
-        List<KeyValuePair<string, string>> GetColumnValuesForColumnID(string fileName, string sheetName, string columnID, bool firstRowHasHeaders);
-
-        /// <summary>
-        /// Get all values appearing within a column in a sheet in an Excel workbook.
-        /// </summary>
-        /// <param name="fileName">The full path to the Excel workbook</param>
-        /// <param name="sheetName">The name of the sheet</param>
-        /// <param name="columnName">The name of the column</param>
-        /// <returns>A list of cell identifiers and values for all cells in the column that contain a value</returns>
-        List<KeyValuePair<string, string>> GetColumnValuesForColumnName(string fileName, string sheetName, string columnName, bool firstRowHasHeaders);
+        DataTable GetColumnValuesForColumnNames(string fileName, string sheetName, string[] columnNames, bool firstRowHasHeaders);
 
         /// <summary>
         /// Adds columns to a sheet in a workbook. If the column already exists, it is not added.

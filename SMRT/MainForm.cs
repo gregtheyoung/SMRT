@@ -93,7 +93,7 @@ namespace TwinArch.SMRT
         private void splitSourceButton_Click(object sender, EventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
-            SMRT_MVPLibrary.ReturnCode rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString(), false, firstRowIsAColumnHeaderCheckBox.Checked);
+            SMRT_MVPLibrary.ReturnCode rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.Text, false, firstRowIsAColumnHeaderCheckBox.Checked);
             if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsAlreadyExist)
             {
                 this.Cursor = Cursors.Default;
@@ -104,7 +104,7 @@ namespace TwinArch.SMRT
                 if (result == DialogResult.Yes)
                 {
                     this.Cursor = Cursors.WaitCursor;
-                    rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.SelectedValue.ToString(), true, firstRowIsAColumnHeaderCheckBox.Checked);
+                    rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.Text, true, firstRowIsAColumnHeaderCheckBox.Checked);
                     this.Cursor = Cursors.Default;
                 }
             }

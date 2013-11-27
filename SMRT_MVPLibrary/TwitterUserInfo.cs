@@ -12,5 +12,6 @@ namespace TwinArch.SMRT_MVPLibrary
         public string Location { get; set; }
         public int NumberOfFollowers { get; set; }
         public int NumberFollowing { get; set; }
+        public string Description { get; set; }
     }
 }

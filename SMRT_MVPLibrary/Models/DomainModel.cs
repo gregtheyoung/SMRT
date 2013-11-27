@@ -6,18 +6,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Data;
+using System.Configuration;
 using TwinArch.SMRT_MVPLibrary.Interfaces;
 
 namespace TwinArch.SMRT_MVPLibrary.Models
 {
     public class DomainModel : ISMRTDomain, IDisposable
     {
+        int MaxTwitterUsersToPull = 10;
 
         string[] newURLSplitColumns = { "MentionType", "Domain", "PosterID", "MentionID", "NumPosts" };
         enum NewSplitColumnIndex {MentionType, Domain, PosterID, MentionID, NumPosts};
 
-        string[] newTwitterColumns = { "TwitterName", "TwitterLocation", "NumFollowers", "NumFollowing" };
-        enum NewTwitterColumnIndex {Name, Location, NumFollowers, NumFollowing};
+        string[] newTwitterColumns = { "TwitterName", "TwitterLocation", "NumFollowers", "NumFollowing", "Description" };
+        enum NewTwitterColumnIndex {Name, Location, NumFollowers, NumFollowing, Description};
 
         protected ISMRTDataModel dataModel;
         /// <summary>
@@ -48,8 +50,10 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     dataModel = new EPPlusModel();
                     break;
                 }
-
             }
+
+            if (!String.IsNullOrEmpty(ConfigurationManager.AppSettings["MaxTwitterUsersToPull"]))
+                MaxTwitterUsersToPull = Convert.ToInt32(ConfigurationManager.AppSettings["MaxTwitterUsersToPull"]);
         }
 
         public void Dispose()
@@ -153,7 +157,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 {
                     // Get the contents of the column. This will provide the row/cell identifier (depends on the
                     // underlying data model implementation) and the value of column for that row/cell.
-                    List<KeyValuePair<string, string>> urlStrings = dataModel.GetColumnValuesForColumnID(fileName, sheetName, urlColumnName, firstRowHasHeaders);
+                    DataTable urlStringTable = dataModel.GetColumnValuesForColumnNames(fileName, sheetName, new string[] {urlColumnName}, firstRowHasHeaders);
 
                     // Keep track of processing and failure counts for a short-circuit abort if needed
                     int numprocessed = 0;
@@ -168,13 +172,13 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                             newValuesTable.Columns.Add(splitColumnName);
 
                     // For each cell/value...
-                    foreach (KeyValuePair<string, string> pair in urlStrings)
+                    foreach (DataRow row in urlStringTable.Rows)
                     {
                         DataRow newRow = newValuesTable.NewRow();
                         try
                         {
                             // Try to parse it as a URI
-                            Uri uri = new Uri(pair.Value);
+                            Uri uri = new Uri((string)row[0]);
 
                             // Get the domain part.
                             string domain = uri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
@@ -250,7 +254,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
             foreach(DataRow row in newValuesTable.Rows)
             {
-                string posterID = row[(int)NewSplitColumnIndex.PosterID].ToString();
+                string posterID = Convert.ToString(row[(int)NewSplitColumnIndex.PosterID]);
                 if ((posterID != null) && !String.IsNullOrEmpty(posterID))
                 {
                     if (postCounts.ContainsKey(posterID))
@@ -262,9 +266,9 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
             foreach (DataRow row in newValuesTable.Rows)
             {
-                string posterID = row[(int)NewSplitColumnIndex.PosterID].ToString();
+                string posterID = Convert.ToString(row[(int)NewSplitColumnIndex.PosterID]);
                 if ((posterID != null) && !String.IsNullOrEmpty(posterID))
-                    row[(int)NewSplitColumnIndex.NumPosts] = postCounts[row[(int)NewSplitColumnIndex.PosterID].ToString()];
+                    row[(int)NewSplitColumnIndex.NumPosts] = postCounts[(string)row[(int)NewSplitColumnIndex.PosterID]];
             }
             
 
@@ -431,8 +435,15 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     {
                         // Get the contents of the column. This will provide the row/cell identifier (depends on the
                         // underlying data model implementation) and the value of column for that row/cell.
-                        List<KeyValuePair<string, string>> posterIDs = dataModel.GetColumnValuesForColumnName(fileName, sheetName, newURLSplitColumns[(int)NewSplitColumnIndex.PosterID], firstRowHasHeaders);
-                        List<KeyValuePair<string, string>> mentionTypes = dataModel.GetColumnValuesForColumnName(fileName, sheetName, newURLSplitColumns[(int)NewSplitColumnIndex.MentionType], firstRowHasHeaders);
+                        DataTable posterInfoTable = dataModel.GetColumnValuesForColumnNames(fileName, sheetName,
+                            newURLSplitColumns,
+                            firstRowHasHeaders);
+
+                        List<string> topTwitterPosters = GetTopTwitterPosters(posterInfoTable);
+
+                        // We will only use the top N
+                        if (topTwitterPosters.Count > MaxTwitterUsersToPull)
+                            topTwitterPosters.RemoveRange(MaxTwitterUsersToPull, topTwitterPosters.Count - MaxTwitterUsersToPull);
 
                         // Keep a table of all the twitter info. Ensure that there is exactly one for each value in the column.
                         DataTable newValuesTable = new DataTable();
@@ -444,16 +455,16 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                                 newValuesTable.Columns.Add(twitterColumnName);
 
                         // For each cell/value...
-                        for (int i=0; i<posterIDs.Count; i++)
+                        foreach (DataRow row in posterInfoTable.Rows)
                         {
                             DataRow newRow = newValuesTable.NewRow();
 
-                            KeyValuePair<string, string> mentionType = mentionTypes[i];
-                            if (mentionType.Value.Equals("Twitter"))
+                            string mentionType = (string)row[newURLSplitColumns[(int)NewSplitColumnIndex.MentionType]];
+                            string posterID = (string)row[newURLSplitColumns[(int)NewSplitColumnIndex.PosterID]];
+                            if (mentionType.Equals("Twitter") && topTwitterPosters.Contains(posterID))
                             {
                                 try
                                 {
-                                    string posterID = posterIDs[i].Value;
                                     GetTwitterInfo(posterID, ref newRow);
                                 }
                                 catch
@@ -484,6 +495,25 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return rc;
         }
 
+        private List<string> GetTopTwitterPosters(DataTable posterInfoTable)
+        {
+            // Put all posters into a dictionary along with their count.
+            Dictionary<string, int> users = new Dictionary<string, int>();
+            foreach (DataRow row in posterInfoTable.Rows)
+                // Only do it if there is actually a PosterID and NumPosts
+                if (row[(int)NewSplitColumnIndex.MentionType].Equals("Twitter") &&
+                    !String.IsNullOrEmpty((string)row[(int)NewSplitColumnIndex.NumPosts]))
+                        if (!users.ContainsKey((string)row[(int)NewSplitColumnIndex.PosterID]))
+                        users.Add((string)row[(int)NewSplitColumnIndex.PosterID], Convert.ToInt32(row[(int)NewSplitColumnIndex.NumPosts]));
+
+            // Sort descending by count and put into a list.
+            List<string> usersInOrder = new List<string>();
+            foreach (KeyValuePair<string, int> pair in users.OrderByDescending(value => value.Value))
+                usersInOrder.Add(pair.Key);
+
+            return usersInOrder;
+        }
+
         private void GetTwitterInfo(string posterID, ref DataRow newRow)
         {
             TwitterUserInfo userInfo = new TwitterUserInfo();
@@ -494,6 +524,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             newRow[(int)NewTwitterColumnIndex.Name] = userInfo.Name;
             newRow[(int)NewTwitterColumnIndex.NumFollowers] = userInfo.NumberOfFollowers;
             newRow[(int)NewTwitterColumnIndex.NumFollowing] = userInfo.NumberFollowing;
+            newRow[(int)NewTwitterColumnIndex.Description] = userInfo.Description;
 
         }
 
