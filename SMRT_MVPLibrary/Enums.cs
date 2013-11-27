@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace TwinArch.SMRT_MVPLibrary
 {
-    public enum ReturnCode { Failed, Success, ColumnsAlreadyExist, NotURLColumn };
+    public enum ReturnCode { Failed, Success, ColumnsAlreadyExist, NotURLColumn, ColumnsMissing };
 }

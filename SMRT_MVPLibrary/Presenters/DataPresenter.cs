@@ -69,5 +69,20 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             return rc;
         }
 
+        public ReturnCode AddTwitterInfo(string fileName, string sheetName, bool overwriteExistingData, bool ignoreFirstRow)
+        {
+            ReturnCode rc = ReturnCode.Failed;
+            try
+            {
+                rc = Model.AddTwitterInfo(fileName, sheetName, overwriteExistingData, ignoreFirstRow);
+            }
+            catch (System.IO.FileNotFoundException e)
+            {
+                View.IsFileValid = false;
+            }
+
+            return rc;
+        }
+
     }
 }

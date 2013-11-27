@@ -22,13 +22,6 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\ArchitectureTools\Microsoft.VisualStudio.TeamArchitect.ModelingProject.targets" Condition="'$(VSToolsPath)' != ''" />
   <ItemGroup>
-    <Content Include="SMRT.sequencediagram">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="SMRT.sequencediagram.layout">
-      <SubType>Content</SubType>
-      <DependentUpon>SMRT.sequencediagram</DependentUpon>
-    </Content>
     <Folder Include="ModelDefinition\" />
     <Content Include="ModelDefinition\SMRT_Model.uml">
       <SubType>Content</SubType>

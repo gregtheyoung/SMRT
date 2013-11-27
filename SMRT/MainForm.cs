@@ -61,6 +61,7 @@ namespace TwinArch.SMRT
             columnsComboBox.Enabled = false;
             splitSourceButton.Enabled = false;
             getSheetsAndColumnsButton.Enabled = false;
+            testTwitterButton.Enabled = false;
             _presenter = new DataPresenter(this, 3);
         }
 
@@ -84,8 +85,9 @@ namespace TwinArch.SMRT
         {
             this.Cursor = Cursors.WaitCursor;
             _presenter.DisplayColumnNames(excelFileNameTextBox.Text, sheetNameCombo.Text);
-            this.Cursor = Cursors.Default;
             columnsComboBox.Enabled = true;
+            testTwitterButton.Enabled = true;
+            this.Cursor = Cursors.Default;
         }
 
         private void splitSourceButton_Click(object sender, EventArgs e)
@@ -130,6 +132,35 @@ namespace TwinArch.SMRT
         private void columnsComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             splitSourceButton.Enabled = true;
+        }
+
+        private void testTwitterButton_Click(object sender, EventArgs e)
+        {
+            this.Cursor = Cursors.WaitCursor;
+            SMRT_MVPLibrary.ReturnCode rc = _presenter.AddTwitterInfo(fileName, sheetNameCombo.Text, false, firstRowIsAColumnHeaderCheckBox.Checked);
+            if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsAlreadyExist)
+            {
+                this.Cursor = Cursors.Default;
+                DialogResult result = MessageBox.Show("The columns that will contain the Twitter info already exist in this Excel file. Do you want to overwrite the data that already exists in those columns?",
+                    "Columns already exist",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+                if (result == DialogResult.Yes)
+                {
+                    this.Cursor = Cursors.WaitCursor;
+                    rc = _presenter.AddTwitterInfo(fileName, sheetNameCombo.Text, true, firstRowIsAColumnHeaderCheckBox.Checked);
+                    this.Cursor = Cursors.Default;
+                }
+            }
+            if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsMissing)
+            {
+                this.Cursor = Cursors.Default;
+                MessageBox.Show("The sheet you selected does not appear to contain a column called PosterID. Please select another column.",
+                    "Sheet does not contain PosterID.",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+            }
+            this.Cursor = Cursors.Default;
         }
 
 

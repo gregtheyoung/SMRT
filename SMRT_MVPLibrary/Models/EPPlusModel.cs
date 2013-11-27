@@ -9,6 +9,10 @@ using TwinArch.SMRT_MVPLibrary.Interfaces;
 using OfficeOpenXml;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Excel;
+using TweetinCore;
+using Tweetinvi;
+using TwitterToken;
+using System.Configuration;
 
 
 namespace TwinArch.SMRT_MVPLibrary.Models
@@ -19,6 +23,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         string MaxRowID = "1000000"; // With Eccel 2010+ there are a little more than 1 million rows available
 
         ExcelPackage _pkg = null;
+        TweetinCore.Interfaces.TwitterToken.IToken _token = null;
 
         public void Dispose()
         {
@@ -43,6 +48,24 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             {
                 _pkg.Dispose();
                 _pkg = null;
+            }
+        }
+
+        private TweetinCore.Interfaces.TwitterToken.IToken Token
+        {
+            get
+            {
+                if (_token == null)
+                {
+                    _token = new Token(
+                        ConfigurationManager.AppSettings["token_AccessToken"],
+                        ConfigurationManager.AppSettings["token_AccessTokenSecret"],
+                        ConfigurationManager.AppSettings["token_ConsumerKey"],
+                        ConfigurationManager.AppSettings["token_ConsumerSecret"]);
+                    TokenSingleton.Token = _token;
+                }
+
+                return _token;
             }
         }
 
@@ -80,7 +103,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return columnNames;
         }
 
-        public List<KeyValuePair<string, string>> GetColumnValues(string fileName, string sheetName, string columnID, bool firstRowHasHeaders)
+        public List<KeyValuePair<string, string>> GetColumnValuesForColumnID(string fileName, string sheetName, string columnID, bool firstRowHasHeaders)
         {
             List<KeyValuePair<string, string>> columnValues = new List<KeyValuePair<string, string>>();
 
@@ -95,6 +118,26 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 cells.Dispose();
                 if (firstRowHasHeaders)
                     columnValues.RemoveAt(0);
+            }
+
+            return columnValues;
+        }
+
+        public List<KeyValuePair<string, string>> GetColumnValuesForColumnName(string fileName, string sheetName, string columnName, bool firstRowHasHeaders)
+        {
+            List<KeyValuePair<string, string>> columnValues = new List<KeyValuePair<string, string>>();
+
+            if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName) && !string.IsNullOrEmpty(columnName))
+            {
+                Dictionary<string, string> columnNames = GetColumnNames(fileName, sheetName);
+                foreach (KeyValuePair<string, string> column in columnNames)
+                {
+                    if (column.Value.Equals(columnName))
+                    {
+                        string columnID = column.Key;
+                        columnValues = GetColumnValuesForColumnID(fileName, sheetName, columnID, firstRowHasHeaders);
+                    }
+                }
             }
 
             return columnValues;
@@ -241,6 +284,22 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             }
 
             return rc;
+        }
+
+
+        public ReturnCode GetTwitterUserInfo(string userID, ref TwitterUserInfo userInfo)
+        {
+            ReturnCode rc = ReturnCode.Failed;
+
+            User user = new User(userID, Token);
+
+            userInfo.Location = user.Location;
+            userInfo.Name = user.Name;
+            userInfo.NumberOfFollowers = user.FollowersCount.HasValue ? user.FollowersCount.Value : 0;
+            userInfo.NumberFollowing = user.FriendsCount.HasValue ? user.FriendsCount.Value : 0;
+
+            return rc;
+
         }
     }
 }

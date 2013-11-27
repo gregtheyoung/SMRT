@@ -14,7 +14,10 @@ namespace TwinArch.SMRT_MVPLibrary.Models
     {
 
         string[] newURLSplitColumns = { "MentionType", "Domain", "PosterID", "MentionID", "NumPosts" };
-        enum NewValueIndex {MentionType, Domain, PosterID, MentionID, NumPosts};
+        enum NewSplitColumnIndex {MentionType, Domain, PosterID, MentionID, NumPosts};
+
+        string[] newTwitterColumns = { "TwitterName", "TwitterLocation", "NumFollowers", "NumFollowing" };
+        enum NewTwitterColumnIndex {Name, Location, NumFollowers, NumFollowing};
 
         protected ISMRTDataModel dataModel;
         /// <summary>
@@ -150,7 +153,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 {
                     // Get the contents of the column. This will provide the row/cell identifier (depends on the
                     // underlying data model implementation) and the value of column for that row/cell.
-                    List<KeyValuePair<string, string>> urlStrings = dataModel.GetColumnValues(fileName, sheetName, urlColumnName, firstRowHasHeaders);
+                    List<KeyValuePair<string, string>> urlStrings = dataModel.GetColumnValuesForColumnID(fileName, sheetName, urlColumnName, firstRowHasHeaders);
 
                     // Keep track of processing and failure counts for a short-circuit abort if needed
                     int numprocessed = 0;
@@ -159,7 +162,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     // Keep a list of all the split out info. Ensure that there is exactly one for each value in the column.
                     DataTable newValuesTable = new DataTable();
                     foreach (string splitColumnName in newURLSplitColumns)
-                        if (splitColumnName.Equals("NumPosts"))
+                        if (splitColumnName.Equals(newURLSplitColumns[(int)NewSplitColumnIndex.NumPosts]))
                             newValuesTable.Columns.Add(splitColumnName, System.Type.GetType("System.Int16"));
                         else
                             newValuesTable.Columns.Add(splitColumnName);
@@ -204,11 +207,11 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
                         catch (UriFormatException e)
                         {
-                            newRow[(int)NewValueIndex.Domain] = null;
-                            newRow[(int)NewValueIndex.MentionID] = null;
-                            newRow[(int)NewValueIndex.MentionType] = "Failed";
-                            newRow[(int)NewValueIndex.NumPosts] = DBNull.Value;
-                            newRow[(int)NewValueIndex.PosterID] = null;
+                            newRow[(int)NewSplitColumnIndex.Domain] = null;
+                            newRow[(int)NewSplitColumnIndex.MentionID] = null;
+                            newRow[(int)NewSplitColumnIndex.MentionType] = "Failed";
+                            newRow[(int)NewSplitColumnIndex.NumPosts] = DBNull.Value;
+                            newRow[(int)NewSplitColumnIndex.PosterID] = null;
                             numFailed++;
                         }
                         numprocessed++;
@@ -247,7 +250,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
             foreach(DataRow row in newValuesTable.Rows)
             {
-                string posterID = row[(int)NewValueIndex.PosterID].ToString();
+                string posterID = row[(int)NewSplitColumnIndex.PosterID].ToString();
                 if ((posterID != null) && !String.IsNullOrEmpty(posterID))
                 {
                     if (postCounts.ContainsKey(posterID))
@@ -259,9 +262,9 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
             foreach (DataRow row in newValuesTable.Rows)
             {
-                string posterID = row[(int)NewValueIndex.PosterID].ToString();
+                string posterID = row[(int)NewSplitColumnIndex.PosterID].ToString();
                 if ((posterID != null) && !String.IsNullOrEmpty(posterID))
-                    row[(int)NewValueIndex.NumPosts] = postCounts[row[(int)NewValueIndex.PosterID].ToString()];
+                    row[(int)NewSplitColumnIndex.NumPosts] = postCounts[row[(int)NewSplitColumnIndex.PosterID].ToString()];
             }
             
 
@@ -280,46 +283,46 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             {
                 if (segments[1].Equals("permalink.php"))
                 {
-                    newRow[(int)NewValueIndex.MentionType] = "FacebookPost";
-                    newRow[(int)NewValueIndex.Domain] = domain;
-                    newRow[(int)NewValueIndex.PosterID] = queryCollection["id"];
-                    newRow[(int)NewValueIndex.MentionID] = queryCollection["story_fbid"];
+                    newRow[(int)NewSplitColumnIndex.MentionType] = "FacebookPost";
+                    newRow[(int)NewSplitColumnIndex.Domain] = domain;
+                    newRow[(int)NewSplitColumnIndex.PosterID] = queryCollection["id"];
+                    newRow[(int)NewSplitColumnIndex.MentionID] = queryCollection["story_fbid"];
                 }
                 else if (segments[1].Equals("events/"))
                 {
-                    newRow[(int)NewValueIndex.MentionType] = "FacebookEvent";
-                    newRow[(int)NewValueIndex.Domain] = domain;
-                    newRow[(int)NewValueIndex.PosterID] = segments[4].Trim('/');
-                    newRow[(int)NewValueIndex.MentionID] = segments[2].Trim('/');
+                    newRow[(int)NewSplitColumnIndex.MentionType] = "FacebookEvent";
+                    newRow[(int)NewSplitColumnIndex.Domain] = domain;
+                    newRow[(int)NewSplitColumnIndex.PosterID] = segments[4].Trim('/');
+                    newRow[(int)NewSplitColumnIndex.MentionID] = segments[2].Trim('/');
                 }
                 else if (segments[1].Equals("media/"))
                 {
-                    newRow[(int)NewValueIndex.MentionType] = "FacebookMedia";
-                    newRow[(int)NewValueIndex.Domain] = domain;
-                    newRow[(int)NewValueIndex.PosterID] = "";
-                    newRow[(int)NewValueIndex.MentionID] = queryCollection["set"];
+                    newRow[(int)NewSplitColumnIndex.MentionType] = "FacebookMedia";
+                    newRow[(int)NewSplitColumnIndex.Domain] = domain;
+                    newRow[(int)NewSplitColumnIndex.PosterID] = "";
+                    newRow[(int)NewSplitColumnIndex.MentionID] = queryCollection["set"];
                 }
                 else if (segments[1].Equals("notes/"))
                 {
-                    newRow[(int)NewValueIndex.MentionType] = "FacebookNote";
-                    newRow[(int)NewValueIndex.Domain] = domain;
-                    newRow[(int)NewValueIndex.PosterID] = segments[2].Trim('/');
-                    newRow[(int)NewValueIndex.MentionID] = segments[4].Trim('/');
+                    newRow[(int)NewSplitColumnIndex.MentionType] = "FacebookNote";
+                    newRow[(int)NewSplitColumnIndex.Domain] = domain;
+                    newRow[(int)NewSplitColumnIndex.PosterID] = segments[2].Trim('/');
+                    newRow[(int)NewSplitColumnIndex.MentionID] = segments[4].Trim('/');
                 }
                 else
                 {
-                    newRow[(int)NewValueIndex.MentionType] = "FacebookGroupPost";
-                    newRow[(int)NewValueIndex.Domain] = domain;
-                    newRow[(int)NewValueIndex.PosterID] = segments[1].Trim('/');
-                    newRow[(int)NewValueIndex.MentionID] = segments[3].Trim('/');
+                    newRow[(int)NewSplitColumnIndex.MentionType] = "FacebookGroupPost";
+                    newRow[(int)NewSplitColumnIndex.Domain] = domain;
+                    newRow[(int)NewSplitColumnIndex.PosterID] = segments[1].Trim('/');
+                    newRow[(int)NewSplitColumnIndex.MentionID] = segments[3].Trim('/');
                 }
             }
             catch (Exception e)
             {
-                newRow[(int)NewValueIndex.MentionType] = "Facebook";
-                newRow[(int)NewValueIndex.Domain] = domain;
-                newRow[(int)NewValueIndex.PosterID] = null;
-                newRow[(int)NewValueIndex.MentionID] = null;
+                newRow[(int)NewSplitColumnIndex.MentionType] = "Facebook";
+                newRow[(int)NewSplitColumnIndex.Domain] = domain;
+                newRow[(int)NewSplitColumnIndex.PosterID] = null;
+                newRow[(int)NewSplitColumnIndex.MentionID] = null;
             }
         }
 
@@ -327,17 +330,17 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         {
             try
             {
-                newRow[(int)NewValueIndex.MentionType] = "Twitter";
-                newRow[(int)NewValueIndex.Domain] = domain;
-                newRow[(int)NewValueIndex.PosterID] = segments[1].Trim('/');
-                newRow[(int)NewValueIndex.MentionID] = segments[3].Trim('/');
+                newRow[(int)NewSplitColumnIndex.MentionType] = "Twitter";
+                newRow[(int)NewSplitColumnIndex.Domain] = domain;
+                newRow[(int)NewSplitColumnIndex.PosterID] = segments[1].Trim('/');
+                newRow[(int)NewSplitColumnIndex.MentionID] = segments[3].Trim('/');
             }
             catch (Exception e)
             {
-                newRow[(int)NewValueIndex.MentionType] = "Twitter";
-                newRow[(int)NewValueIndex.Domain] = domain;
-                newRow[(int)NewValueIndex.PosterID] = null;
-                newRow[(int)NewValueIndex.MentionID] = null;
+                newRow[(int)NewSplitColumnIndex.MentionType] = "Twitter";
+                newRow[(int)NewSplitColumnIndex.Domain] = domain;
+                newRow[(int)NewSplitColumnIndex.PosterID] = null;
+                newRow[(int)NewSplitColumnIndex.MentionID] = null;
             }
         }
 
@@ -345,20 +348,20 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         {
             try
             {
-                newRow[(int)NewValueIndex.MentionType] = "Blogger";
-                newRow[(int)NewValueIndex.Domain] = domain;
+                newRow[(int)NewSplitColumnIndex.MentionType] = "Blogger";
+                newRow[(int)NewSplitColumnIndex.Domain] = domain;
 
                 // Call blogs/byurl with the full URL
                 // Then call posts/bypath using the user ID from the first one and the part of the URL after the domain.
-                newRow[(int)NewValueIndex.PosterID] = uri.Host.Replace(".blogspot.com", "");
-                newRow[(int)NewValueIndex.MentionID] = uri.PathAndQuery;
+                newRow[(int)NewSplitColumnIndex.PosterID] = uri.Host.Replace(".blogspot.com", "");
+                newRow[(int)NewSplitColumnIndex.MentionID] = uri.PathAndQuery;
             }
             catch (Exception e)
             {
-                newRow[(int)NewValueIndex.MentionType] = "Blogger";
-                newRow[(int)NewValueIndex.Domain] = domain;
-                newRow[(int)NewValueIndex.PosterID] = null;
-                newRow[(int)NewValueIndex.MentionID] = null;
+                newRow[(int)NewSplitColumnIndex.MentionType] = "Blogger";
+                newRow[(int)NewSplitColumnIndex.Domain] = domain;
+                newRow[(int)NewSplitColumnIndex.PosterID] = null;
+                newRow[(int)NewSplitColumnIndex.MentionID] = null;
             }
         }
 
@@ -366,20 +369,20 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         {
             try
             {
-                newRow[(int)NewValueIndex.MentionType] = "Tumblr";
-                newRow[(int)NewValueIndex.Domain] = domain;
+                newRow[(int)NewSplitColumnIndex.MentionType] = "Tumblr";
+                newRow[(int)NewSplitColumnIndex.Domain] = domain;
 
                 // Call blogs/byurl with the full URL
                 // Then call posts/bypath using the user ID from the first one and the part of the URL after the domain.
-                newRow[(int)NewValueIndex.PosterID] = uri.Host.Replace(".tumblr.com", "");
-                newRow[(int)NewValueIndex.MentionID] = segments[2].Trim('/');
+                newRow[(int)NewSplitColumnIndex.PosterID] = uri.Host.Replace(".tumblr.com", "");
+                newRow[(int)NewSplitColumnIndex.MentionID] = segments[2].Trim('/');
             }
             catch (Exception e)
             {
-                newRow[(int)NewValueIndex.MentionType] = "Tumblr";
-                newRow[(int)NewValueIndex.Domain] = domain;
-                newRow[(int)NewValueIndex.PosterID] = null;
-                newRow[(int)NewValueIndex.MentionID] = null;
+                newRow[(int)NewSplitColumnIndex.MentionType] = "Tumblr";
+                newRow[(int)NewSplitColumnIndex.Domain] = domain;
+                newRow[(int)NewSplitColumnIndex.PosterID] = null;
+                newRow[(int)NewSplitColumnIndex.MentionID] = null;
             }
         }
 
@@ -387,21 +390,134 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         {
             try
             {
-                newRow[(int)NewValueIndex.MentionType] = "Unknown";
-                newRow[(int)NewValueIndex.Domain] = domain;
+                newRow[(int)NewSplitColumnIndex.MentionType] = "Unknown";
+                newRow[(int)NewSplitColumnIndex.Domain] = domain;
 
                 // Call blogs/byurl with the full URL
                 // Then call posts/bypath using the user ID from the first one and the part of the URL after the domain.
-                newRow[(int)NewValueIndex.PosterID] = domain;
-                newRow[(int)NewValueIndex.MentionID] = uri.PathAndQuery;
+                newRow[(int)NewSplitColumnIndex.PosterID] = domain;
+                newRow[(int)NewSplitColumnIndex.MentionID] = uri.PathAndQuery;
             }
             catch (Exception e)
             {
-                newRow[(int)NewValueIndex.MentionType] = "Unknown";
-                newRow[(int)NewValueIndex.Domain] = domain;
-                newRow[(int)NewValueIndex.PosterID] = null;
-                newRow[(int)NewValueIndex.MentionID] = null;
+                newRow[(int)NewSplitColumnIndex.MentionType] = "Unknown";
+                newRow[(int)NewSplitColumnIndex.Domain] = domain;
+                newRow[(int)NewSplitColumnIndex.PosterID] = null;
+                newRow[(int)NewSplitColumnIndex.MentionID] = null;
             }
+        }
+
+        public ReturnCode AddTwitterInfo(string fileName, string sheetName, bool overwriteExistingData, bool firstRowHasHeaders)
+        {
+            ReturnCode rc = ReturnCode.Success;
+
+            // Check that the file is valid, throw exception if not
+            if (!dataModel.FileIsValid(fileName))
+                throw new System.IO.FileNotFoundException();
+
+            // Need to make sure that the SplitURL columns do exist
+            if (!DoURLSplitColumnsAlreadyExist(fileName, sheetName))
+                rc = ReturnCode.ColumnsMissing;
+            else
+            {
+                // If the existing split out columns are to be overwritten, or if they don't exist yet...
+                if (overwriteExistingData || !DoTwitterColumnsAlreadyExist(fileName, sheetName))
+                {
+                    // Add the new columns to the sheet...
+                    rc = dataModel.AddColumns(fileName, sheetName, newTwitterColumns);
+
+                    // If they were added successfully...
+                    if (rc == ReturnCode.Success)
+                    {
+                        // Get the contents of the column. This will provide the row/cell identifier (depends on the
+                        // underlying data model implementation) and the value of column for that row/cell.
+                        List<KeyValuePair<string, string>> posterIDs = dataModel.GetColumnValuesForColumnName(fileName, sheetName, newURLSplitColumns[(int)NewSplitColumnIndex.PosterID], firstRowHasHeaders);
+                        List<KeyValuePair<string, string>> mentionTypes = dataModel.GetColumnValuesForColumnName(fileName, sheetName, newURLSplitColumns[(int)NewSplitColumnIndex.MentionType], firstRowHasHeaders);
+
+                        // Keep a table of all the twitter info. Ensure that there is exactly one for each value in the column.
+                        DataTable newValuesTable = new DataTable();
+                        foreach (string twitterColumnName in newTwitterColumns)
+                            if (twitterColumnName.Equals(newTwitterColumns[(int)NewTwitterColumnIndex.NumFollowers]) ||
+                                twitterColumnName.Equals(newTwitterColumns[(int)NewTwitterColumnIndex.NumFollowing]))
+                                newValuesTable.Columns.Add(twitterColumnName, System.Type.GetType("System.Int32"));
+                            else
+                                newValuesTable.Columns.Add(twitterColumnName);
+
+                        // For each cell/value...
+                        for (int i=0; i<posterIDs.Count; i++)
+                        {
+                            DataRow newRow = newValuesTable.NewRow();
+
+                            KeyValuePair<string, string> mentionType = mentionTypes[i];
+                            if (mentionType.Value.Equals("Twitter"))
+                            {
+                                try
+                                {
+                                    string posterID = posterIDs[i].Value;
+                                    GetTwitterInfo(posterID, ref newRow);
+                                }
+                                catch
+                                {
+                                    newRow[(int)NewTwitterColumnIndex.Location] = "";
+                                    newRow[(int)NewTwitterColumnIndex.Name] = "";
+                                    newRow[(int)NewTwitterColumnIndex.NumFollowers] = DBNull.Value;
+                                    newRow[(int)NewTwitterColumnIndex.NumFollowing] = DBNull.Value;
+                                }
+                            }
+                            else
+                            {
+                                newRow[(int)NewTwitterColumnIndex.Location] = "";
+                                newRow[(int)NewTwitterColumnIndex.Name] = "";
+                                newRow[(int)NewTwitterColumnIndex.NumFollowers] = DBNull.Value;
+                                newRow[(int)NewTwitterColumnIndex.NumFollowing] = DBNull.Value;
+                            }
+                            newValuesTable.Rows.Add(newRow);
+                        }
+
+                        dataModel.WriteColumnValues(fileName, sheetName, newValuesTable, firstRowHasHeaders);
+                    }
+                }
+                else
+                    rc = ReturnCode.ColumnsAlreadyExist;
+            }
+
+            return rc;
+        }
+
+        private void GetTwitterInfo(string posterID, ref DataRow newRow)
+        {
+            TwitterUserInfo userInfo = new TwitterUserInfo();
+
+            ReturnCode rc = dataModel.GetTwitterUserInfo(posterID, ref userInfo);
+
+            newRow[(int)NewTwitterColumnIndex.Location] = userInfo.Location;
+            newRow[(int)NewTwitterColumnIndex.Name] = userInfo.Name;
+            newRow[(int)NewTwitterColumnIndex.NumFollowers] = userInfo.NumberOfFollowers;
+            newRow[(int)NewTwitterColumnIndex.NumFollowing] = userInfo.NumberFollowing;
+
+        }
+
+        /// <summary>
+        /// Checks that the columns to contain the twitter values already exist in the sheet or not.
+        /// </summary>
+        /// <param name="fileName">The full path to the Excel workbook</param>
+        /// <param name="sheetName">The name of the worksheet</param>
+        /// <returns>True if any of the columns already exists in the sheet.</returns>
+        private bool DoTwitterColumnsAlreadyExist(string fileName, string sheetName)
+        {
+            Dictionary<string, string> columnNames = GetColumnNames(fileName, sheetName);
+
+            bool newColumnAlreadyExists = false;
+
+            // For each column to contain the split values...
+            foreach (string newColumnName in newTwitterColumns)
+            {
+                // If that column already exists in the sheet...
+                if (columnNames.ContainsValue(newColumnName))
+                    newColumnAlreadyExists = true;
+            }
+
+            return newColumnAlreadyExists;
         }
 
     }

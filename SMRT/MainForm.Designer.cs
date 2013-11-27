@@ -40,6 +40,7 @@
             this.splitSourceButton = new System.Windows.Forms.Button();
             this.getSheetsAndColumnsButton = new System.Windows.Forms.Button();
             this.firstRowIsAColumnHeaderCheckBox = new System.Windows.Forms.CheckBox();
+            this.testTwitterButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -147,11 +148,22 @@
             this.firstRowIsAColumnHeaderCheckBox.Text = "The first has column names";
             this.firstRowIsAColumnHeaderCheckBox.UseVisualStyleBackColor = true;
             // 
+            // testTwitterButton
+            // 
+            this.testTwitterButton.Location = new System.Drawing.Point(148, 227);
+            this.testTwitterButton.Name = "testTwitterButton";
+            this.testTwitterButton.Size = new System.Drawing.Size(75, 23);
+            this.testTwitterButton.TabIndex = 13;
+            this.testTwitterButton.Text = "Test Twitter";
+            this.testTwitterButton.UseVisualStyleBackColor = true;
+            this.testTwitterButton.Click += new System.EventHandler(this.testTwitterButton_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(505, 262);
+            this.Controls.Add(this.testTwitterButton);
             this.Controls.Add(this.firstRowIsAColumnHeaderCheckBox);
             this.Controls.Add(this.getSheetsAndColumnsButton);
             this.Controls.Add(this.splitSourceButton);
@@ -183,6 +195,7 @@
         private System.Windows.Forms.Button splitSourceButton;
         private System.Windows.Forms.Button getSheetsAndColumnsButton;
         private System.Windows.Forms.CheckBox firstRowIsAColumnHeaderCheckBox;
+        private System.Windows.Forms.Button testTwitterButton;
     }
 }
 
