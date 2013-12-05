@@ -29,6 +29,10 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             {
                 View.IsFileValid = false;
             }
+            catch (Exception e)
+            {
+                View.UnhandledException = e.Message + "\n\nThis additional info should be passed on to your tech support:\n\n\n" + e.ToString();
+            }
         }
 
         public void DisplayColumnNames(string filename, string sheetname)
@@ -40,6 +44,10 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             catch (System.IO.FileNotFoundException e)
             {
                 View.IsFileValid = false;
+            }
+            catch (Exception e)
+            {
+                View.UnhandledException = e.Message + "\n\nThis additional info should be passed on to your tech support:\n\n\n" + e.ToString();
             }
         }
 
@@ -65,6 +73,10 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             {
                 View.IsFileValid = false;
             }
+            catch (Exception e)
+            {
+                View.UnhandledException = e.Message + "\n\nThis additional info should be passed on to your tech support:\n\n\n" + e.ToString();
+            }
 
             return rc;
         }
@@ -79,6 +91,10 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             catch (System.IO.FileNotFoundException e)
             {
                 View.IsFileValid = false;
+            }
+            catch (Exception e)
+            {
+                View.UnhandledException = e.Message + "\n\nThis additional info should be passed on to your tech support:\n\n\n" + e.ToString();
             }
 
             return rc;

@@ -45,12 +45,26 @@ namespace TwinArch.SMRT
         {
             set
             {
-                MessageBox.Show("The file selected is not a valid Excel for this tool. Double-check that the file exists, " +
-                    "that it is not in use by any other program, and that it is an XLSX file (XLS files cannot be used).",
-                "Invalid file",
+                if (!value)
+                {
+                    MessageBox.Show("The file selected is not a valid Excel for this tool. Double-check that the file exists, " +
+                        "that it is not in use by any other program, that it is not read-only and you have permission to change it, " +
+                        "and that it is an XLSX file (XLS files cannot be used).",
+                    "SMRT - Invalid file",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        public String UnhandledException
+        {
+            set
+            {
+                MessageBox.Show("There was an unexpected and unknown error. The message for the error is:\n"+ value,
+                "SMRT - Unexpected error",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
-
             }
         }
 
@@ -98,7 +112,7 @@ namespace TwinArch.SMRT
             {
                 this.Cursor = Cursors.Default;
                 DialogResult result = MessageBox.Show("The columns that will contain the Domain Name, Poster ID, and Mention ID already exist in this Excel file. Do you want to overwrite the data that already exists in those columns?",
-                    "Columns already exist",
+                    "SMRT - Columns already exist",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
@@ -112,11 +126,13 @@ namespace TwinArch.SMRT
             {
                 this.Cursor = Cursors.Default;
                 MessageBox.Show("The column you selected does not appear to contain URLs. Please select another column.",
-                    "Column does not contain URLs.",
+                    "SMRT - Column does not contain URLs.",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
             }
             this.Cursor = Cursors.Default;
+            if (rc == SMRT_MVPLibrary.ReturnCode.Success)
+                MessageBox.Show("Done!", "SMRT - Split Source Into Parts", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void getSheetsAndColumnsButton_Click(object sender, EventArgs e)
@@ -142,7 +158,7 @@ namespace TwinArch.SMRT
             {
                 this.Cursor = Cursors.Default;
                 DialogResult result = MessageBox.Show("The columns that will contain the Twitter info already exist in this Excel file. Do you want to overwrite the data that already exists in those columns?",
-                    "Columns already exist",
+                    "SMRT - Columns already exist",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
@@ -155,12 +171,15 @@ namespace TwinArch.SMRT
             if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsMissing)
             {
                 this.Cursor = Cursors.Default;
-                MessageBox.Show("The sheet you selected does not appear to contain a column called PosterID. Please select another column.",
-                    "Sheet does not contain PosterID.",
+                MessageBox.Show("The sheet you selected does not appear to contain a column called PosterID."+
+                    " This column is created when you run the \"Split Source Into Parts\" function, so please run that first.",
+                    "SMRT - Sheet does not contain PosterID.",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
             }
             this.Cursor = Cursors.Default;
+            if (rc == SMRT_MVPLibrary.ReturnCode.Success)
+                MessageBox.Show("Done!", "SMRT - Get Twitter Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
 

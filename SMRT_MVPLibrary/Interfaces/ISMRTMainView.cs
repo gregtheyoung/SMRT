@@ -12,5 +12,6 @@ namespace TwinArch.SMRT_MVPLibrary.Interfaces
         Dictionary<string, string> ColumnNames { set; }
         String AlertMessage { set; }
         bool IsFileValid { set; }
+        String UnhandledException { set; }
     }
 }

@@ -173,8 +173,14 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
                 if (columnAdded)
                 {
-                    pkg.Save();
-                    PackageDispose();
+                    try
+                    {
+                        pkg.Save();
+                    }
+                    finally
+                    {
+                        PackageDispose();
+                    }
                 }
                 rc = ReturnCode.Success;
             }
@@ -190,14 +196,11 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
             if (!String.IsNullOrEmpty(fileName))
             {
-                try
-                {
-                    ExcelPackage pkg = Package(fileName);
+                ExcelPackage pkg = Package(fileName);
+                if (pkg.File.IsReadOnly)
+                    isValid = false;
+                else
                     isValid = true;
-                }
-                catch (Exception e)
-                {
-                }
             }
 
             return isValid;
@@ -228,8 +231,14 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 tempWorkSheet.Cells["A1"].LoadFromDataTable(newValuesTable, true);
 
                 // Save it off.
-                pkg.Save();
-                PackageDispose();
+                try
+                {
+                    pkg.Save();
+                }
+                finally
+                {
+                    PackageDispose();
+                }
 
 
                 // Now we have to use Excel automation in order to copy the data from the working temp sheet
@@ -281,9 +290,15 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 book.Sheets[tempSheetName].Delete();
 
                 // Save and exit
-                book.Save();
-                book.Close();
-                app.Quit();
+                try
+                {
+                    book.Save();
+                    book.Close();
+                }
+                finally
+                {
+                    app.Quit();
+                }
 
                 rc = ReturnCode.Success;
 

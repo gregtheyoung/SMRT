@@ -41,6 +41,12 @@
             this.getSheetsAndColumnsButton = new System.Windows.Forms.Button();
             this.firstRowIsAColumnHeaderCheckBox = new System.Windows.Forms.CheckBox();
             this.testTwitterButton = new System.Windows.Forms.Button();
+            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabSplit = new System.Windows.Forms.TabPage();
+            this.tabTwitter = new System.Windows.Forms.TabPage();
+            this.tabControl1.SuspendLayout();
+            this.tabSplit.SuspendLayout();
+            this.tabTwitter.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -58,13 +64,13 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.excelFileNameTextBox.Location = new System.Drawing.Point(148, 13);
             this.excelFileNameTextBox.Name = "excelFileNameTextBox";
-            this.excelFileNameTextBox.Size = new System.Drawing.Size(264, 20);
+            this.excelFileNameTextBox.Size = new System.Drawing.Size(240, 20);
             this.excelFileNameTextBox.TabIndex = 1;
             // 
             // selectFileButton
             // 
             this.selectFileButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.selectFileButton.Location = new System.Drawing.Point(419, 9);
+            this.selectFileButton.Location = new System.Drawing.Point(395, 9);
             this.selectFileButton.Name = "selectFileButton";
             this.selectFileButton.Size = new System.Drawing.Size(75, 23);
             this.selectFileButton.TabIndex = 2;
@@ -83,7 +89,7 @@
             this.sheetNameCombo.FormattingEnabled = true;
             this.sheetNameCombo.Location = new System.Drawing.Point(148, 70);
             this.sheetNameCombo.Name = "sheetNameCombo";
-            this.sheetNameCombo.Size = new System.Drawing.Size(264, 21);
+            this.sheetNameCombo.Size = new System.Drawing.Size(240, 21);
             this.sheetNameCombo.TabIndex = 3;
             this.sheetNameCombo.SelectedIndexChanged += new System.EventHandler(this.sheetNameCombo_SelectedIndexChanged);
             // 
@@ -101,24 +107,24 @@
             this.columnsComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.columnsComboBox.FormattingEnabled = true;
-            this.columnsComboBox.Location = new System.Drawing.Point(148, 98);
+            this.columnsComboBox.Location = new System.Drawing.Point(176, 12);
             this.columnsComboBox.Name = "columnsComboBox";
-            this.columnsComboBox.Size = new System.Drawing.Size(264, 21);
+            this.columnsComboBox.Size = new System.Drawing.Size(227, 21);
             this.columnsComboBox.TabIndex = 5;
             this.columnsComboBox.SelectedIndexChanged += new System.EventHandler(this.columnsComboBox_SelectedIndexChanged);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 101);
+            this.label3.Location = new System.Drawing.Point(6, 15);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(129, 13);
+            this.label3.Size = new System.Drawing.Size(164, 13);
             this.label3.TabIndex = 6;
-            this.label3.Text = "Select column with URLs:";
+            this.label3.Text = "Select column with source URLs:";
             // 
             // splitSourceButton
             // 
-            this.splitSourceButton.Location = new System.Drawing.Point(148, 148);
+            this.splitSourceButton.Location = new System.Drawing.Point(9, 67);
             this.splitSourceButton.Name = "splitSourceButton";
             this.splitSourceButton.Size = new System.Drawing.Size(122, 23);
             this.splitSourceButton.TabIndex = 10;
@@ -141,34 +147,68 @@
             this.firstRowIsAColumnHeaderCheckBox.AutoSize = true;
             this.firstRowIsAColumnHeaderCheckBox.Checked = true;
             this.firstRowIsAColumnHeaderCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.firstRowIsAColumnHeaderCheckBox.Location = new System.Drawing.Point(148, 125);
+            this.firstRowIsAColumnHeaderCheckBox.Location = new System.Drawing.Point(176, 39);
             this.firstRowIsAColumnHeaderCheckBox.Name = "firstRowIsAColumnHeaderCheckBox";
-            this.firstRowIsAColumnHeaderCheckBox.Size = new System.Drawing.Size(155, 17);
+            this.firstRowIsAColumnHeaderCheckBox.Size = new System.Drawing.Size(241, 17);
             this.firstRowIsAColumnHeaderCheckBox.TabIndex = 12;
-            this.firstRowIsAColumnHeaderCheckBox.Text = "The first has column names";
+            this.firstRowIsAColumnHeaderCheckBox.Text = "The first row in this sheet has column headers";
             this.firstRowIsAColumnHeaderCheckBox.UseVisualStyleBackColor = true;
             // 
             // testTwitterButton
             // 
-            this.testTwitterButton.Location = new System.Drawing.Point(148, 227);
+            this.testTwitterButton.Location = new System.Drawing.Point(6, 6);
             this.testTwitterButton.Name = "testTwitterButton";
-            this.testTwitterButton.Size = new System.Drawing.Size(75, 23);
+            this.testTwitterButton.Size = new System.Drawing.Size(122, 23);
             this.testTwitterButton.TabIndex = 13;
-            this.testTwitterButton.Text = "Test Twitter";
+            this.testTwitterButton.Text = "Get Twitter Info";
             this.testTwitterButton.UseVisualStyleBackColor = true;
             this.testTwitterButton.Click += new System.EventHandler(this.testTwitterButton_Click);
+            // 
+            // tabControl1
+            // 
+            this.tabControl1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabControl1.Controls.Add(this.tabSplit);
+            this.tabControl1.Controls.Add(this.tabTwitter);
+            this.tabControl1.Location = new System.Drawing.Point(16, 97);
+            this.tabControl1.Name = "tabControl1";
+            this.tabControl1.SelectedIndex = 0;
+            this.tabControl1.Size = new System.Drawing.Size(453, 126);
+            this.tabControl1.TabIndex = 14;
+            // 
+            // tabSplit
+            // 
+            this.tabSplit.BackColor = System.Drawing.Color.Transparent;
+            this.tabSplit.Controls.Add(this.firstRowIsAColumnHeaderCheckBox);
+            this.tabSplit.Controls.Add(this.columnsComboBox);
+            this.tabSplit.Controls.Add(this.label3);
+            this.tabSplit.Controls.Add(this.splitSourceButton);
+            this.tabSplit.Location = new System.Drawing.Point(4, 22);
+            this.tabSplit.Name = "tabSplit";
+            this.tabSplit.Padding = new System.Windows.Forms.Padding(3);
+            this.tabSplit.Size = new System.Drawing.Size(445, 100);
+            this.tabSplit.TabIndex = 0;
+            this.tabSplit.Text = "Split Source Into Parts";
+            // 
+            // tabTwitter
+            // 
+            this.tabTwitter.BackColor = System.Drawing.SystemColors.Control;
+            this.tabTwitter.Controls.Add(this.testTwitterButton);
+            this.tabTwitter.Location = new System.Drawing.Point(4, 22);
+            this.tabTwitter.Name = "tabTwitter";
+            this.tabTwitter.Padding = new System.Windows.Forms.Padding(3);
+            this.tabTwitter.Size = new System.Drawing.Size(445, 100);
+            this.tabTwitter.TabIndex = 1;
+            this.tabTwitter.Text = "Get Twitter Info";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(505, 262);
-            this.Controls.Add(this.testTwitterButton);
-            this.Controls.Add(this.firstRowIsAColumnHeaderCheckBox);
+            this.ClientSize = new System.Drawing.Size(481, 262);
+            this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.getSheetsAndColumnsButton);
-            this.Controls.Add(this.splitSourceButton);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.columnsComboBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.sheetNameCombo);
             this.Controls.Add(this.selectFileButton);
@@ -177,6 +217,10 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "SMRT - Social Media Research Tool";
+            this.tabControl1.ResumeLayout(false);
+            this.tabSplit.ResumeLayout(false);
+            this.tabSplit.PerformLayout();
+            this.tabTwitter.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -196,6 +240,9 @@
         private System.Windows.Forms.Button getSheetsAndColumnsButton;
         private System.Windows.Forms.CheckBox firstRowIsAColumnHeaderCheckBox;
         private System.Windows.Forms.Button testTwitterButton;
+        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabPage tabSplit;
+        private System.Windows.Forms.TabPage tabTwitter;
     }
 }
 
