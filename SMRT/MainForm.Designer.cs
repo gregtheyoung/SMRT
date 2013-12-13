@@ -44,6 +44,9 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabSplit = new System.Windows.Forms.TabPage();
             this.tabTwitter = new System.Windows.Forms.TabPage();
+            this.numOfTopPostersTextBox = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabSplit.SuspendLayout();
             this.tabTwitter.SuspendLayout();
@@ -62,19 +65,19 @@
             // 
             this.excelFileNameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.excelFileNameTextBox.Location = new System.Drawing.Point(148, 13);
+            this.excelFileNameTextBox.Location = new System.Drawing.Point(107, 13);
             this.excelFileNameTextBox.Name = "excelFileNameTextBox";
-            this.excelFileNameTextBox.Size = new System.Drawing.Size(240, 20);
+            this.excelFileNameTextBox.Size = new System.Drawing.Size(313, 20);
             this.excelFileNameTextBox.TabIndex = 1;
             // 
             // selectFileButton
             // 
             this.selectFileButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.selectFileButton.Location = new System.Drawing.Point(395, 9);
+            this.selectFileButton.Location = new System.Drawing.Point(426, 13);
             this.selectFileButton.Name = "selectFileButton";
-            this.selectFileButton.Size = new System.Drawing.Size(75, 23);
+            this.selectFileButton.Size = new System.Drawing.Size(28, 23);
             this.selectFileButton.TabIndex = 2;
-            this.selectFileButton.Text = "Select file...";
+            this.selectFileButton.Text = "...";
             this.selectFileButton.UseVisualStyleBackColor = true;
             this.selectFileButton.Click += new System.EventHandler(this.selectFileButton_Click);
             // 
@@ -87,9 +90,9 @@
             this.sheetNameCombo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.sheetNameCombo.FormattingEnabled = true;
-            this.sheetNameCombo.Location = new System.Drawing.Point(148, 70);
+            this.sheetNameCombo.Location = new System.Drawing.Point(107, 70);
             this.sheetNameCombo.Name = "sheetNameCombo";
-            this.sheetNameCombo.Size = new System.Drawing.Size(240, 21);
+            this.sheetNameCombo.Size = new System.Drawing.Size(313, 21);
             this.sheetNameCombo.TabIndex = 3;
             this.sheetNameCombo.SelectedIndexChanged += new System.EventHandler(this.sheetNameCombo_SelectedIndexChanged);
             // 
@@ -109,7 +112,7 @@
             this.columnsComboBox.FormattingEnabled = true;
             this.columnsComboBox.Location = new System.Drawing.Point(176, 12);
             this.columnsComboBox.Name = "columnsComboBox";
-            this.columnsComboBox.Size = new System.Drawing.Size(227, 21);
+            this.columnsComboBox.Size = new System.Drawing.Size(157, 21);
             this.columnsComboBox.TabIndex = 5;
             this.columnsComboBox.SelectedIndexChanged += new System.EventHandler(this.columnsComboBox_SelectedIndexChanged);
             // 
@@ -124,7 +127,7 @@
             // 
             // splitSourceButton
             // 
-            this.splitSourceButton.Location = new System.Drawing.Point(9, 67);
+            this.splitSourceButton.Location = new System.Drawing.Point(9, 62);
             this.splitSourceButton.Name = "splitSourceButton";
             this.splitSourceButton.Size = new System.Drawing.Size(122, 23);
             this.splitSourceButton.TabIndex = 10;
@@ -134,7 +137,7 @@
             // 
             // getSheetsAndColumnsButton
             // 
-            this.getSheetsAndColumnsButton.Location = new System.Drawing.Point(148, 39);
+            this.getSheetsAndColumnsButton.Location = new System.Drawing.Point(107, 39);
             this.getSheetsAndColumnsButton.Name = "getSheetsAndColumnsButton";
             this.getSheetsAndColumnsButton.Size = new System.Drawing.Size(122, 23);
             this.getSheetsAndColumnsButton.TabIndex = 11;
@@ -147,7 +150,7 @@
             this.firstRowIsAColumnHeaderCheckBox.AutoSize = true;
             this.firstRowIsAColumnHeaderCheckBox.Checked = true;
             this.firstRowIsAColumnHeaderCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.firstRowIsAColumnHeaderCheckBox.Location = new System.Drawing.Point(176, 39);
+            this.firstRowIsAColumnHeaderCheckBox.Location = new System.Drawing.Point(9, 39);
             this.firstRowIsAColumnHeaderCheckBox.Name = "firstRowIsAColumnHeaderCheckBox";
             this.firstRowIsAColumnHeaderCheckBox.Size = new System.Drawing.Size(241, 17);
             this.firstRowIsAColumnHeaderCheckBox.TabIndex = 12;
@@ -156,7 +159,7 @@
             // 
             // testTwitterButton
             // 
-            this.testTwitterButton.Location = new System.Drawing.Point(6, 6);
+            this.testTwitterButton.Location = new System.Drawing.Point(6, 35);
             this.testTwitterButton.Name = "testTwitterButton";
             this.testTwitterButton.Size = new System.Drawing.Size(122, 23);
             this.testTwitterButton.TabIndex = 13;
@@ -174,7 +177,7 @@
             this.tabControl1.Location = new System.Drawing.Point(16, 97);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(453, 126);
+            this.tabControl1.Size = new System.Drawing.Size(445, 126);
             this.tabControl1.TabIndex = 14;
             // 
             // tabSplit
@@ -187,20 +190,50 @@
             this.tabSplit.Location = new System.Drawing.Point(4, 22);
             this.tabSplit.Name = "tabSplit";
             this.tabSplit.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSplit.Size = new System.Drawing.Size(445, 100);
+            this.tabSplit.Size = new System.Drawing.Size(404, 100);
             this.tabSplit.TabIndex = 0;
             this.tabSplit.Text = "Split Source Into Parts";
             // 
             // tabTwitter
             // 
             this.tabTwitter.BackColor = System.Drawing.SystemColors.Control;
+            this.tabTwitter.Controls.Add(this.label5);
+            this.tabTwitter.Controls.Add(this.label4);
+            this.tabTwitter.Controls.Add(this.numOfTopPostersTextBox);
             this.tabTwitter.Controls.Add(this.testTwitterButton);
             this.tabTwitter.Location = new System.Drawing.Point(4, 22);
             this.tabTwitter.Name = "tabTwitter";
             this.tabTwitter.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTwitter.Size = new System.Drawing.Size(445, 100);
+            this.tabTwitter.Size = new System.Drawing.Size(437, 100);
             this.tabTwitter.TabIndex = 1;
             this.tabTwitter.Text = "Get Twitter Info";
+            // 
+            // numOfTopPostersTextBox
+            // 
+            this.numOfTopPostersTextBox.Location = new System.Drawing.Point(177, 6);
+            this.numOfTopPostersTextBox.Name = "numOfTopPostersTextBox";
+            this.numOfTopPostersTextBox.Size = new System.Drawing.Size(53, 20);
+            this.numOfTopPostersTextBox.TabIndex = 14;
+            this.numOfTopPostersTextBox.TextChanged += new System.EventHandler(this.numOfTopPostersTextBox_TextChanged);
+            this.numOfTopPostersTextBox.Leave += new System.EventHandler(this.numOfTopPostersTextBox_Leave);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(7, 9);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(167, 13);
+            this.label4.TabIndex = 15;
+            this.label4.Text = "Number of top posters to retrieve: ";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(236, 9);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(195, 13);
+            this.label5.TabIndex = 16;
+            this.label5.Text = "(do not exceed 180 due to Twitter limits)";
             // 
             // MainForm
             // 
@@ -221,6 +254,7 @@
             this.tabSplit.ResumeLayout(false);
             this.tabSplit.PerformLayout();
             this.tabTwitter.ResumeLayout(false);
+            this.tabTwitter.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -243,6 +277,9 @@
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabSplit;
         private System.Windows.Forms.TabPage tabTwitter;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox numOfTopPostersTextBox;
+        private System.Windows.Forms.Label label5;
     }
 }
 

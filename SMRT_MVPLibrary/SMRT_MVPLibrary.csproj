@@ -51,7 +51,8 @@
     <Reference Include="EPPlus">
       <HintPath>..\ThirdParty\EPPlus.dll</HintPath>
     </Reference>
-    <Reference Include="oAuthConnection">
+    <Reference Include="oAuthConnection, Version=0.8.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ThirdParty\oAuthConnection.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -63,13 +64,16 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TweetinCore">
+    <Reference Include="TweetinCore, Version=0.8.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ThirdParty\TweetinCore.dll</HintPath>
     </Reference>
-    <Reference Include="Tweetinvi">
+    <Reference Include="Tweetinvi, Version=0.8.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ThirdParty\Tweetinvi.dll</HintPath>
     </Reference>
-    <Reference Include="TwitterToken">
+    <Reference Include="TwitterToken, Version=0.8.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\ThirdParty\TwitterToken.dll</HintPath>
     </Reference>
   </ItemGroup>

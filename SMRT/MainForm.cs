@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Configuration;
 using TwinArch.SMRT_MVPLibrary.Interfaces;
 using TwinArch.SMRT_MVPLibrary.Presenters;
 
@@ -77,6 +78,8 @@ namespace TwinArch.SMRT
             getSheetsAndColumnsButton.Enabled = false;
             testTwitterButton.Enabled = false;
             _presenter = new DataPresenter(this, 3);
+            if (!String.IsNullOrEmpty(ConfigurationManager.AppSettings["MaxTwitterUsersToPull"]))
+                numOfTopPostersTextBox.Text = ConfigurationManager.AppSettings["MaxTwitterUsersToPull"];
         }
 
         private void selectFileButton_Click(object sender, EventArgs e)
@@ -152,34 +155,77 @@ namespace TwinArch.SMRT
 
         private void testTwitterButton_Click(object sender, EventArgs e)
         {
-            this.Cursor = Cursors.WaitCursor;
-            SMRT_MVPLibrary.ReturnCode rc = _presenter.AddTwitterInfo(fileName, sheetNameCombo.Text, false, firstRowIsAColumnHeaderCheckBox.Checked);
-            if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsAlreadyExist)
+            if (NumOfTopPostersIsValid())
             {
-                this.Cursor = Cursors.Default;
-                DialogResult result = MessageBox.Show("The columns that will contain the Twitter info already exist in this Excel file. Do you want to overwrite the data that already exists in those columns?",
-                    "SMRT - Columns already exist",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning);
-                if (result == DialogResult.Yes)
+                this.Cursor = Cursors.WaitCursor;
+                SMRT_MVPLibrary.ReturnCode rc = _presenter.AddTwitterInfo(fileName, sheetNameCombo.Text, false, firstRowIsAColumnHeaderCheckBox.Checked, Math.Max(Math.Min(Convert.ToInt32(numOfTopPostersTextBox.Text), 180), 1));
+                if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsAlreadyExist)
                 {
-                    this.Cursor = Cursors.WaitCursor;
-                    rc = _presenter.AddTwitterInfo(fileName, sheetNameCombo.Text, true, firstRowIsAColumnHeaderCheckBox.Checked);
                     this.Cursor = Cursors.Default;
+                    DialogResult result = MessageBox.Show("The columns that will contain the Twitter info already exist in this Excel file. Do you want to overwrite the data that already exists in those columns?",
+                        "SMRT - Columns already exist",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning);
+                    if (result == DialogResult.Yes)
+                    {
+                        this.Cursor = Cursors.WaitCursor;
+                        rc = _presenter.AddTwitterInfo(fileName, sheetNameCombo.Text, true, firstRowIsAColumnHeaderCheckBox.Checked, Math.Max(Math.Min(Convert.ToInt32(numOfTopPostersTextBox.Text), 180), 1));
+                        this.Cursor = Cursors.Default;
+                    }
                 }
-            }
-            if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsMissing)
-            {
+                if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsMissing)
+                {
+                    this.Cursor = Cursors.Default;
+                    MessageBox.Show("The sheet you selected does not appear to contain a column called PosterID." +
+                        " This column is created when you run the \"Split Source Into Parts\" function, so please run that first.",
+                        "SMRT - Sheet does not contain PosterID.",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
                 this.Cursor = Cursors.Default;
-                MessageBox.Show("The sheet you selected does not appear to contain a column called PosterID."+
-                    " This column is created when you run the \"Split Source Into Parts\" function, so please run that first.",
-                    "SMRT - Sheet does not contain PosterID.",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                if (rc == SMRT_MVPLibrary.ReturnCode.Success)
+                    MessageBox.Show("Done!", "SMRT - Get Twitter Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            this.Cursor = Cursors.Default;
-            if (rc == SMRT_MVPLibrary.ReturnCode.Success)
-                MessageBox.Show("Done!", "SMRT - Get Twitter Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void numOfTopPostersTextBox_TextChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void numOfTopPostersTextBox_Leave(object sender, EventArgs e)
+        {
+            try
+            {
+                int num = Convert.ToInt32(numOfTopPostersTextBox.Text);
+                if ((num < 1) || (num > 180))
+                    MessageBox.Show("The value you entered is not between 1 and 180. Twitter restricts the number of user info requests in a 15-minute period to 180.",
+                        "Not in range", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show("The value you entered is not a number. Please enter an integer value between 1 and 180.",
+                    "Not a number", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
+
+        bool NumOfTopPostersIsValid()
+        {
+            bool rc = false;
+            try
+            {
+                int num = Convert.ToInt32(numOfTopPostersTextBox.Text);
+                if ((num < 1) || (num > 180))
+                    MessageBox.Show("The value you entered is not between 1 and 180. Twitter restricts the number of user info requests in a 15-minute period to 180.",
+                        "Not in range", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                else
+                    rc = true;
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show("The value you entered is not a number. Please enter an integer value between 1 and 180.",
+                    "Not a number", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            return rc;
         }
 
 

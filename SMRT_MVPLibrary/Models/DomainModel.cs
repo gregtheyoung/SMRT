@@ -6,15 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Data;
-using System.Configuration;
 using TwinArch.SMRT_MVPLibrary.Interfaces;
 
 namespace TwinArch.SMRT_MVPLibrary.Models
 {
     public class DomainModel : ISMRTDomain, IDisposable
     {
-        int MaxTwitterUsersToPull = 10;
-
         string[] newURLSplitColumns = { "MentionType", "Domain", "PosterID", "MentionID", "NumPosts" };
         enum NewSplitColumnIndex {MentionType, Domain, PosterID, MentionID, NumPosts};
 
@@ -51,9 +48,6 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     break;
                 }
             }
-
-            if (!String.IsNullOrEmpty(ConfigurationManager.AppSettings["MaxTwitterUsersToPull"]))
-                MaxTwitterUsersToPull = Convert.ToInt32(ConfigurationManager.AppSettings["MaxTwitterUsersToPull"]);
         }
 
         public void Dispose()
@@ -411,7 +405,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             }
         }
 
-        public ReturnCode AddTwitterInfo(string fileName, string sheetName, bool overwriteExistingData, bool firstRowHasHeaders)
+        public ReturnCode AddTwitterInfo(string fileName, string sheetName, bool overwriteExistingData, bool firstRowHasHeaders, int numUsersToRetrieve)
         {
             ReturnCode rc = ReturnCode.Success;
 
@@ -442,8 +436,8 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                         List<string> topTwitterPosters = GetTopTwitterPosters(posterInfoTable);
 
                         // We will only use the top N
-                        if (topTwitterPosters.Count > MaxTwitterUsersToPull)
-                            topTwitterPosters.RemoveRange(MaxTwitterUsersToPull, topTwitterPosters.Count - MaxTwitterUsersToPull);
+                        if (topTwitterPosters.Count > numUsersToRetrieve)
+                            topTwitterPosters.RemoveRange(numUsersToRetrieve, topTwitterPosters.Count - numUsersToRetrieve);
 
                         // Keep a table of all the twitter info. Ensure that there is exactly one for each value in the column.
                         DataTable newValuesTable = new DataTable();

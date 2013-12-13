@@ -20,7 +20,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
     public class EPPlusModel : ISMRTDataModel
     {
         string MaxColumnID = "XFD"; // With Excel 2010+ there are 16384 columns available
-        string MaxRowID = "1000000"; // With Eccel 2010+ there are a little more than 1 million rows available
+        string MaxRowID = "1000000"; // With Excel 2010+ there are a little more than 1 million rows available
 
         ExcelPackage _pkg = null;
         TweetinCore.Interfaces.TwitterToken.IToken _token = null;
@@ -314,6 +314,13 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
             if (cachedUserInfo.ContainsKey(userID))
                 userInfo = cachedUserInfo[userID];
+            //else if (Token.XRateLimitRemaining <= 170)
+            //{
+            //    userInfo.Name = "<error - rate limit>";
+            //    userInfo.NumberOfFollowers = 0;
+            //    userInfo.NumberFollowing = 0;
+            //    userInfo.Description = "";
+            //}
             else
             {
                 try
@@ -336,11 +343,11 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     if (e.Message.Contains("403"))
                         userInfo.Name = "<error - forbidden>";
                     else if (e.Message.Contains("429"))
-                        userInfo.Name = "<error - client error>";
+                        userInfo.Name = "<error - rate limit exceeded or other client error>";
                     else if (e.Message.Contains("404"))
                         userInfo.Name = "<error - not found>";
                     else
-                        userInfo.Name = "error - " + e.Message + ">";
+                        userInfo.Name = "<error - " + e.Message + ">";
                 }
                 catch (Exception e)
                 {

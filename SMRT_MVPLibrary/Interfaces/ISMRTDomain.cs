@@ -52,7 +52,7 @@ namespace TwinArch.SMRT_MVPLibrary.Interfaces
         /// <returns>A return code indicating success or failure</returns>
         /// <exception cref="System.IO.FileNotFoundException">Thrown when the file is not a valid Excel file. It must
         /// exist, not be open by another process, and be an XLSX file (not an older XLS file).</exception>
-        ReturnCode AddTwitterInfo(string fileName, string sheetName, bool overwriteExistingData, bool ignoreFirstRow);
+        ReturnCode AddTwitterInfo(string fileName, string sheetName, bool overwriteExistingData, bool ignoreFirstRow, int numUsersToRetrieve);
 
     }
 }
