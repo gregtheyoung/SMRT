@@ -136,18 +136,23 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         {
             ReturnCode rc = ReturnCode.Success;
 
+            // We are using this because of an issue with saving data to an existing sheet that already has data in it.
+            // It would fail when writing to Conger's server.
+            bool writeToNewSheet = true;
+
             // Check that the file is valid, throw exception if not
             if (!dataModel.FileIsValid(fileName))
                 throw new System.IO.FileNotFoundException();
 
-            // If the existing split out columns are to be overwritten, or if they don't exist yet...
-            if (overwriteExistingData || !DoURLSplitColumnsAlreadyExist(fileName, sheetName))
+            // If writing to a new sheet or the existing split out columns are to be overwritten, or if they don't exist yet...
+            if (writeToNewSheet || overwriteExistingData || !DoURLSplitColumnsAlreadyExist(fileName, sheetName))
             {
                 // Add the new columns to the sheet...
-                rc = dataModel.AddColumns(fileName, sheetName, newURLSplitColumns);
+                if (!writeToNewSheet)
+                    rc = dataModel.AddColumns(fileName, sheetName, newURLSplitColumns);
 
-                // If they were added successfully...
-                if (rc == ReturnCode.Success)
+                // If writing to a new sheet or the columns were added successfully
+                if (writeToNewSheet || (rc == ReturnCode.Success))
                 {
                     // Get the contents of the column. This will provide the row/cell identifier (depends on the
                     // underlying data model implementation) and the value of column for that row/cell.
@@ -230,7 +235,10 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     if (rc == ReturnCode.Success)
                     {
                         AddNumPostCounts(newValuesTable);
-                        dataModel.WriteColumnValues(fileName, sheetName, newValuesTable, firstRowHasHeaders);
+                        if (writeToNewSheet)
+                            dataModel.WriteColumnValuesToNewSheet(fileName, sheetName, newValuesTable, firstRowHasHeaders);
+                        else
+                            dataModel.WriteColumnValues(fileName, sheetName, newValuesTable, firstRowHasHeaders);
                     }
                 }
             }
@@ -409,6 +417,10 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         {
             ReturnCode rc = ReturnCode.Success;
 
+            // We are using this because of an issue with saving data to an existing sheet that already has data in it.
+            // It would fail when writing to Conger's server.
+            bool writeToNewSheet = true;
+
             // Check that the file is valid, throw exception if not
             if (!dataModel.FileIsValid(fileName))
                 throw new System.IO.FileNotFoundException();
@@ -419,13 +431,14 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             else
             {
                 // If the existing split out columns are to be overwritten, or if they don't exist yet...
-                if (overwriteExistingData || !DoTwitterColumnsAlreadyExist(fileName, sheetName))
+                if (writeToNewSheet || overwriteExistingData || !DoTwitterColumnsAlreadyExist(fileName, sheetName))
                 {
                     // Add the new columns to the sheet...
-                    rc = dataModel.AddColumns(fileName, sheetName, newTwitterColumns);
+                    if (!writeToNewSheet)
+                        rc = dataModel.AddColumns(fileName, sheetName, newTwitterColumns);
 
-                    // If they were added successfully...
-                    if (rc == ReturnCode.Success)
+                    // If writing to a new sheet or the columns were added successfully...
+                    if (writeToNewSheet || (rc == ReturnCode.Success))
                     {
                         // Get the contents of the column. This will provide the row/cell identifier (depends on the
                         // underlying data model implementation) and the value of column for that row/cell.
@@ -479,7 +492,10 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                             newValuesTable.Rows.Add(newRow);
                         }
 
-                        dataModel.WriteColumnValues(fileName, sheetName, newValuesTable, firstRowHasHeaders);
+                        if (writeToNewSheet)
+                            dataModel.WriteColumnValuesToNewSheet(fileName, sheetName, newValuesTable, firstRowHasHeaders);
+                        else
+                            dataModel.WriteColumnValues(fileName, sheetName, newValuesTable, firstRowHasHeaders);
                     }
                 }
                 else

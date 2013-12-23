@@ -52,7 +52,7 @@ namespace TwinArch.SMRT_MVPLibrary.Interfaces
         bool FileIsValid(string fileName);
 
         /// <summary>
-        /// Writes values
+        /// Writes values to existing columns in an existing spreadsheet.
         /// </summary>
         /// <param name="fileName"></param>
         /// <param name="sheetName"></param>
@@ -61,6 +61,17 @@ namespace TwinArch.SMRT_MVPLibrary.Interfaces
         /// <param name="firstRow"></param>
         /// <returns></returns>
         ReturnCode WriteColumnValues(string fileName, string sheetName, DataTable newValuesTable, bool firstRowHasHeaders);
+
+        /// <summary>
+        /// Writes values to a new sheet.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="sheetName"></param>
+        /// <param name="columnNames"></param>
+        /// <param name="newValues"></param>
+        /// <param name="firstRow"></param>
+        /// <returns></returns>
+        ReturnCode WriteColumnValuesToNewSheet(string fileName, string sheetName, DataTable newValuesTable, bool firstRowHasHeaders);
 
         ReturnCode GetTwitterUserInfo(string userID, ref TwitterUserInfo twitterUserInfo);
     }

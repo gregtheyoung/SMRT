@@ -206,7 +206,57 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return isValid;
         }
 
+        
+        public ReturnCode WriteColumnValuesToNewSheet(string fileName, string sheetName, System.Data.DataTable newValuesTable, bool firstRowHasHeaders)
+        {
+            string tempSheetName = "SMRT_" + sheetName;
+            // Apparently EPPlus, or perhaps it's Excel, has a limit of 30 chars for a sheet name;
+            tempSheetName = tempSheetName.Substring(0, Math.Min(tempSheetName.Length, 30));
 
+            ReturnCode rc = ReturnCode.Failed;
+
+            if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName))
+            {
+                ExcelPackage pkg = Package(fileName);
+                ExcelWorksheet sheet = pkg.Workbook.Worksheets[sheetName];
+                ExcelWorksheet tempWorkSheet;
+
+                // Create a temp spreadsheet and make sure that we don't overwrite any existing ones.
+                if (pkg.Workbook.Worksheets.FirstOrDefault(s => s.Name.Equals(tempSheetName)) == null)
+                    tempWorkSheet = pkg.Workbook.Worksheets.Add(tempSheetName);
+                else
+                {
+                    // Keep incrementing a counter to add to the end of a candidate sheet name until there
+                    // isn't a sheet by that name.
+                    int i = 1;
+                    string suffix = "_" + i;
+                    string nameToTry = tempSheetName.Substring(0, Math.Min(tempSheetName.Length, 30 - suffix.Length)) + suffix;
+                    while (pkg.Workbook.Worksheets.FirstOrDefault(s => s.Name.Equals(nameToTry)) != null)
+                    {
+                        i++;
+                        suffix = "_" + i;
+                        nameToTry = tempSheetName.Substring(0, Math.Min(tempSheetName.Length, 30 - suffix.Length)) + suffix;
+                    }
+                    tempWorkSheet = pkg.Workbook.Worksheets.Add(nameToTry);
+                }
+
+                // Load from the datatable into the worksheet.
+                tempWorkSheet.Cells["A1"].LoadFromDataTable(newValuesTable, true);
+
+                // Save it off.
+                try
+                {
+                    pkg.Save();
+                }
+                finally
+                {
+                    PackageDispose();
+                }
+            }
+
+            return rc;
+        }
+        
 
         public ReturnCode WriteColumnValues(string fileName, string sheetName, System.Data.DataTable newValuesTable, bool firstRowHasHeaders)
         {
