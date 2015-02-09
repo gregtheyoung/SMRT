@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Data;
+using System.Text.RegularExpressions;
 using TwinArch.SMRT_MVPLibrary.Interfaces;
 
 namespace TwinArch.SMRT_MVPLibrary.Models
@@ -552,6 +553,302 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
             // For each column to contain the split values...
             foreach (string newColumnName in newTwitterColumns)
+            {
+                // If that column already exists in the sheet...
+                if (columnNames.ContainsValue(newColumnName))
+                    newColumnAlreadyExists = true;
+            }
+
+            return newColumnAlreadyExists;
+        }
+
+        public ReturnCode Autocode(string fileNameMentionFile, string sheetName, string mentionTextColumnName, string fileNameAutocodeFile, bool overwriteExistingData, bool firstRowHasHeaders)
+        {
+            bool useRegex = true;
+
+            ReturnCode rc = ReturnCode.Success;
+
+            // We are going to write the same sheet as that which contains the mention text.
+            // There is risk in this because of an issue with saving data to an existing sheet that already has data in it.
+            // It would fail when writing to Conger's server.
+            bool writeToNewSheet = false;
+
+            // Check that the file is valid, throw exception if not
+            if (!dataModel.FileIsValid(fileNameMentionFile))
+                throw new System.IO.FileNotFoundException();
+
+            // Find the code family names from the code family workbook. The names will be the name of the sheets in the code family workbook.
+            List<string> codeFamilyNames = dataModel.GetSheetNames(fileNameAutocodeFile);
+            List<string> newAutocodeColumns = new List<string>();
+            foreach (string codeFamilyName in codeFamilyNames)
+            {
+                newAutocodeColumns.Add(codeFamilyName + ": Selected");
+                newAutocodeColumns.Add(codeFamilyName + ": Total");
+                newAutocodeColumns.Add(codeFamilyName + ": Terms");
+            }
+
+            // If writing to a new sheet or the existing split out columns are to be overwritten, or if they don't exist yet...
+            if (writeToNewSheet || overwriteExistingData || !DoCodeFamilyColumnsAlreadyExist(fileNameMentionFile, newAutocodeColumns, sheetName))
+            {
+
+                // Add the new columns to the sheet...
+                if (!writeToNewSheet)
+                    rc = dataModel.AddColumns(fileNameMentionFile, sheetName, newAutocodeColumns.ToArray());
+
+                // If writing to a new sheet or the columns were added successfully
+                if (writeToNewSheet || (rc == ReturnCode.Success))
+                {
+                    // Get the contents of the column. This will provide the row/cell identifier (depends on the
+                    // underlying data model implementation) and the value of column for that row/cell.
+                    DataTable mentionStringTable = dataModel.GetColumnValuesForColumnNames(fileNameMentionFile, sheetName, new string[] { mentionTextColumnName }, firstRowHasHeaders);
+
+                    // Get the code family terms.
+                    Dictionary<string, List<string>> codeFamilyTermSets = new Dictionary<string, List<string>>();
+                    foreach (string codeFamilyName in codeFamilyNames)
+                    {
+                        List<string> termSets = new List<string>();
+
+                        // Get the contents of the Terms columns. The column must be named "Terms".
+                        DataTable termsTable = dataModel.GetColumnValuesForColumnNames(fileNameAutocodeFile, codeFamilyName, new string[] { "Terms" }, true);
+
+                        foreach (DataRow row in termsTable.Rows)
+                        {
+                            string termSet = row["Terms"].ToString();
+                            if ((termSet != null) && (termSet.Length > 0))
+                                termSets.Add(termSet.Trim());
+                        }
+
+                        codeFamilyTermSets[codeFamilyName] = termSets;
+                    }
+
+                    // Create a data table to hold the new columns.
+                    DataTable newValuesTable = new DataTable();
+                    foreach (string codeFamilyName in codeFamilyNames)
+                    {
+                        newValuesTable.Columns.Add(codeFamilyName + ": Selected");
+                        newValuesTable.Columns.Add(codeFamilyName + ": Total", System.Type.GetType("System.Int16"));
+                        newValuesTable.Columns.Add(codeFamilyName + ": Terms");
+                    }
+
+                    // For each row in the mention worksheet...
+                    foreach (DataRow row in mentionStringTable.Rows)
+                    {
+                        // Create a row for the new values - need to match these rows one-to-one with the existing rows.
+                        DataRow newRow = newValuesTable.NewRow();
+                        string mentionText = row[mentionTextColumnName].ToString();
+                        mentionText.Replace("  ", " "); // Just some minor cleanup.
+
+                        // For each code family...
+                        foreach (string codeFamilyName in codeFamilyTermSets.Keys)
+                        {
+                            // This will hold an entry for each term found and its count.
+                            Dictionary<string, int> termCounts = new Dictionary<string, int>();
+
+                            int total = 0;
+
+                            // For each term set for the code family...
+                            foreach (string termSetString in codeFamilyTermSets[codeFamilyName])
+                            {
+                                int termCount = 0;
+                                string[] splitTerms = termSetString.Split(';');
+                                string firstTerm = splitTerms[0];
+
+                                // For each term in the term set...
+                                foreach (string term in splitTerms)
+                                {
+                                    if (useRegex)
+                                    {
+                                        string rgxTerm = term;
+                                        if (!term.StartsWith("*"))  // If it doesn't start with a wildcard, force it to be word-boundary
+                                            rgxTerm = @"\b" + rgxTerm;
+                                        if (!term.EndsWith("*"))    // If it doesn't end with a wildcard, force it to be a word-boundary
+                                            rgxTerm += @"\b";
+                                        rgxTerm = rgxTerm.Replace("*", ""); // Get rid of wildcards that aren't at the beginning or end
+                                        Regex rgx = new Regex(rgxTerm, RegexOptions.IgnoreCase);
+                                        termCount += rgx.Matches(mentionText).Count;
+                                    }
+                                    // This else code isn't used - just saved in case we need it later
+                                    else
+                                    {
+                                        string[] termArray = new string[] { term.ToLower() };
+                                        termCount += mentionText.ToLower().Split(termArray, StringSplitOptions.None).Length - 1;
+                                    }
+                                }
+                                
+                                if (termCount > 0)
+                                    termCounts[firstTerm] = termCount;
+                             
+                                total += termCount;
+                            }
+                            
+                            // Sort the dictionary of terms and their counts by the count.
+                            var sortedCounts = from entry in termCounts orderby entry.Value descending select entry;
+                            
+                            // Build the string of terms found and their counts.
+                            string termString = "";
+                            foreach (KeyValuePair<string, int> pair in sortedCounts)
+                            {
+                                if (termString.Length > 0)
+                                    termString += "; ";
+                                termString += pair.Key + ":" + pair.Value.ToString();
+                            }
+
+                            newRow[codeFamilyName + ": Selected"] = "";
+                            newRow[codeFamilyName + ": Total"] = total;
+                            newRow[codeFamilyName + ": Terms"] = termString;
+                        }
+                        newValuesTable.Rows.Add(newRow);
+                    }
+
+                    if (rc == ReturnCode.Success)
+                    {
+                        if (writeToNewSheet)
+                            dataModel.WriteColumnValuesToNewSheet(fileNameMentionFile, sheetName, newValuesTable, firstRowHasHeaders);
+                        else
+                            dataModel.WriteColumnValues(fileNameMentionFile, sheetName, newValuesTable, firstRowHasHeaders);
+                    }
+                }
+            }
+            else
+            {
+                rc = ReturnCode.ColumnsAlreadyExist;
+            }
+
+            return rc;
+        }
+
+        private bool DoCodeFamilyColumnsAlreadyExist(string fileName, List<string> codeFamilyNames, string sheetName)
+        {
+            Dictionary<string, string> columnNames = GetColumnNames(fileName, sheetName);
+
+            bool newColumnAlreadyExists = false;
+
+            // For each column to contain the split values...
+            foreach (string newColumnName in codeFamilyNames)
+            {
+                // If that column already exists in the sheet...
+                if (columnNames.ContainsValue(newColumnName))
+                    newColumnAlreadyExists = true;
+            }
+
+            return newColumnAlreadyExists;
+        }
+
+        public ReturnCode RandomSelect(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int percent, int floor, int ceiling, bool overwriteExistingData, bool firstRowHasHeaders)
+        {
+            ReturnCode rc = ReturnCode.Success;
+
+            // We are going to write the same sheet as that which contains the mention text.
+            // There is risk in this because of an issue with saving data to an existing sheet that already has data in it.
+            // It would fail when writing to Conger's server.
+            bool writeToNewSheet = false;
+
+            // Check that the file is valid, throw exception if not
+            if (!dataModel.FileIsValid(fileNameMentionFile))
+                throw new System.IO.FileNotFoundException();
+
+            // If writing to a new sheet or the existing split out columns are to be overwritten, or if they don't exist yet...
+            if (writeToNewSheet || overwriteExistingData || !DoRandomSelectColumnsAlreadyExist(fileNameMentionFile, new string[] { columnNameAutocodeCounts, columnNameRandomSelect }, sheetName))
+            {
+
+                // Add the new columns to the sheet...
+                if (!writeToNewSheet)
+                    rc = dataModel.AddColumns(fileNameMentionFile, sheetName, new string[] { columnNameAutocodeCounts, columnNameRandomSelect });
+
+                // If writing to a new sheet or the columns were added successfully
+                if (writeToNewSheet || (rc == ReturnCode.Success))
+                {
+                    // Get the contents of the column. This will provide the row/cell identifier (depends on the
+                    // underlying data model implementation) and the value of column for that row/cell.
+                    DataTable countsAndSelectionsTable = dataModel.GetColumnValuesForColumnNames(fileNameMentionFile, sheetName, new string[] { columnNameAutocodeCounts, columnNameRandomSelect }, firstRowHasHeaders);
+
+                    // This will contain the row number and the selection "Y" value for all rows that are part of the 
+                    // candidate set of rows. The selection will contain what the file had, and then will be changed as needed
+                    // by the random sampling below.
+                    List<Tuple<int, string>> candidateRows = new List<Tuple<int, string>>();
+                    
+                    int rowNum = 0;
+                    int selectedCount = 0;
+                    
+                    // For each row in the worksheet...
+                    foreach (DataRow row in countsAndSelectionsTable.Rows)
+                    {
+                        // If the count is > 0 or if the selection is already a "Y", then add it as a candidate row.
+                        if ((Convert.ToInt32(row[columnNameAutocodeCounts]) > 0) || row[columnNameRandomSelect].ToString().ToUpper().Equals("Y"))
+                            candidateRows.Add(Tuple.Create(rowNum, row[columnNameRandomSelect].ToString().ToUpper()));
+                        // If the selection is already a "Y", up our already selected count.
+                        if (row[columnNameRandomSelect].ToString().ToUpper().Equals("Y"))
+                            selectedCount++;
+                        rowNum++;
+                    }
+
+                    // How many should we select? The target percent, but no less than the floor and no more than the ceiling.
+                    int targetCount = Math.Min(ceiling, Math.Max(floor, Convert.ToInt32(Math.Round(candidateRows.Count * percent / 100.0))));
+
+                    // Only if the current count is already less than the target count do we continue, since otherwise 
+                    // we already have enough selected and we never reduce the count.
+                    if ((selectedCount < targetCount) && (candidateRows.Count > 0))
+                    {
+
+                        Random randomGenerator = new Random();
+
+                        // While we have not selected enough, generate another random number.
+                        // If that candidate row has not yet been selected, selected it and add to the selected count.
+                        while (selectedCount < targetCount)
+                        {
+                            int r = randomGenerator.Next(candidateRows.Count);
+                            if (!candidateRows[r].Item2.Equals("Y"))
+                            {
+                                candidateRows[r] = Tuple.Create(candidateRows[r].Item1, "Y");
+                                selectedCount++;
+                            }
+                        }
+
+                        // Keep a list of all the new columns info. Ensure that there is exactly one for each value in the column.
+                        DataTable newValuesTable = new DataTable();
+                        newValuesTable.Columns.Add(columnNameRandomSelect);
+
+                        // Create the new data table but without any selections. We'll populate those next.
+                        foreach (DataRow row in countsAndSelectionsTable.Rows)
+                        {
+                            DataRow newRow = newValuesTable.NewRow();
+                            newRow[columnNameRandomSelect] = "";
+                            newValuesTable.Rows.Add(newRow);
+                        }
+
+                        // For each candidate row that was selected, mark that in the new columns.
+                        foreach (Tuple<int, string> t in candidateRows)
+                        {
+                            if (t.Item2.Equals("Y"))
+                                newValuesTable.Rows[t.Item1][columnNameRandomSelect] = "Y";
+                        }
+
+                        if (rc == ReturnCode.Success)
+                        {
+                            if (writeToNewSheet)
+                                dataModel.WriteColumnValuesToNewSheet(fileNameMentionFile, sheetName, newValuesTable, firstRowHasHeaders);
+                            else
+                                dataModel.WriteColumnValues(fileNameMentionFile, sheetName, newValuesTable, firstRowHasHeaders);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                rc = ReturnCode.ColumnsAlreadyExist;
+            }
+
+            return rc;
+        }
+
+        private bool DoRandomSelectColumnsAlreadyExist(string fileName, string[] randomSelectColumnNames, string sheetName)
+        {
+            Dictionary<string, string> columnNames = GetColumnNames(fileName, sheetName);
+
+            bool newColumnAlreadyExists = false;
+
+            // For each column to contain the split values...
+            foreach (string newColumnName in randomSelectColumnNames)
             {
                 // If that column already exists in the sheet...
                 if (columnNames.ContainsValue(newColumnName))

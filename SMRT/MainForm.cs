@@ -16,6 +16,7 @@ namespace TwinArch.SMRT
     public partial class MainForm : Form, ISMRTMainView
     {
         private string fileName;
+        private string fileNameAutocodeFile;
         private DataPresenter _presenter;
 
         public List<string> SheetNames
@@ -32,6 +33,18 @@ namespace TwinArch.SMRT
                     columnsComboBox.DataSource = new BindingSource(value, null);
                     columnsComboBox.DisplayMember = "Value";
                     columnsComboBox.ValueMember = "Key";
+
+                    columnsForMentionTextComboBox.DataSource = new BindingSource(value, null);
+                    columnsForMentionTextComboBox.DisplayMember = "Value";
+                    columnsForMentionTextComboBox.ValueMember = "Key";
+
+                    columnsForAutocodeCountsComboxBox.DataSource = new BindingSource(value, null);
+                    columnsForAutocodeCountsComboxBox.DisplayMember = "Value";
+                    columnsForAutocodeCountsComboxBox.ValueMember = "Key";
+
+                    columnsForRandomSelectComboxBox.DataSource = new BindingSource(value, null);
+                    columnsForRandomSelectComboxBox.DisplayMember = "Value";
+                    columnsForRandomSelectComboxBox.ValueMember = "Key";
                 }
             }
         }
@@ -74,6 +87,9 @@ namespace TwinArch.SMRT
             InitializeComponent();
             sheetNameCombo.Enabled = false;
             columnsComboBox.Enabled = false;
+            columnsForMentionTextComboBox.Enabled = false;
+            columnsForAutocodeCountsComboxBox.Enabled = false;
+            columnsForRandomSelectComboxBox.Enabled = false;
             splitSourceButton.Enabled = false;
             getSheetsAndColumnsButton.Enabled = false;
             testTwitterButton.Enabled = false;
@@ -103,6 +119,9 @@ namespace TwinArch.SMRT
             this.Cursor = Cursors.WaitCursor;
             _presenter.DisplayColumnNames(excelFileNameTextBox.Text, sheetNameCombo.Text);
             columnsComboBox.Enabled = true;
+            columnsForMentionTextComboBox.Enabled = true;
+            columnsForAutocodeCountsComboxBox.Enabled = true;
+            columnsForRandomSelectComboxBox.Enabled = true;
             testTwitterButton.Enabled = true;
             this.Cursor = Cursors.Default;
         }
@@ -226,6 +245,84 @@ namespace TwinArch.SMRT
                     "Not a number", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
             return rc;
+        }
+
+        private void columnsForMentionTextComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void selectCodeFamilyFileButton_Click(object sender, EventArgs e)
+        {
+            fileOpenDialog.FileName = codeFamilyFileNameTextBox.Text;
+
+            fileOpenDialog.CheckFileExists = true;
+            fileOpenDialog.Filter = "Excel files (*.xlsx, *.xls, *.xlsm)|*.xlsx;*.xls;*.xlsm|All files (*.*)|*.*";
+            fileOpenDialog.Multiselect = false;
+
+            if (fileOpenDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                fileNameAutocodeFile = fileOpenDialog.FileName;
+                codeFamilyFileNameTextBox.Text = fileName;
+            }
+        }
+
+        private void buttonAutocode_Click(object sender, EventArgs e)
+        {
+            this.Cursor = Cursors.WaitCursor;
+            SMRT_MVPLibrary.ReturnCode rc = _presenter.Autocode(fileName, sheetNameCombo.Text, columnsForMentionTextComboBox.Text, fileNameAutocodeFile, false, firstRowIsAColumnHeaderCheckBox.Checked);
+            if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsAlreadyExist)
+            {
+                this.Cursor = Cursors.Default;
+                DialogResult result = MessageBox.Show("The columns that will contain the code family counts already exist in this Excel file. Do you want to overwrite the data that already exists in those columns?",
+                    "SMRT - Columns already exist",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+                if (result == DialogResult.Yes)
+                {
+                    this.Cursor = Cursors.WaitCursor;
+                    rc = _presenter.Autocode(fileName, sheetNameCombo.Text, columnsForMentionTextComboBox.Text, fileNameAutocodeFile, true, firstRowIsAColumnHeaderCheckBox.Checked);
+                    this.Cursor = Cursors.Default;
+                }
+            }
+            this.Cursor = Cursors.Default;
+            if (rc == SMRT_MVPLibrary.ReturnCode.Success)
+                MessageBox.Show("Done!", "SMRT - Autocode", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void randomSelectButton_Click(object sender, EventArgs e)
+        {
+            this.Cursor = Cursors.WaitCursor;
+            SMRT_MVPLibrary.ReturnCode rc = _presenter.RandomSelect(fileName, 
+                                                                    sheetNameCombo.Text, 
+                                                                    columnsForAutocodeCountsComboxBox.Text, 
+                                                                    columnsForRandomSelectComboxBox.Text, 
+                                                                    (int)percentageNumeric.Value, 
+                                                                    (int)floorNumeric.Value, 
+                                                                    (int)ceilingNumeric.Value, 
+                                                                    false, 
+                                                                    firstRowIsAColumnHeaderCheckBox.Checked);
+            if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsAlreadyExist)
+            {
+                this.Cursor = Cursors.Default;
+                DialogResult result = MessageBox.Show("The columns that will contain the code family counts already exist in this Excel file. Do you want to overwrite the data that already exists in those columns?",
+                    "SMRT - Columns already exist",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+                if (result == DialogResult.Yes)
+                {
+                    this.Cursor = Cursors.WaitCursor;
+                    rc = _presenter.RandomSelect(fileName, sheetNameCombo.Text, columnsForAutocodeCountsComboxBox.Text, columnsForRandomSelectComboxBox.Text, (int)percentageNumeric.Value, (int)floorNumeric.Value, (int)ceilingNumeric.Value, true, firstRowIsAColumnHeaderCheckBox.Checked);
+                    this.Cursor = Cursors.Default;
+                }
+            }
+            this.Cursor = Cursors.Default;
+            if (rc == SMRT_MVPLibrary.ReturnCode.Success)
+                MessageBox.Show("Done!", "SMRT - Random Select", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
 

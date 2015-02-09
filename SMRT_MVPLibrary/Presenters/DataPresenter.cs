@@ -100,5 +100,45 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             return rc;
         }
 
+        public ReturnCode Autocode(string fileNameMentionFile, string sheetName, string columnName, string fileNameAutocodeFile, bool overwriteExistingData, bool ignoreFirstRow)
+        {
+            ReturnCode rc = ReturnCode.Failed;
+
+            try
+            {
+                rc = Model.Autocode(fileNameMentionFile, sheetName, columnName, fileNameAutocodeFile, overwriteExistingData, ignoreFirstRow);
+            }
+            catch (System.IO.FileNotFoundException e)
+            {
+                View.IsFileValid = false;
+            }
+            catch (Exception e)
+            {
+                View.UnhandledException = e.Message + "\n\nThis additional info should be passed on to your tech support:\n\n\n" + e.ToString();
+            }
+
+            return rc;
+        }
+
+        public ReturnCode RandomSelect(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int percent, int floor, int ceiling, bool overwriteExistingData, bool ignoreFirstRow)
+        {
+            ReturnCode rc = ReturnCode.Failed;
+
+            try
+            {
+                rc = Model.RandomSelect(fileNameMentionFile, sheetName, columnNameAutocodeCounts, columnNameRandomSelect, percent, floor, ceiling, overwriteExistingData, ignoreFirstRow);
+            }
+            catch (System.IO.FileNotFoundException e)
+            {
+                View.IsFileValid = false;
+            }
+            catch (Exception e)
+            {
+                View.UnhandledException = e.Message + "\n\nThis additional info should be passed on to your tech support:\n\n\n" + e.ToString();
+            }
+
+            return rc;
+        }
+
     }
 }
