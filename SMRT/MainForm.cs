@@ -267,7 +267,7 @@ namespace TwinArch.SMRT
             if (fileOpenDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 fileNameAutocodeFile = fileOpenDialog.FileName;
-                codeFamilyFileNameTextBox.Text = fileName;
+                codeFamilyFileNameTextBox.Text = fileNameAutocodeFile;
             }
         }
 

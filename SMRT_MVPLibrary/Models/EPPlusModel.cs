@@ -13,6 +13,7 @@ using TweetinCore;
 using Tweetinvi;
 using TwitterToken;
 using System.Configuration;
+using System.Text.RegularExpressions;
 
 
 namespace TwinArch.SMRT_MVPLibrary.Models
@@ -32,6 +33,70 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         public void Dispose()
         {
             PackageDispose();
+        }
+
+        private static readonly Encoding Utf8Encoder = Encoding.GetEncoding(
+            "UTF-8",
+            new EncoderReplacementFallback(string.Empty),
+            new DecoderExceptionFallback()
+        );
+
+        private void ConvertSheetToUTF8(string fileName, string sheetName)
+        {
+
+            if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName))
+            {
+                // Now we have to use Excel automation in order to copy the data from the working temp sheet
+                // to the final destination. This is because all the other methods were far too slow for large files.
+                // Talking 10+ mins (didn't wait for it to finish) for files with 250k rows.
+                // Tried EPPlus, OLEDB with indiovidual Updates and parameterized from a DataTable, etc.
+                Application app = new Application();
+                app.Visible = false;
+                app.DisplayAlerts = false;
+                Workbook book = app.Workbooks.Open(fileName);
+                Worksheet sheetTo = book.Sheets[sheetName];
+
+                Range usedCells = sheetTo.UsedRange;
+
+                int count = 0;
+                foreach (Range cell in usedCells)
+                {
+                    if (cell.Value2 is String)
+                    {
+                        //var utf8Text = Utf8Encoder.GetString(Utf8Encoder.GetBytes(cell.Value2));
+                        //if (utf8Text != cell.Value2)
+                        //    cell.Value2 = utf8Text;
+                        string s = cell.Value2;
+                        s = Regex.Replace(s, @"[^\u0000-\u007F]+", string.Empty);
+                        if (s != cell.Value2)
+                            cell.Value2 = s;
+                    }
+                    count++;
+                }
+
+                // Save and exit
+                try
+                {
+                    book.Save();
+                    book.Close();
+                }
+                finally
+                {
+                    app.Quit();
+                }
+
+
+            }
+        }
+
+        private void Save(ExcelPackage pkg, string fileName)
+        {
+            FileInfo fi = new FileInfo(fileName);
+            String newFileName = String.Concat(fi.DirectoryName, "\\", Path.GetFileNameWithoutExtension(fi.Name), "-", DateTime.Now.Year, "-", DateTime.Now.Month.ToString("D2"), "-", DateTime.Now.Day.ToString("D2"),
+                " ", DateTime.Now.Hour.ToString("D2"), "-", DateTime.Now.Minute.ToString("D2"), "-", DateTime.Now.Second.ToString("D2"), "-", DateTime.Now.Millisecond, fi.Extension);
+            File.Copy(fileName, newFileName);
+
+            pkg.Save();
         }
 
         private ExcelPackage Package(string fileName)
@@ -129,7 +194,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                             ExcelPackage pkg = Package(fileName);
                             ExcelWorksheet sheet = pkg.Workbook.Worksheets[sheetName];
 
-                            ExcelRange cells = sheet.Cells[columnID + ":" + columnID[0] + MaxRowID];
+                            ExcelRange cells = sheet.Cells[columnID + ":" + Regex.Match(columnID, @"[A-Z]+") + MaxRowID];
                             foreach (ExcelRangeBase cell in cells)
                             {
                                 if (iRowNumber >= table.Rows.Count)
@@ -155,6 +220,10 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
             if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName) && (columnNames.Length >= 0))
             {
+
+
+                ConvertSheetToUTF8(fileName, sheetName);
+
                 ExcelPackage pkg = Package(fileName);
                 ExcelWorksheet sheet = pkg.Workbook.Worksheets[sheetName];
 
@@ -175,7 +244,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 {
                     try
                     {
-                        pkg.Save();
+                        Save(pkg, fileName);
                     }
                     finally
                     {
@@ -246,7 +315,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 // Save it off.
                 try
                 {
-                    pkg.Save();
+                    Save(pkg, fileName);
                 }
                 finally
                 {
@@ -283,7 +352,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 // Save it off.
                 try
                 {
-                    pkg.Save();
+                    Save(pkg, fileName);
                 }
                 finally
                 {
