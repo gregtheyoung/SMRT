@@ -660,7 +660,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                                     {
                                         string rgxTerm = term;
                                         if (!term.StartsWith("*"))  // If it doesn't start with a wildcard, force it to be word-boundary
-                                            rgxTerm = @"\b" + rgxTerm;
+                                            rgxTerm = @"\B" + rgxTerm;
                                         if (!term.EndsWith("*"))    // If it doesn't end with a wildcard, force it to be a word-boundary
                                             rgxTerm += @"\b";
                                         rgxTerm = rgxTerm.Replace("*", ""); // Get rid of wildcards that aren't at the beginning or end
