@@ -100,13 +100,13 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             return rc;
         }
 
-        public ReturnCode Autocode(string fileNameMentionFile, string sheetName, string columnName, string fileNameAutocodeFile, bool overwriteExistingData, bool ignoreFirstRow)
+        public ReturnCode Autocode(string fileNameMentionFile, string sheetName, string firstColumnName, string secondColumnName, string fileNameAutocodeFile, bool overwriteExistingData, bool ignoreFirstRow)
         {
             ReturnCode rc = ReturnCode.Failed;
 
             try
             {
-                rc = Model.Autocode(fileNameMentionFile, sheetName, columnName, fileNameAutocodeFile, overwriteExistingData, ignoreFirstRow);
+                rc = Model.Autocode(fileNameMentionFile, sheetName, firstColumnName, secondColumnName, fileNameAutocodeFile, overwriteExistingData, ignoreFirstRow);
             }
             catch (System.IO.FileNotFoundException e)
             {

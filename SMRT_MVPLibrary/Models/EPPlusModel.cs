@@ -222,7 +222,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             {
 
 
-                ConvertSheetToUTF8(fileName, sheetName);
+                // ConvertSheetToUTF8(fileName, sheetName);
 
                 ExcelPackage pkg = Package(fileName);
                 ExcelWorksheet sheet = pkg.Workbook.Worksheets[sheetName];

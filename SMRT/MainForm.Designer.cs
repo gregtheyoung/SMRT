@@ -48,6 +48,9 @@
             this.label4 = new System.Windows.Forms.Label();
             this.numOfTopPostersTextBox = new System.Windows.Forms.TextBox();
             this.tabAutocode = new System.Windows.Forms.TabPage();
+            this.ignoreSecondColumnCheckbox = new System.Windows.Forms.CheckBox();
+            this.columnsForHostStringTextComboBox = new System.Windows.Forms.ComboBox();
+            this.label13 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.buttonAutocode = new System.Windows.Forms.Button();
             this.selectCodeFamilyFileButton = new System.Windows.Forms.Button();
@@ -55,25 +58,25 @@
             this.columnsForMentionTextComboBox = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.tabRandomSelect = new System.Windows.Forms.TabPage();
-            this.randomSelectButton = new System.Windows.Forms.Button();
-            this.columnsForAutocodeCountsComboxBox = new System.Windows.Forms.ComboBox();
-            this.label7 = new System.Windows.Forms.Label();
+            this.ceilingNumeric = new System.Windows.Forms.NumericUpDown();
+            this.floorNumeric = new System.Windows.Forms.NumericUpDown();
+            this.percentageNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.columnsForRandomSelectComboxBox = new System.Windows.Forms.ComboBox();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.percentageNumeric = new System.Windows.Forms.NumericUpDown();
-            this.floorNumeric = new System.Windows.Forms.NumericUpDown();
-            this.ceilingNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label7 = new System.Windows.Forms.Label();
+            this.randomSelectButton = new System.Windows.Forms.Button();
+            this.columnsForAutocodeCountsComboxBox = new System.Windows.Forms.ComboBox();
             this.tabControl1.SuspendLayout();
             this.tabSplit.SuspendLayout();
             this.tabTwitter.SuspendLayout();
             this.tabAutocode.SuspendLayout();
             this.tabRandomSelect.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.percentageNumeric)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.floorNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ceilingNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.floorNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.percentageNumeric)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -216,7 +219,7 @@
             this.tabSplit.Location = new System.Drawing.Point(4, 22);
             this.tabSplit.Name = "tabSplit";
             this.tabSplit.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSplit.Size = new System.Drawing.Size(437, 114);
+            this.tabSplit.Size = new System.Drawing.Size(437, 154);
             this.tabSplit.TabIndex = 0;
             this.tabSplit.Text = "Split Source Into Parts";
             // 
@@ -230,7 +233,7 @@
             this.tabTwitter.Location = new System.Drawing.Point(4, 22);
             this.tabTwitter.Name = "tabTwitter";
             this.tabTwitter.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTwitter.Size = new System.Drawing.Size(437, 114);
+            this.tabTwitter.Size = new System.Drawing.Size(437, 154);
             this.tabTwitter.TabIndex = 1;
             this.tabTwitter.Text = "Get Twitter Info";
             // 
@@ -264,6 +267,9 @@
             // tabAutocode
             // 
             this.tabAutocode.BackColor = System.Drawing.SystemColors.Control;
+            this.tabAutocode.Controls.Add(this.ignoreSecondColumnCheckbox);
+            this.tabAutocode.Controls.Add(this.columnsForHostStringTextComboBox);
+            this.tabAutocode.Controls.Add(this.label13);
             this.tabAutocode.Controls.Add(this.label8);
             this.tabAutocode.Controls.Add(this.buttonAutocode);
             this.tabAutocode.Controls.Add(this.selectCodeFamilyFileButton);
@@ -273,26 +279,56 @@
             this.tabAutocode.Location = new System.Drawing.Point(4, 22);
             this.tabAutocode.Name = "tabAutocode";
             this.tabAutocode.Padding = new System.Windows.Forms.Padding(3);
-            this.tabAutocode.Size = new System.Drawing.Size(437, 114);
+            this.tabAutocode.Size = new System.Drawing.Size(437, 154);
             this.tabAutocode.TabIndex = 2;
             this.tabAutocode.Text = "Autocode";
+            // 
+            // ignoreSecondColumnCheckbox
+            // 
+            this.ignoreSecondColumnCheckbox.AutoSize = true;
+            this.ignoreSecondColumnCheckbox.Location = new System.Drawing.Point(378, 38);
+            this.ignoreSecondColumnCheckbox.Name = "ignoreSecondColumnCheckbox";
+            this.ignoreSecondColumnCheckbox.Size = new System.Drawing.Size(56, 17);
+            this.ignoreSecondColumnCheckbox.TabIndex = 4;
+            this.ignoreSecondColumnCheckbox.Text = "Ignore";
+            this.ignoreSecondColumnCheckbox.UseVisualStyleBackColor = true;
+            this.ignoreSecondColumnCheckbox.CheckedChanged += new System.EventHandler(this.ignoreSecondColumnCheckbox_CheckedChanged);
+            // 
+            // columnsForHostStringTextComboBox
+            // 
+            this.columnsForHostStringTextComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.columnsForHostStringTextComboBox.FormattingEnabled = true;
+            this.columnsForHostStringTextComboBox.Location = new System.Drawing.Point(214, 35);
+            this.columnsForHostStringTextComboBox.Name = "columnsForHostStringTextComboBox";
+            this.columnsForHostStringTextComboBox.Size = new System.Drawing.Size(157, 21);
+            this.columnsForHostStringTextComboBox.TabIndex = 3;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(6, 38);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(193, 13);
+            this.label13.TabIndex = 2;
+            this.label13.Text = "Select second column (host/link string):";
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 40);
+            this.label8.Location = new System.Drawing.Point(6, 70);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(127, 13);
-            this.label8.TabIndex = 19;
+            this.label8.TabIndex = 5;
             this.label8.Text = "Select Code Families file: ";
             this.label8.Click += new System.EventHandler(this.label8_Click);
             // 
             // buttonAutocode
             // 
-            this.buttonAutocode.Location = new System.Drawing.Point(9, 63);
+            this.buttonAutocode.Location = new System.Drawing.Point(9, 93);
             this.buttonAutocode.Name = "buttonAutocode";
             this.buttonAutocode.Size = new System.Drawing.Size(122, 23);
-            this.buttonAutocode.TabIndex = 18;
+            this.buttonAutocode.TabIndex = 8;
             this.buttonAutocode.Text = "Autocode";
             this.buttonAutocode.UseVisualStyleBackColor = true;
             this.buttonAutocode.Click += new System.EventHandler(this.buttonAutocode_Click);
@@ -300,10 +336,10 @@
             // selectCodeFamilyFileButton
             // 
             this.selectCodeFamilyFileButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.selectCodeFamilyFileButton.Location = new System.Drawing.Point(406, 37);
+            this.selectCodeFamilyFileButton.Location = new System.Drawing.Point(406, 67);
             this.selectCodeFamilyFileButton.Name = "selectCodeFamilyFileButton";
             this.selectCodeFamilyFileButton.Size = new System.Drawing.Size(28, 23);
-            this.selectCodeFamilyFileButton.TabIndex = 13;
+            this.selectCodeFamilyFileButton.TabIndex = 7;
             this.selectCodeFamilyFileButton.Text = "...";
             this.selectCodeFamilyFileButton.UseVisualStyleBackColor = true;
             this.selectCodeFamilyFileButton.Click += new System.EventHandler(this.selectCodeFamilyFileButton_Click);
@@ -312,20 +348,20 @@
             // 
             this.codeFamilyFileNameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.codeFamilyFileNameTextBox.Location = new System.Drawing.Point(130, 37);
+            this.codeFamilyFileNameTextBox.Location = new System.Drawing.Point(130, 67);
             this.codeFamilyFileNameTextBox.Name = "codeFamilyFileNameTextBox";
             this.codeFamilyFileNameTextBox.Size = new System.Drawing.Size(270, 20);
-            this.codeFamilyFileNameTextBox.TabIndex = 12;
+            this.codeFamilyFileNameTextBox.TabIndex = 6;
             // 
             // columnsForMentionTextComboBox
             // 
             this.columnsForMentionTextComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.columnsForMentionTextComboBox.FormattingEnabled = true;
-            this.columnsForMentionTextComboBox.Location = new System.Drawing.Point(176, 10);
+            this.columnsForMentionTextComboBox.Location = new System.Drawing.Point(214, 10);
             this.columnsForMentionTextComboBox.Name = "columnsForMentionTextComboBox";
             this.columnsForMentionTextComboBox.Size = new System.Drawing.Size(157, 21);
-            this.columnsForMentionTextComboBox.TabIndex = 7;
+            this.columnsForMentionTextComboBox.TabIndex = 1;
             this.columnsForMentionTextComboBox.SelectedIndexChanged += new System.EventHandler(this.columnsForMentionTextComboBox_SelectedIndexChanged);
             // 
             // label6
@@ -333,9 +369,9 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(6, 13);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(156, 13);
-            this.label6.TabIndex = 8;
-            this.label6.Text = "Select column with mention text";
+            this.label6.Size = new System.Drawing.Size(162, 13);
+            this.label6.TabIndex = 0;
+            this.label6.Text = "Select first column (mention text):";
             // 
             // tabRandomSelect
             // 
@@ -357,93 +393,23 @@
             this.tabRandomSelect.TabIndex = 3;
             this.tabRandomSelect.Text = "Random Select";
             // 
-            // randomSelectButton
+            // ceilingNumeric
             // 
-            this.randomSelectButton.Location = new System.Drawing.Point(6, 125);
-            this.randomSelectButton.Name = "randomSelectButton";
-            this.randomSelectButton.Size = new System.Drawing.Size(122, 23);
-            this.randomSelectButton.TabIndex = 5;
-            this.randomSelectButton.Text = "Random Select";
-            this.randomSelectButton.UseVisualStyleBackColor = true;
-            this.randomSelectButton.Click += new System.EventHandler(this.randomSelectButton_Click);
-            // 
-            // columnsForAutocodeCountsComboxBox
-            // 
-            this.columnsForAutocodeCountsComboxBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.columnsForAutocodeCountsComboxBox.FormattingEnabled = true;
-            this.columnsForAutocodeCountsComboxBox.Location = new System.Drawing.Point(184, 7);
-            this.columnsForAutocodeCountsComboxBox.Name = "columnsForAutocodeCountsComboxBox";
-            this.columnsForAutocodeCountsComboxBox.Size = new System.Drawing.Size(157, 21);
-            this.columnsForAutocodeCountsComboxBox.TabIndex = 0;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(3, 10);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(182, 13);
-            this.label7.TabIndex = 21;
-            this.label7.Text = "Select column with autocode counts:";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(3, 31);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(175, 13);
-            this.label9.TabIndex = 23;
-            this.label9.Text = "Select column for random selection:";
-            // 
-            // columnsForRandomSelectComboxBox
-            // 
-            this.columnsForRandomSelectComboxBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.columnsForRandomSelectComboxBox.FormattingEnabled = true;
-            this.columnsForRandomSelectComboxBox.Location = new System.Drawing.Point(184, 28);
-            this.columnsForRandomSelectComboxBox.Name = "columnsForRandomSelectComboxBox";
-            this.columnsForRandomSelectComboxBox.Size = new System.Drawing.Size(157, 21);
-            this.columnsForRandomSelectComboxBox.TabIndex = 1;
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(3, 54);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(81, 13);
-            this.label10.TabIndex = 24;
-            this.label10.Text = "Target Percent:";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(3, 76);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(63, 13);
-            this.label11.TabIndex = 26;
-            this.label11.Text = "Floor count:";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(3, 98);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(69, 13);
-            this.label12.TabIndex = 28;
-            this.label12.Text = "Celing count:";
-            // 
-            // percentageNumeric
-            // 
-            this.percentageNumeric.Location = new System.Drawing.Point(90, 52);
-            this.percentageNumeric.Minimum = new decimal(new int[] {
+            this.ceilingNumeric.Location = new System.Drawing.Point(90, 96);
+            this.ceilingNumeric.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
+            this.ceilingNumeric.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-            this.percentageNumeric.Name = "percentageNumeric";
-            this.percentageNumeric.Size = new System.Drawing.Size(41, 20);
-            this.percentageNumeric.TabIndex = 29;
-            this.percentageNumeric.Value = new decimal(new int[] {
+            this.ceilingNumeric.Name = "ceilingNumeric";
+            this.ceilingNumeric.Size = new System.Drawing.Size(41, 20);
+            this.ceilingNumeric.TabIndex = 31;
+            this.ceilingNumeric.Value = new decimal(new int[] {
             1,
             0,
             0,
@@ -471,27 +437,97 @@
             0,
             0});
             // 
-            // ceilingNumeric
+            // percentageNumeric
             // 
-            this.ceilingNumeric.Location = new System.Drawing.Point(90, 96);
-            this.ceilingNumeric.Maximum = new decimal(new int[] {
-            100000,
-            0,
-            0,
-            0});
-            this.ceilingNumeric.Minimum = new decimal(new int[] {
+            this.percentageNumeric.Location = new System.Drawing.Point(90, 52);
+            this.percentageNumeric.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-            this.ceilingNumeric.Name = "ceilingNumeric";
-            this.ceilingNumeric.Size = new System.Drawing.Size(41, 20);
-            this.ceilingNumeric.TabIndex = 31;
-            this.ceilingNumeric.Value = new decimal(new int[] {
+            this.percentageNumeric.Name = "percentageNumeric";
+            this.percentageNumeric.Size = new System.Drawing.Size(41, 20);
+            this.percentageNumeric.TabIndex = 29;
+            this.percentageNumeric.Value = new decimal(new int[] {
             1,
             0,
             0,
             0});
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(3, 98);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(69, 13);
+            this.label12.TabIndex = 28;
+            this.label12.Text = "Celing count:";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(3, 76);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(63, 13);
+            this.label11.TabIndex = 26;
+            this.label11.Text = "Floor count:";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(3, 54);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(81, 13);
+            this.label10.TabIndex = 24;
+            this.label10.Text = "Target Percent:";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(3, 31);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(175, 13);
+            this.label9.TabIndex = 23;
+            this.label9.Text = "Select column for random selection:";
+            // 
+            // columnsForRandomSelectComboxBox
+            // 
+            this.columnsForRandomSelectComboxBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.columnsForRandomSelectComboxBox.FormattingEnabled = true;
+            this.columnsForRandomSelectComboxBox.Location = new System.Drawing.Point(184, 28);
+            this.columnsForRandomSelectComboxBox.Name = "columnsForRandomSelectComboxBox";
+            this.columnsForRandomSelectComboxBox.Size = new System.Drawing.Size(157, 21);
+            this.columnsForRandomSelectComboxBox.TabIndex = 1;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(3, 10);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(182, 13);
+            this.label7.TabIndex = 21;
+            this.label7.Text = "Select column with autocode counts:";
+            // 
+            // randomSelectButton
+            // 
+            this.randomSelectButton.Location = new System.Drawing.Point(6, 125);
+            this.randomSelectButton.Name = "randomSelectButton";
+            this.randomSelectButton.Size = new System.Drawing.Size(122, 23);
+            this.randomSelectButton.TabIndex = 5;
+            this.randomSelectButton.Text = "Random Select";
+            this.randomSelectButton.UseVisualStyleBackColor = true;
+            this.randomSelectButton.Click += new System.EventHandler(this.randomSelectButton_Click);
+            // 
+            // columnsForAutocodeCountsComboxBox
+            // 
+            this.columnsForAutocodeCountsComboxBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.columnsForAutocodeCountsComboxBox.FormattingEnabled = true;
+            this.columnsForAutocodeCountsComboxBox.Location = new System.Drawing.Point(184, 7);
+            this.columnsForAutocodeCountsComboxBox.Name = "columnsForAutocodeCountsComboxBox";
+            this.columnsForAutocodeCountsComboxBox.Size = new System.Drawing.Size(157, 21);
+            this.columnsForAutocodeCountsComboxBox.TabIndex = 0;
             // 
             // MainForm
             // 
@@ -517,9 +553,9 @@
             this.tabAutocode.PerformLayout();
             this.tabRandomSelect.ResumeLayout(false);
             this.tabRandomSelect.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.percentageNumeric)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.floorNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ceilingNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.floorNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.percentageNumeric)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -564,6 +600,9 @@
         private System.Windows.Forms.NumericUpDown ceilingNumeric;
         private System.Windows.Forms.NumericUpDown floorNumeric;
         private System.Windows.Forms.NumericUpDown percentageNumeric;
+        private System.Windows.Forms.ComboBox columnsForHostStringTextComboBox;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.CheckBox ignoreSecondColumnCheckbox;
     }
 }
 

@@ -38,6 +38,10 @@ namespace TwinArch.SMRT
                     columnsForMentionTextComboBox.DisplayMember = "Value";
                     columnsForMentionTextComboBox.ValueMember = "Key";
 
+                    columnsForHostStringTextComboBox.DataSource = new BindingSource(value, null);
+                    columnsForHostStringTextComboBox.DisplayMember = "Value";
+                    columnsForHostStringTextComboBox.ValueMember = "Key";
+
                     columnsForAutocodeCountsComboxBox.DataSource = new BindingSource(value, null);
                     columnsForAutocodeCountsComboxBox.DisplayMember = "Value";
                     columnsForAutocodeCountsComboxBox.ValueMember = "Key";
@@ -88,6 +92,8 @@ namespace TwinArch.SMRT
             sheetNameCombo.Enabled = false;
             columnsComboBox.Enabled = false;
             columnsForMentionTextComboBox.Enabled = false;
+            columnsForHostStringTextComboBox.Enabled = false;
+            ignoreSecondColumnCheckbox.Enabled = false;
             columnsForAutocodeCountsComboxBox.Enabled = false;
             columnsForRandomSelectComboxBox.Enabled = false;
             splitSourceButton.Enabled = false;
@@ -120,6 +126,8 @@ namespace TwinArch.SMRT
             _presenter.DisplayColumnNames(excelFileNameTextBox.Text, sheetNameCombo.Text);
             columnsComboBox.Enabled = true;
             columnsForMentionTextComboBox.Enabled = true;
+            columnsForHostStringTextComboBox.Enabled = true;
+            ignoreSecondColumnCheckbox.Enabled = true;
             columnsForAutocodeCountsComboxBox.Enabled = true;
             columnsForRandomSelectComboxBox.Enabled = true;
             testTwitterButton.Enabled = true;
@@ -273,8 +281,12 @@ namespace TwinArch.SMRT
 
         private void buttonAutocode_Click(object sender, EventArgs e)
         {
+            SMRT_MVPLibrary.ReturnCode rc;
             this.Cursor = Cursors.WaitCursor;
-            SMRT_MVPLibrary.ReturnCode rc = _presenter.Autocode(fileName, sheetNameCombo.Text, columnsForMentionTextComboBox.Text, fileNameAutocodeFile, false, firstRowIsAColumnHeaderCheckBox.Checked);
+            if (ignoreSecondColumnCheckbox.Checked)
+                rc = _presenter.Autocode(fileName, sheetNameCombo.Text, columnsForMentionTextComboBox.Text, null, fileNameAutocodeFile, false, firstRowIsAColumnHeaderCheckBox.Checked);
+            else
+                rc = _presenter.Autocode(fileName, sheetNameCombo.Text, columnsForMentionTextComboBox.Text, columnsForHostStringTextComboBox.Text, fileNameAutocodeFile, false, firstRowIsAColumnHeaderCheckBox.Checked);
             if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsAlreadyExist)
             {
                 this.Cursor = Cursors.Default;
@@ -285,7 +297,10 @@ namespace TwinArch.SMRT
                 if (result == DialogResult.Yes)
                 {
                     this.Cursor = Cursors.WaitCursor;
-                    rc = _presenter.Autocode(fileName, sheetNameCombo.Text, columnsForMentionTextComboBox.Text, fileNameAutocodeFile, true, firstRowIsAColumnHeaderCheckBox.Checked);
+                    if (ignoreSecondColumnCheckbox.Checked)
+                        rc = _presenter.Autocode(fileName, sheetNameCombo.Text, columnsForMentionTextComboBox.Text, null, fileNameAutocodeFile, true, firstRowIsAColumnHeaderCheckBox.Checked);
+                    else
+                        rc = _presenter.Autocode(fileName, sheetNameCombo.Text, columnsForMentionTextComboBox.Text, columnsForHostStringTextComboBox.Text, fileNameAutocodeFile, true, firstRowIsAColumnHeaderCheckBox.Checked);
                     this.Cursor = Cursors.Default;
                 }
             }
@@ -323,6 +338,11 @@ namespace TwinArch.SMRT
             this.Cursor = Cursors.Default;
             if (rc == SMRT_MVPLibrary.ReturnCode.Success)
                 MessageBox.Show("Done!", "SMRT - Random Select", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void ignoreSecondColumnCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            columnsForHostStringTextComboBox.Enabled = !ignoreSecondColumnCheckbox.Checked;
         }
 
 

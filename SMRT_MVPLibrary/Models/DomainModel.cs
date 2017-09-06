@@ -562,7 +562,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return newColumnAlreadyExists;
         }
 
-        public ReturnCode Autocode(string fileNameMentionFile, string sheetName, string mentionTextColumnName, string fileNameAutocodeFile, bool overwriteExistingData, bool firstRowHasHeaders)
+        public ReturnCode Autocode(string fileNameMentionFile, string sheetName, string firstColumnName, string secondColumnName, string fileNameAutocodeFile, bool overwriteExistingData, bool firstRowHasHeaders)
         {
             bool useRegex = true;
 
@@ -600,7 +600,11 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 {
                     // Get the contents of the column. This will provide the row/cell identifier (depends on the
                     // underlying data model implementation) and the value of column for that row/cell.
-                    DataTable mentionStringTable = dataModel.GetColumnValuesForColumnNames(fileNameMentionFile, sheetName, new string[] { mentionTextColumnName }, firstRowHasHeaders);
+                    DataTable mentionStringTable;
+                    if (String.IsNullOrEmpty(secondColumnName))
+                        mentionStringTable = dataModel.GetColumnValuesForColumnNames(fileNameMentionFile, sheetName, new string[] { firstColumnName }, firstRowHasHeaders);
+                    else
+                        mentionStringTable = dataModel.GetColumnValuesForColumnNames(fileNameMentionFile, sheetName, new string[] { firstColumnName, secondColumnName }, firstRowHasHeaders);
 
                     // Get the code family terms.
                     Dictionary<string, List<string>> codeFamilyTermSets = new Dictionary<string, List<string>>();
@@ -635,7 +639,10 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     {
                         // Create a row for the new values - need to match these rows one-to-one with the existing rows.
                         DataRow newRow = newValuesTable.NewRow();
-                        string mentionText = row[mentionTextColumnName].ToString();
+                        string mentionText = row[firstColumnName].ToString();
+                        // If the user specified a second column to use, then concat it to the first
+                        if (!String.IsNullOrEmpty(secondColumnName))
+                            mentionText += " " + row[secondColumnName].ToString();
                         mentionText.Replace("  ", " "); // Just some minor cleanup.
 
                         // For each code family...

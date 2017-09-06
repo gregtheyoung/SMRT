@@ -54,7 +54,7 @@ namespace TwinArch.SMRT_MVPLibrary.Interfaces
         /// exist, not be open by another process, and be an XLSX file (not an older XLS file).</exception>
         ReturnCode AddTwitterInfo(string fileName, string sheetName, bool overwriteExistingData, bool ignoreFirstRow, int numUsersToRetrieve);
 
-        ReturnCode Autocode(string fileNameMentionFile, string sheetName, string columnName, string fileNameAutocodeFile, bool overwriteExistingData, bool ignoreFirstRow);
+        ReturnCode Autocode(string fileNameMentionFile, string sheetName, string firstColumnName, string secondColumnName, string fileNameAutocodeFile, bool overwriteExistingData, bool ignoreFirstRow);
         ReturnCode RandomSelect(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int percent, int floor, int ceiling, bool overwriteExistingData, bool ignoreFirstRow);
     }
 }
