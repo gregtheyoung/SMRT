@@ -203,6 +203,10 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                             {
                                 GetTumblrParts(uri, domain, segments, queryCollection, ref newRow);
                             }
+                            else if (domain.EndsWith("reddit.com"))
+                            {
+                                GetRedditParts(uri, domain, segments, queryCollection, ref newRow);
+                            }
                             else
                             {
                                 GetUnknownParts(uri, domain, segments, queryCollection, ref newRow);
@@ -358,8 +362,6 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 newRow[(int)NewSplitColumnIndex.MentionType] = "Blogger";
                 newRow[(int)NewSplitColumnIndex.Domain] = domain;
 
-                // Call blogs/byurl with the full URL
-                // Then call posts/bypath using the user ID from the first one and the part of the URL after the domain.
                 newRow[(int)NewSplitColumnIndex.PosterID] = uri.Host.Replace(".blogspot.com", "");
                 newRow[(int)NewSplitColumnIndex.MentionID] = uri.PathAndQuery;
             }
@@ -387,6 +389,25 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             catch (Exception e)
             {
                 newRow[(int)NewSplitColumnIndex.MentionType] = "Tumblr";
+                newRow[(int)NewSplitColumnIndex.Domain] = domain;
+                newRow[(int)NewSplitColumnIndex.PosterID] = null;
+                newRow[(int)NewSplitColumnIndex.MentionID] = null;
+            }
+        }
+
+        private void GetRedditParts(Uri uri, string domain, string[] segments, NameValueCollection queryCollection, ref DataRow newRow)
+        {
+            try
+            {
+                newRow[(int)NewSplitColumnIndex.MentionType] = "Reddit";
+                newRow[(int)NewSplitColumnIndex.Domain] = domain;
+
+                newRow[(int)NewSplitColumnIndex.PosterID] = segments[2].Trim('/'); // This contains the name of the Reddit group
+                newRow[(int)NewSplitColumnIndex.MentionID] = segments[5].Trim('/'); // This contains the name of the post that is commented on. Segment 4 contains the ID of the post.
+            }
+            catch (Exception e)
+            {
+                newRow[(int)NewSplitColumnIndex.MentionType] = "Reddit";
                 newRow[(int)NewSplitColumnIndex.Domain] = domain;
                 newRow[(int)NewSplitColumnIndex.PosterID] = null;
                 newRow[(int)NewSplitColumnIndex.MentionID] = null;
