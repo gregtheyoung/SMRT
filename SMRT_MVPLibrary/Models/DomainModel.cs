@@ -182,6 +182,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
                             // Get the domain part.
                             string domain = uri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
+                            domain = domain.Replace("www.","");
 
                             // Get the segments of the URI - these are the slash-delimited pieces after the domain.
                             string[] segments = uri.Segments;
@@ -424,7 +425,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 // Call blogs/byurl with the full URL
                 // Then call posts/bypath using the user ID from the first one and the part of the URL after the domain.
                 newRow[(int)NewSplitColumnIndex.PosterID] = domain;
-                newRow[(int)NewSplitColumnIndex.MentionID] = uri.PathAndQuery;
+                newRow[(int)NewSplitColumnIndex.MentionID] = uri.PathAndQuery.Trim('/');
             }
             catch (Exception e)
             {
