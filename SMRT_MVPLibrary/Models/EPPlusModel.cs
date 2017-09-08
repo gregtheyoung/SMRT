@@ -178,31 +178,31 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
             if (!String.IsNullOrEmpty(fileName) && !String.IsNullOrEmpty(sheetName) && (newColumnNames.Count()>0))
             {
+                ExcelPackage pkg = Package(fileName);
+                ExcelWorksheet sheet = pkg.Workbook.Worksheets[sheetName];
+
                 Dictionary<string, string> columnNamesInFile = GetColumnNames(fileName, sheetName);
+
+                int rowCount = sheet.Dimension.End.Row;
+                int colCount = sheet.Dimension.End.Column;
+
+                foreach (string newColumnName in newColumnNames)
+                    table.Columns.Add(newColumnName);
+
+                for (int i = 0; i < rowCount; i++)
+                    table.Rows.Add(table.NewRow());
 
                 foreach (string newColumnName in newColumnNames)
                 {
-                    table.Columns.Add(newColumnName);
-
-                    int iRowNumber = 0;
-
                     foreach (KeyValuePair<string, string> columnNameInFile in columnNamesInFile)
                     {
                         if (columnNameInFile.Value.Equals(newColumnName))
                         {
                             string columnID = columnNameInFile.Key;
-                            ExcelPackage pkg = Package(fileName);
-                            ExcelWorksheet sheet = pkg.Workbook.Worksheets[sheetName];
 
-                            ExcelRange cells = sheet.Cells[columnID + ":" + Regex.Match(columnID, @"[A-Z]+") + MaxRowID];
+                            ExcelRange cells = sheet.Cells[columnID + ":" + Regex.Match(columnID, @"[A-Z]+") + Convert.ToString(rowCount)];
                             foreach (ExcelRangeBase cell in cells)
-                            {
-                                if (iRowNumber >= table.Rows.Count)
-                                    table.Rows.Add(table.NewRow()[newColumnName] = cell.Text);
-                                else
-                                    table.Rows[iRowNumber][newColumnName] = cell.Text;
-                                iRowNumber++;
-                            }
+                                table.Rows[cell.Start.Row-1][newColumnName] = cell.Text;
                             cells.Dispose();
                         }
                     }

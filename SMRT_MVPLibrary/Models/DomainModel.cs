@@ -766,7 +766,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return newColumnAlreadyExists;
         }
 
-        public ReturnCode RandomSelect(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int percent, int floor, int ceiling, bool overwriteExistingData, bool firstRowHasHeaders)
+        public ReturnCode RandomSelectOneGroup(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int percent, int floor, int ceiling, bool overwriteExistingData, bool firstRowHasHeaders)
         {
             ReturnCode rc = ReturnCode.Success;
 
@@ -854,6 +854,122 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                             if (t.Item2.Equals("Y"))
                                 newValuesTable.Rows[t.Item1][columnNameRandomSelect] = "Y";
                         }
+
+                        if (rc == ReturnCode.Success)
+                        {
+                            if (writeToNewSheet)
+                                dataModel.WriteColumnValuesToNewSheet(fileNameMentionFile, sheetName, newValuesTable, firstRowHasHeaders);
+                            else
+                                dataModel.WriteColumnValues(fileNameMentionFile, sheetName, newValuesTable, firstRowHasHeaders);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                rc = ReturnCode.ColumnsAlreadyExist;
+            }
+
+            return rc;
+        }
+
+        public ReturnCode RandomSelectMultipleGroups(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int numberOfGroups, bool overwriteExistingData, bool firstRowHasHeaders)
+        {
+            ReturnCode rc = ReturnCode.Success;
+            
+            // We are going to write the same sheet as that which contains the mention text.
+            // There is risk in this because of an issue with saving data to an existing sheet that already has data in it.
+            // It would fail when writing to Conger's server.
+            bool writeToNewSheet = false;
+
+            // Check that the file is valid, throw exception if not
+            if (!dataModel.FileIsValid(fileNameMentionFile))
+                throw new System.IO.FileNotFoundException();
+
+            // If writing to a new sheet or the existing split out columns are to be overwritten, or if they don't exist yet...
+            if (writeToNewSheet || overwriteExistingData || !DoRandomSelectColumnsAlreadyExist(fileNameMentionFile, new string[] { columnNameAutocodeCounts, columnNameRandomSelect }, sheetName))
+            {
+
+                // Add the new columns to the sheet...
+                if (!writeToNewSheet)
+                    rc = dataModel.AddColumns(fileNameMentionFile, sheetName, new string[] { columnNameAutocodeCounts, columnNameRandomSelect });
+
+                // If writing to a new sheet or the columns were added successfully
+                if (writeToNewSheet || (rc == ReturnCode.Success))
+                {
+                    // Get the contents of the column. This will provide the row/cell identifier (depends on the
+                    // underlying data model implementation) and the value of column for that row/cell.
+                    DataTable countsAndSelectionsTable = dataModel.GetColumnValuesForColumnNames(fileNameMentionFile, sheetName, new string[] { columnNameAutocodeCounts, columnNameRandomSelect }, firstRowHasHeaders);
+
+
+                    // Create the new data table to hold the group assignments, and start with the values in the source column
+                    DataTable newValuesTable = new DataTable();
+                    newValuesTable.Columns.Add(columnNameAutocodeCounts);
+                    newValuesTable.Columns.Add(columnNameRandomSelect);
+
+                    int candidateCount = 0;
+                    List<int> candidateRowNumbersList = new List<int>();
+
+                    int[] groupCounts = new int[numberOfGroups];
+
+                    int iRowNum = 0;
+                    foreach (DataRow row in countsAndSelectionsTable.Rows)
+                    {
+                        newValuesTable.Rows.Add(new string[] {row[columnNameAutocodeCounts].ToString(), row[columnNameRandomSelect].ToString()});
+                        String existingGroupID = row[columnNameRandomSelect].ToString();
+                        // If the count is > 0 or if the selection is already a group ID, then add it as a candidate row.
+                        if ((Convert.ToInt32(row[columnNameAutocodeCounts]) > 0) || !String.IsNullOrEmpty(existingGroupID))
+                        {
+                            // If the row has already been selected, add it to our count
+                            if (!String.IsNullOrEmpty(existingGroupID) && ((int)existingGroupID[0] - (int)'A' < numberOfGroups))
+                                groupCounts[(int)existingGroupID[0] - (int)'A'] += 1;
+                            else // Otherwise add the row as a candidate to be assigned
+                                candidateRowNumbersList.Add(iRowNum);
+                            candidateCount++;
+                        }
+                        iRowNum++;
+                    }
+
+                    // If we have anything left to be assigned
+                    if (candidateRowNumbersList.Count > 0)
+                    {
+                        // How many per group
+                        int targetCountPerGroup = candidateCount / numberOfGroups;
+
+                        int candidatesAssigned = 0;
+                        int numberOverAssigned = 0;
+                        // Accumulate the groups that are over the target and reset the target
+                        for (int groupNum = 0; groupNum < numberOfGroups; groupNum++)
+                        {
+                            if (groupCounts[groupNum] > targetCountPerGroup)
+                                numberOverAssigned += groupCounts[groupNum] - targetCountPerGroup;
+                            candidatesAssigned += groupCounts[groupNum];
+                        }
+                        targetCountPerGroup = (candidateCount - numberOverAssigned) / numberOfGroups;
+
+                        int[] candidateRowNumbers = candidateRowNumbersList.ToArray();
+                        Random randomGenerator = new Random();
+                        candidateRowNumbers = candidateRowNumbers.OrderBy(x => randomGenerator.Next()).ToArray();
+
+                        int candidateRowNum = 0;
+
+                        for (int groupNum = 0; groupNum < numberOfGroups; groupNum++)
+                        {
+                            String groupID = Char.ConvertFromUtf32((int)'A' + groupNum);
+
+                            for (int i = groupCounts[groupNum]; i < targetCountPerGroup; i++)
+                            {
+                                // If we have already assigned more than the candidates, then we're done
+                                if (candidatesAssigned >= candidateCount) break;
+                                newValuesTable.Rows[candidateRowNumbers[candidateRowNum]][columnNameRandomSelect] = groupID;
+                                candidatesAssigned++;
+                                candidateRowNum++;
+                            }
+                        }
+
+                        // Need to account for uneven groups. So assign the remaining few
+                        for (int i = 0; i < candidateCount-candidatesAssigned; i++)
+                            newValuesTable.Rows[candidateRowNumbers[i+candidateRowNum]][columnNameRandomSelect] = Char.ConvertFromUtf32((int)'A' + i);
 
                         if (rc == ReturnCode.Success)
                         {

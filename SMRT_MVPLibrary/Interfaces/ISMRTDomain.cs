@@ -55,6 +55,7 @@ namespace TwinArch.SMRT_MVPLibrary.Interfaces
         ReturnCode AddTwitterInfo(string fileName, string sheetName, bool overwriteExistingData, bool ignoreFirstRow, int numUsersToRetrieve);
 
         ReturnCode Autocode(string fileNameMentionFile, string sheetName, string firstColumnName, string secondColumnName, string fileNameAutocodeFile, bool overwriteExistingData, bool ignoreFirstRow);
-        ReturnCode RandomSelect(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int percent, int floor, int ceiling, bool overwriteExistingData, bool ignoreFirstRow);
+        ReturnCode RandomSelectOneGroup(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int percent, int floor, int ceiling, bool overwriteExistingData, bool ignoreFirstRow);
+        ReturnCode RandomSelectMultipleGroups(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int numberOfGroups, bool overwriteExistingData, bool ignoreFirstRow);
     }
 }

@@ -120,13 +120,33 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             return rc;
         }
 
-        public ReturnCode RandomSelect(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int percent, int floor, int ceiling, bool overwriteExistingData, bool ignoreFirstRow)
+        public ReturnCode RandomSelectOneGroup(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int percent, int floor, int ceiling, bool overwriteExistingData, bool ignoreFirstRow)
         {
             ReturnCode rc = ReturnCode.Failed;
 
             try
             {
-                rc = Model.RandomSelect(fileNameMentionFile, sheetName, columnNameAutocodeCounts, columnNameRandomSelect, percent, floor, ceiling, overwriteExistingData, ignoreFirstRow);
+                rc = Model.RandomSelectOneGroup(fileNameMentionFile, sheetName, columnNameAutocodeCounts, columnNameRandomSelect, percent, floor, ceiling, overwriteExistingData, ignoreFirstRow);
+            }
+            catch (System.IO.FileNotFoundException e)
+            {
+                View.IsFileValid = false;
+            }
+            catch (Exception e)
+            {
+                View.UnhandledException = e.Message + "\n\nThis additional info should be passed on to your tech support:\n\n\n" + e.ToString();
+            }
+
+            return rc;
+        }
+
+        public ReturnCode RandomSelectMultipleGroups(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int numberOfGroups, bool overwriteExistingData, bool ignoreFirstRow)
+        {
+            ReturnCode rc = ReturnCode.Failed;
+
+            try
+            {
+                rc = Model.RandomSelectMultipleGroups(fileNameMentionFile, sheetName, columnNameAutocodeCounts, columnNameRandomSelect, numberOfGroups, overwriteExistingData, ignoreFirstRow);
             }
             catch (System.IO.FileNotFoundException e)
             {

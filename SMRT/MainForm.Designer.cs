@@ -69,6 +69,10 @@
             this.label7 = new System.Windows.Forms.Label();
             this.randomSelectButton = new System.Windows.Forms.Button();
             this.columnsForAutocodeCountsComboxBox = new System.Windows.Forms.ComboBox();
+            this.oneGroupRadioButton = new System.Windows.Forms.RadioButton();
+            this.multipleGroupRadioButton = new System.Windows.Forms.RadioButton();
+            this.label14 = new System.Windows.Forms.Label();
+            this.numberOfGroupsNumeric = new System.Windows.Forms.NumericUpDown();
             this.tabControl1.SuspendLayout();
             this.tabSplit.SuspendLayout();
             this.tabTwitter.SuspendLayout();
@@ -77,6 +81,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.ceilingNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.floorNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.percentageNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfGroupsNumeric)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -206,7 +211,7 @@
             this.tabControl1.Location = new System.Drawing.Point(16, 97);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(445, 180);
+            this.tabControl1.Size = new System.Drawing.Size(445, 207);
             this.tabControl1.TabIndex = 14;
             // 
             // tabSplit
@@ -219,7 +224,7 @@
             this.tabSplit.Location = new System.Drawing.Point(4, 22);
             this.tabSplit.Name = "tabSplit";
             this.tabSplit.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSplit.Size = new System.Drawing.Size(437, 154);
+            this.tabSplit.Size = new System.Drawing.Size(437, 181);
             this.tabSplit.TabIndex = 0;
             this.tabSplit.Text = "Split Source Into Parts";
             // 
@@ -233,7 +238,7 @@
             this.tabTwitter.Location = new System.Drawing.Point(4, 22);
             this.tabTwitter.Name = "tabTwitter";
             this.tabTwitter.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTwitter.Size = new System.Drawing.Size(437, 154);
+            this.tabTwitter.Size = new System.Drawing.Size(437, 181);
             this.tabTwitter.TabIndex = 1;
             this.tabTwitter.Text = "Get Twitter Info";
             // 
@@ -376,6 +381,10 @@
             // tabRandomSelect
             // 
             this.tabRandomSelect.BackColor = System.Drawing.SystemColors.Control;
+            this.tabRandomSelect.Controls.Add(this.numberOfGroupsNumeric);
+            this.tabRandomSelect.Controls.Add(this.label14);
+            this.tabRandomSelect.Controls.Add(this.multipleGroupRadioButton);
+            this.tabRandomSelect.Controls.Add(this.oneGroupRadioButton);
             this.tabRandomSelect.Controls.Add(this.ceilingNumeric);
             this.tabRandomSelect.Controls.Add(this.floorNumeric);
             this.tabRandomSelect.Controls.Add(this.percentageNumeric);
@@ -389,13 +398,13 @@
             this.tabRandomSelect.Controls.Add(this.columnsForAutocodeCountsComboxBox);
             this.tabRandomSelect.Location = new System.Drawing.Point(4, 22);
             this.tabRandomSelect.Name = "tabRandomSelect";
-            this.tabRandomSelect.Size = new System.Drawing.Size(437, 154);
+            this.tabRandomSelect.Size = new System.Drawing.Size(437, 181);
             this.tabRandomSelect.TabIndex = 3;
             this.tabRandomSelect.Text = "Random Select";
             // 
             // ceilingNumeric
             // 
-            this.ceilingNumeric.Location = new System.Drawing.Point(90, 96);
+            this.ceilingNumeric.Location = new System.Drawing.Point(90, 119);
             this.ceilingNumeric.Maximum = new decimal(new int[] {
             100000,
             0,
@@ -408,7 +417,7 @@
             0});
             this.ceilingNumeric.Name = "ceilingNumeric";
             this.ceilingNumeric.Size = new System.Drawing.Size(41, 20);
-            this.ceilingNumeric.TabIndex = 31;
+            this.ceilingNumeric.TabIndex = 6;
             this.ceilingNumeric.Value = new decimal(new int[] {
             1,
             0,
@@ -417,7 +426,7 @@
             // 
             // floorNumeric
             // 
-            this.floorNumeric.Location = new System.Drawing.Point(90, 74);
+            this.floorNumeric.Location = new System.Drawing.Point(90, 97);
             this.floorNumeric.Maximum = new decimal(new int[] {
             100000,
             0,
@@ -430,7 +439,7 @@
             0});
             this.floorNumeric.Name = "floorNumeric";
             this.floorNumeric.Size = new System.Drawing.Size(41, 20);
-            this.floorNumeric.TabIndex = 30;
+            this.floorNumeric.TabIndex = 5;
             this.floorNumeric.Value = new decimal(new int[] {
             1,
             0,
@@ -439,7 +448,7 @@
             // 
             // percentageNumeric
             // 
-            this.percentageNumeric.Location = new System.Drawing.Point(90, 52);
+            this.percentageNumeric.Location = new System.Drawing.Point(90, 75);
             this.percentageNumeric.Minimum = new decimal(new int[] {
             1,
             0,
@@ -447,7 +456,7 @@
             0});
             this.percentageNumeric.Name = "percentageNumeric";
             this.percentageNumeric.Size = new System.Drawing.Size(41, 20);
-            this.percentageNumeric.TabIndex = 29;
+            this.percentageNumeric.TabIndex = 4;
             this.percentageNumeric.Value = new decimal(new int[] {
             1,
             0,
@@ -457,28 +466,28 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(3, 98);
+            this.label12.Location = new System.Drawing.Point(3, 121);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(69, 13);
-            this.label12.TabIndex = 28;
+            this.label12.TabIndex = 6;
             this.label12.Text = "Celing count:";
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(3, 76);
+            this.label11.Location = new System.Drawing.Point(3, 99);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(63, 13);
-            this.label11.TabIndex = 26;
+            this.label11.TabIndex = 5;
             this.label11.Text = "Floor count:";
             // 
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(3, 54);
+            this.label10.Location = new System.Drawing.Point(3, 77);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(81, 13);
-            this.label10.TabIndex = 24;
+            this.label10.TabIndex = 4;
             this.label10.Text = "Target Percent:";
             // 
             // label9
@@ -511,10 +520,10 @@
             // 
             // randomSelectButton
             // 
-            this.randomSelectButton.Location = new System.Drawing.Point(6, 125);
+            this.randomSelectButton.Location = new System.Drawing.Point(6, 148);
             this.randomSelectButton.Name = "randomSelectButton";
             this.randomSelectButton.Size = new System.Drawing.Size(122, 23);
-            this.randomSelectButton.TabIndex = 5;
+            this.randomSelectButton.TabIndex = 8;
             this.randomSelectButton.Text = "Random Select";
             this.randomSelectButton.UseVisualStyleBackColor = true;
             this.randomSelectButton.Click += new System.EventHandler(this.randomSelectButton_Click);
@@ -528,6 +537,49 @@
             this.columnsForAutocodeCountsComboxBox.Name = "columnsForAutocodeCountsComboxBox";
             this.columnsForAutocodeCountsComboxBox.Size = new System.Drawing.Size(157, 21);
             this.columnsForAutocodeCountsComboxBox.TabIndex = 0;
+            // 
+            // oneGroupRadioButton
+            // 
+            this.oneGroupRadioButton.AutoSize = true;
+            this.oneGroupRadioButton.Checked = true;
+            this.oneGroupRadioButton.Location = new System.Drawing.Point(6, 52);
+            this.oneGroupRadioButton.Name = "oneGroupRadioButton";
+            this.oneGroupRadioButton.Size = new System.Drawing.Size(131, 17);
+            this.oneGroupRadioButton.TabIndex = 2;
+            this.oneGroupRadioButton.TabStop = true;
+            this.oneGroupRadioButton.Text = "One Group by Percent";
+            this.oneGroupRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // multipleGroupRadioButton
+            // 
+            this.multipleGroupRadioButton.AutoSize = true;
+            this.multipleGroupRadioButton.Location = new System.Drawing.Point(184, 52);
+            this.multipleGroupRadioButton.Name = "multipleGroupRadioButton";
+            this.multipleGroupRadioButton.Size = new System.Drawing.Size(98, 17);
+            this.multipleGroupRadioButton.TabIndex = 3;
+            this.multipleGroupRadioButton.Text = "Multiple Groups";
+            this.multipleGroupRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(181, 77);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(96, 13);
+            this.label14.TabIndex = 34;
+            this.label14.Text = "Number of Groups:";
+            // 
+            // numberOfGroupsNumeric
+            // 
+            this.numberOfGroupsNumeric.Location = new System.Drawing.Point(284, 74);
+            this.numberOfGroupsNumeric.Name = "numberOfGroupsNumeric";
+            this.numberOfGroupsNumeric.Size = new System.Drawing.Size(57, 20);
+            this.numberOfGroupsNumeric.TabIndex = 7;
+            this.numberOfGroupsNumeric.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
             // 
             // MainForm
             // 
@@ -556,6 +608,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.ceilingNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.floorNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.percentageNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfGroupsNumeric)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -603,6 +656,10 @@
         private System.Windows.Forms.ComboBox columnsForHostStringTextComboBox;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.CheckBox ignoreSecondColumnCheckbox;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.RadioButton multipleGroupRadioButton;
+        private System.Windows.Forms.RadioButton oneGroupRadioButton;
+        private System.Windows.Forms.NumericUpDown numberOfGroupsNumeric;
     }
 }
 

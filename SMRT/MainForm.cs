@@ -312,15 +312,25 @@ namespace TwinArch.SMRT
         private void randomSelectButton_Click(object sender, EventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
-            SMRT_MVPLibrary.ReturnCode rc = _presenter.RandomSelect(fileName, 
-                                                                    sheetNameCombo.Text, 
-                                                                    columnsForAutocodeCountsComboxBox.Text, 
-                                                                    columnsForRandomSelectComboxBox.Text, 
-                                                                    (int)percentageNumeric.Value, 
-                                                                    (int)floorNumeric.Value, 
-                                                                    (int)ceilingNumeric.Value, 
-                                                                    false, 
-                                                                    firstRowIsAColumnHeaderCheckBox.Checked);
+            SMRT_MVPLibrary.ReturnCode rc;
+            if (oneGroupRadioButton.Checked)
+                rc = _presenter.RandomSelectOneGroup(fileName, 
+                                                    sheetNameCombo.Text, 
+                                                    columnsForAutocodeCountsComboxBox.Text, 
+                                                    columnsForRandomSelectComboxBox.Text, 
+                                                    (int)percentageNumeric.Value, 
+                                                    (int)floorNumeric.Value, 
+                                                    (int)ceilingNumeric.Value, 
+                                                    false, 
+                                                    firstRowIsAColumnHeaderCheckBox.Checked);
+            else
+                rc = _presenter.RandomSelectMultipleGroups(fileName,
+                                                    sheetNameCombo.Text,
+                                                    columnsForAutocodeCountsComboxBox.Text,
+                                                    columnsForRandomSelectComboxBox.Text,
+                                                    (int)numberOfGroupsNumeric.Value,
+                                                    false,
+                                                    firstRowIsAColumnHeaderCheckBox.Checked);
             if (rc == SMRT_MVPLibrary.ReturnCode.ColumnsAlreadyExist)
             {
                 this.Cursor = Cursors.Default;
@@ -331,7 +341,10 @@ namespace TwinArch.SMRT
                 if (result == DialogResult.Yes)
                 {
                     this.Cursor = Cursors.WaitCursor;
-                    rc = _presenter.RandomSelect(fileName, sheetNameCombo.Text, columnsForAutocodeCountsComboxBox.Text, columnsForRandomSelectComboxBox.Text, (int)percentageNumeric.Value, (int)floorNumeric.Value, (int)ceilingNumeric.Value, true, firstRowIsAColumnHeaderCheckBox.Checked);
+                    if (oneGroupRadioButton.Checked)
+                        rc = _presenter.RandomSelectOneGroup(fileName, sheetNameCombo.Text, columnsForAutocodeCountsComboxBox.Text, columnsForRandomSelectComboxBox.Text, (int)percentageNumeric.Value, (int)floorNumeric.Value, (int)ceilingNumeric.Value, true, firstRowIsAColumnHeaderCheckBox.Checked);
+                    else
+                        rc = _presenter.RandomSelectMultipleGroups(fileName, sheetNameCombo.Text, columnsForAutocodeCountsComboxBox.Text, columnsForRandomSelectComboxBox.Text, (int)numberOfGroupsNumeric.Value, true, firstRowIsAColumnHeaderCheckBox.Checked);
                     this.Cursor = Cursors.Default;
                 }
             }
