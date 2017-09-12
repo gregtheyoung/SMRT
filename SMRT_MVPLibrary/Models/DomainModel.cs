@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Data;
 using System.Text.RegularExpressions;
+using System.IO;
 using TwinArch.SMRT_MVPLibrary.Interfaces;
 
 namespace TwinArch.SMRT_MVPLibrary.Models
@@ -989,6 +990,114 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return rc;
         }
 
+        public ReturnCode CalculateWordFrequency(string fileNameMentionFile, string sheetName, string columnNameWordText, string fileNameStopList, string fileNameOutput, int minPhraseLength, int maxPhraseLength, int minFrequency, bool ignoreNumericOnlyWords, bool firstRowHasHeaders)
+        {
+            ReturnCode rc = ReturnCode.Success;
+
+            bool debugOutput = false;
+
+            // Check that the file is valid, throw exception if not
+            if (!dataModel.FileIsValid(fileNameMentionFile))
+                throw new System.IO.FileNotFoundException();
+
+            // Get the contents of the column. This will provide the row/cell identifier (depends on the
+            // underlying data model implementation) and the value of column for that row/cell.
+            DataTable wordTextTable = dataModel.GetColumnValuesForColumnNames(fileNameMentionFile, sheetName, new string[] { columnNameWordText }, firstRowHasHeaders);
+
+            List<string> stopWords = new List<string>();
+            if (!String.IsNullOrEmpty(fileNameStopList))
+            {
+                string stopText = File.ReadAllText(fileNameStopList, Encoding.UTF8);
+                stopText = stopText.Replace("\r\n", " ");
+                string[] stopWordsArray = stopText.Split(' ');
+                stopWords = stopWordsArray.ToList<string>();
+            }
+
+            Dictionary<string, int> ngramCounts = new Dictionary<string, int>();
+
+            StreamWriter debugFile = null;
+            if (debugOutput)
+                debugFile = new StreamWriter(@"C:\Temp\SMRT Enhancements 20180903\debug.csv");
+
+            string csvOutput = "";
+
+            // Iterate by n-gram length. Doing it this way so the dictionary does not need to contain all n-grams of all lengths - would be too much memory.
+            for (int ngramSize = minPhraseLength; ngramSize <= maxPhraseLength; ngramSize++)
+            {
+                ngramCounts.Clear();
+
+                int rowCount = 0;
+                foreach (DataRow row in wordTextTable.Rows)
+                {
+                    String text = row[columnNameWordText].ToString().ToLower();
+
+                    if (debugOutput) debugFile.Write(text.Substring(0, Math.Min(20, text.Length)));
+
+                    // Special case due to twitter snippets - get rid of ellipses
+                    text = text.Replace("...", " ");
+                    // Remove non-ascii characters
+                    text = Regex.Replace(text, @"[^\u0020-\u007E]", string.Empty);
+
+                    IEnumerable<string> ngrams = makeNgrams(text, ngramSize, ignoreNumericOnlyWords);
+
+                    foreach (string ngram in ngrams)
+                    {
+                        // If we have stopwords, check to see if the ngram contains only stopwords
+                        bool containsOnlystopWords = false;
+                        if (stopWords.Count > 0)
+                        {
+                            containsOnlystopWords = true; // Assume it does unless we find one that isn't
+                            string[] words = ngram.Split(' ');
+                            foreach (string word in words)
+                                if (!stopWords.Contains(word)) // Found one that isn't a stop word
+                                {
+                                    containsOnlystopWords = false;
+                                    break;
+                                }
+                        }
+
+                        // If we aren't using stopwords or the ngram contains non-stopwords, then add it to the dictionary
+                        if ((stopWords.Count == 0) || !containsOnlystopWords)
+                        {
+                            if (ngramCounts.ContainsKey(ngram))
+                                ngramCounts[ngram] += 1;
+                            else
+                                ngramCounts.Add(ngram, 1);
+                            if (debugOutput) debugFile.Write(" " + Convert.ToString(ngramCounts.Count));
+                        }
+                    }
+
+                    rowCount++;
+
+                    // HACK: Was running out of memory. So here, after every 50,000 rows, I am removing any ngram that has only occurred once.
+                    // With one certain file with 400k rows, it had 1M 5-word ngrams in the first 100k rows, and over 900K had only appeared once.
+                    List<string> keysToRemove = new List<string>();
+                    if (rowCount % 50000 == 0)
+                    {
+                        foreach (KeyValuePair<string, int> kvp in ngramCounts)
+                            if (kvp.Value == 1)
+                                keysToRemove.Add(kvp.Key);
+                        foreach (string key in keysToRemove)
+                            ngramCounts.Remove(key);
+                    }
+
+
+                    if (debugOutput) debugFile.WriteLine();
+                }
+
+                // Format as a CSV string, but only those ngrams that occurred with at least the min frequency
+                string newOutput = string.Join(Environment.NewLine, ngramCounts.Where(kvp => kvp.Value >= minFrequency).Select(kvp => kvp.Key + "," + kvp.Value.ToString()));
+                csvOutput += newOutput + Environment.NewLine;
+            }
+
+            if (debugOutput) debugFile.Close();
+
+            // Format as a CSV string, but only those ngrams that occurred more than once.
+            File.WriteAllText(fileNameOutput, csvOutput);
+
+            return rc;
+        }
+
         private bool DoRandomSelectColumnsAlreadyExist(string fileName, string[] randomSelectColumnNames, string sheetName)
         {
             Dictionary<string, string> columnNames = GetColumnNames(fileName, sheetName);
@@ -1006,5 +1115,97 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return newColumnAlreadyExists;
         }
 
+        //*********************************************************************************************************
+        // © 2013 jakemdrew.com. All rights reserved. 
+        // This source code is licensed under The GNU General Public License (GPLv3):  
+        // http://opensource.org/licenses/gpl-3.0.html
+        //*********************************************************************************************************
+
+        //*********************************************************************************************************
+        //makeNgrams - Example n-gram creator.
+        //Created By - Jake Drew 
+        //Version -    1.0, 04/22/2013
+        //*********************************************************************************************************
+        public IEnumerable<string> makeNgrams(string text, int nGramSize, bool ignoreNumericOnlyWords)
+        {
+            if (nGramSize == 0) throw new Exception("nGram size was not set");
+
+            StringBuilder nGram = new StringBuilder();
+            Queue<int> wordLengths = new Queue<int>();
+
+            if (text.Length == 0)
+            {
+                yield return nGram.ToString();
+            }
+
+            else
+            {
+
+                int wordCount = 0;
+                int lastWordLen = 0;
+
+                //append the first character, if valid.
+                //avoids if statement for each for loop to check i==0 for before and after vars.
+                if (text != "" && (char.IsLetterOrDigit(text[0])) || "#@".Contains(text[0]))
+                {
+                    nGram.Append(text[0]);
+                    lastWordLen++;
+                }
+
+                //generate ngrams
+                for (int i = 1; i < text.Length - 1; i++)
+                {
+                    char before = text[i - 1];
+                    char after = text[i + 1];
+
+                    if (char.IsLetterOrDigit(text[i]) || "#@".Contains(text[i])
+                            ||
+                        //keep punctuation that is surrounded by letters or numbers on both sides, unless the punctuation is a normal word separator
+                            ((text[i] != ' ')
+                                && (!".?;,!()[]/:\"{}".Contains(text[i]))
+                                && (char.IsSeparator(text[i]) || char.IsPunctuation(text[i]))
+                                && (char.IsLetterOrDigit(before) && char.IsLetterOrDigit(after))
+                            )
+                        )
+                    {
+                        nGram.Append(text[i]);
+                        lastWordLen++;
+                    }
+                    else
+                    {
+                        if (lastWordLen > 0)
+                        {
+                            long isItAnInt;
+                            // If it is just a number, ignore it
+                            if (ignoreNumericOnlyWords && long.TryParse(nGram.ToString().Trim(), out isItAnInt))
+                            {
+                                nGram.Remove(nGram.Length - lastWordLen, lastWordLen);
+                                lastWordLen = 0;
+                            }
+                            else
+                            {
+                                wordLengths.Enqueue(lastWordLen);
+                                lastWordLen = 0;
+                                wordCount++;
+
+                                if (wordCount >= nGramSize)
+                                {
+                                    yield return nGram.ToString().Trim();
+                                    if (nGramSize == 1)
+                                        nGram.Clear();
+                                    else
+                                        nGram.Remove(0, wordLengths.Dequeue() + 1);
+                                    wordCount -= 1;
+                                }
+
+                                nGram.Append(" ");
+                            }
+                        }
+                    }
+                }
+                nGram.Append(text.Last());
+                yield return nGram.ToString().Trim();
+            }
+        }
     }
 }

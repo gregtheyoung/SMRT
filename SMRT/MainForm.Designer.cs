@@ -58,6 +58,10 @@
             this.columnsForMentionTextComboBox = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.tabRandomSelect = new System.Windows.Forms.TabPage();
+            this.numberOfGroupsNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label14 = new System.Windows.Forms.Label();
+            this.multipleGroupRadioButton = new System.Windows.Forms.RadioButton();
+            this.oneGroupRadioButton = new System.Windows.Forms.RadioButton();
             this.ceilingNumeric = new System.Windows.Forms.NumericUpDown();
             this.floorNumeric = new System.Windows.Forms.NumericUpDown();
             this.percentageNumeric = new System.Windows.Forms.NumericUpDown();
@@ -69,19 +73,33 @@
             this.label7 = new System.Windows.Forms.Label();
             this.randomSelectButton = new System.Windows.Forms.Button();
             this.columnsForAutocodeCountsComboxBox = new System.Windows.Forms.ComboBox();
-            this.oneGroupRadioButton = new System.Windows.Forms.RadioButton();
-            this.multipleGroupRadioButton = new System.Windows.Forms.RadioButton();
-            this.label14 = new System.Windows.Forms.Label();
-            this.numberOfGroupsNumeric = new System.Windows.Forms.NumericUpDown();
+            this.tabWordFreq = new System.Windows.Forms.TabPage();
+            this.selectStopListFileButton = new System.Windows.Forms.Button();
+            this.stopListFileNameTextBox = new System.Windows.Forms.TextBox();
+            this.maxPhraseLengthNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label16 = new System.Windows.Forms.Label();
+            this.minPhraseLengthNumeric = new System.Windows.Forms.NumericUpDown();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.columnsForWordFreqComboBox = new System.Windows.Forms.ComboBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.calculateWordFrequencyButton = new System.Windows.Forms.Button();
+            this.useStopListCheckBox = new System.Windows.Forms.CheckBox();
+            this.ignoreNumericOnlyWordsCheckBox = new System.Windows.Forms.CheckBox();
+            this.minFrequencyNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label17 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabSplit.SuspendLayout();
             this.tabTwitter.SuspendLayout();
             this.tabAutocode.SuspendLayout();
             this.tabRandomSelect.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfGroupsNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ceilingNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.floorNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.percentageNumeric)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numberOfGroupsNumeric)).BeginInit();
+            this.tabWordFreq.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.maxPhraseLengthNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.minPhraseLengthNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.minFrequencyNumeric)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -208,6 +226,7 @@
             this.tabControl1.Controls.Add(this.tabTwitter);
             this.tabControl1.Controls.Add(this.tabAutocode);
             this.tabControl1.Controls.Add(this.tabRandomSelect);
+            this.tabControl1.Controls.Add(this.tabWordFreq);
             this.tabControl1.Location = new System.Drawing.Point(16, 97);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -284,7 +303,7 @@
             this.tabAutocode.Location = new System.Drawing.Point(4, 22);
             this.tabAutocode.Name = "tabAutocode";
             this.tabAutocode.Padding = new System.Windows.Forms.Padding(3);
-            this.tabAutocode.Size = new System.Drawing.Size(437, 154);
+            this.tabAutocode.Size = new System.Drawing.Size(437, 181);
             this.tabAutocode.TabIndex = 2;
             this.tabAutocode.Text = "Autocode";
             // 
@@ -401,6 +420,49 @@
             this.tabRandomSelect.Size = new System.Drawing.Size(437, 181);
             this.tabRandomSelect.TabIndex = 3;
             this.tabRandomSelect.Text = "Random Select";
+            // 
+            // numberOfGroupsNumeric
+            // 
+            this.numberOfGroupsNumeric.Location = new System.Drawing.Point(284, 74);
+            this.numberOfGroupsNumeric.Name = "numberOfGroupsNumeric";
+            this.numberOfGroupsNumeric.Size = new System.Drawing.Size(57, 20);
+            this.numberOfGroupsNumeric.TabIndex = 7;
+            this.numberOfGroupsNumeric.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(181, 77);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(96, 13);
+            this.label14.TabIndex = 34;
+            this.label14.Text = "Number of Groups:";
+            // 
+            // multipleGroupRadioButton
+            // 
+            this.multipleGroupRadioButton.AutoSize = true;
+            this.multipleGroupRadioButton.Location = new System.Drawing.Point(184, 52);
+            this.multipleGroupRadioButton.Name = "multipleGroupRadioButton";
+            this.multipleGroupRadioButton.Size = new System.Drawing.Size(98, 17);
+            this.multipleGroupRadioButton.TabIndex = 3;
+            this.multipleGroupRadioButton.Text = "Multiple Groups";
+            this.multipleGroupRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // oneGroupRadioButton
+            // 
+            this.oneGroupRadioButton.AutoSize = true;
+            this.oneGroupRadioButton.Checked = true;
+            this.oneGroupRadioButton.Location = new System.Drawing.Point(6, 52);
+            this.oneGroupRadioButton.Name = "oneGroupRadioButton";
+            this.oneGroupRadioButton.Size = new System.Drawing.Size(131, 17);
+            this.oneGroupRadioButton.TabIndex = 2;
+            this.oneGroupRadioButton.TabStop = true;
+            this.oneGroupRadioButton.Text = "One Group by Percent";
+            this.oneGroupRadioButton.UseVisualStyleBackColor = true;
             // 
             // ceilingNumeric
             // 
@@ -538,48 +600,197 @@
             this.columnsForAutocodeCountsComboxBox.Size = new System.Drawing.Size(157, 21);
             this.columnsForAutocodeCountsComboxBox.TabIndex = 0;
             // 
-            // oneGroupRadioButton
+            // tabWordFreq
             // 
-            this.oneGroupRadioButton.AutoSize = true;
-            this.oneGroupRadioButton.Checked = true;
-            this.oneGroupRadioButton.Location = new System.Drawing.Point(6, 52);
-            this.oneGroupRadioButton.Name = "oneGroupRadioButton";
-            this.oneGroupRadioButton.Size = new System.Drawing.Size(131, 17);
-            this.oneGroupRadioButton.TabIndex = 2;
-            this.oneGroupRadioButton.TabStop = true;
-            this.oneGroupRadioButton.Text = "One Group by Percent";
-            this.oneGroupRadioButton.UseVisualStyleBackColor = true;
+            this.tabWordFreq.BackColor = System.Drawing.SystemColors.Control;
+            this.tabWordFreq.Controls.Add(this.label17);
+            this.tabWordFreq.Controls.Add(this.minFrequencyNumeric);
+            this.tabWordFreq.Controls.Add(this.ignoreNumericOnlyWordsCheckBox);
+            this.tabWordFreq.Controls.Add(this.useStopListCheckBox);
+            this.tabWordFreq.Controls.Add(this.selectStopListFileButton);
+            this.tabWordFreq.Controls.Add(this.stopListFileNameTextBox);
+            this.tabWordFreq.Controls.Add(this.maxPhraseLengthNumeric);
+            this.tabWordFreq.Controls.Add(this.label16);
+            this.tabWordFreq.Controls.Add(this.minPhraseLengthNumeric);
+            this.tabWordFreq.Controls.Add(this.checkBox1);
+            this.tabWordFreq.Controls.Add(this.columnsForWordFreqComboBox);
+            this.tabWordFreq.Controls.Add(this.label15);
+            this.tabWordFreq.Controls.Add(this.calculateWordFrequencyButton);
+            this.tabWordFreq.Location = new System.Drawing.Point(4, 22);
+            this.tabWordFreq.Name = "tabWordFreq";
+            this.tabWordFreq.Size = new System.Drawing.Size(437, 181);
+            this.tabWordFreq.TabIndex = 4;
+            this.tabWordFreq.Text = "Word Frequency";
             // 
-            // multipleGroupRadioButton
+            // selectStopListFileButton
             // 
-            this.multipleGroupRadioButton.AutoSize = true;
-            this.multipleGroupRadioButton.Location = new System.Drawing.Point(184, 52);
-            this.multipleGroupRadioButton.Name = "multipleGroupRadioButton";
-            this.multipleGroupRadioButton.Size = new System.Drawing.Size(98, 17);
-            this.multipleGroupRadioButton.TabIndex = 3;
-            this.multipleGroupRadioButton.Text = "Multiple Groups";
-            this.multipleGroupRadioButton.UseVisualStyleBackColor = true;
+            this.selectStopListFileButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.selectStopListFileButton.Location = new System.Drawing.Point(406, 80);
+            this.selectStopListFileButton.Name = "selectStopListFileButton";
+            this.selectStopListFileButton.Size = new System.Drawing.Size(28, 23);
+            this.selectStopListFileButton.TabIndex = 8;
+            this.selectStopListFileButton.Text = "...";
+            this.selectStopListFileButton.UseVisualStyleBackColor = true;
+            this.selectStopListFileButton.Click += new System.EventHandler(this.selectStopListFileButton_Click);
             // 
-            // label14
+            // stopListFileNameTextBox
             // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(181, 77);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(96, 13);
-            this.label14.TabIndex = 34;
-            this.label14.Text = "Number of Groups:";
+            this.stopListFileNameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.stopListFileNameTextBox.Location = new System.Drawing.Point(173, 80);
+            this.stopListFileNameTextBox.Name = "stopListFileNameTextBox";
+            this.stopListFileNameTextBox.Size = new System.Drawing.Size(227, 20);
+            this.stopListFileNameTextBox.TabIndex = 7;
             // 
-            // numberOfGroupsNumeric
+            // maxPhraseLengthNumeric
             // 
-            this.numberOfGroupsNumeric.Location = new System.Drawing.Point(284, 74);
-            this.numberOfGroupsNumeric.Name = "numberOfGroupsNumeric";
-            this.numberOfGroupsNumeric.Size = new System.Drawing.Size(57, 20);
-            this.numberOfGroupsNumeric.TabIndex = 7;
-            this.numberOfGroupsNumeric.Value = new decimal(new int[] {
-            10,
+            this.maxPhraseLengthNumeric.Location = new System.Drawing.Point(284, 54);
+            this.maxPhraseLengthNumeric.Maximum = new decimal(new int[] {
+            20,
             0,
             0,
             0});
+            this.maxPhraseLengthNumeric.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.maxPhraseLengthNumeric.Name = "maxPhraseLengthNumeric";
+            this.maxPhraseLengthNumeric.Size = new System.Drawing.Size(46, 20);
+            this.maxPhraseLengthNumeric.TabIndex = 5;
+            this.maxPhraseLengthNumeric.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(3, 56);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(135, 13);
+            this.label16.TabIndex = 3;
+            this.label16.Text = "Min/max length of phrases:";
+            // 
+            // minPhraseLengthNumeric
+            // 
+            this.minPhraseLengthNumeric.Location = new System.Drawing.Point(173, 54);
+            this.minPhraseLengthNumeric.Maximum = new decimal(new int[] {
+            20,
+            0,
+            0,
+            0});
+            this.minPhraseLengthNumeric.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.minPhraseLengthNumeric.Name = "minPhraseLengthNumeric";
+            this.minPhraseLengthNumeric.Size = new System.Drawing.Size(46, 20);
+            this.minPhraseLengthNumeric.TabIndex = 4;
+            this.minPhraseLengthNumeric.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Checked = true;
+            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox1.Location = new System.Drawing.Point(6, 10);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(241, 17);
+            this.checkBox1.TabIndex = 0;
+            this.checkBox1.Text = "The first row in this sheet has column headers";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // columnsForWordFreqComboBox
+            // 
+            this.columnsForWordFreqComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.columnsForWordFreqComboBox.FormattingEnabled = true;
+            this.columnsForWordFreqComboBox.Location = new System.Drawing.Point(173, 27);
+            this.columnsForWordFreqComboBox.Name = "columnsForWordFreqComboBox";
+            this.columnsForWordFreqComboBox.Size = new System.Drawing.Size(157, 21);
+            this.columnsForWordFreqComboBox.TabIndex = 2;
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(3, 30);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(119, 13);
+            this.label15.TabIndex = 1;
+            this.label15.Text = "Select column with text:";
+            // 
+            // calculateWordFrequencyButton
+            // 
+            this.calculateWordFrequencyButton.Location = new System.Drawing.Point(6, 145);
+            this.calculateWordFrequencyButton.Name = "calculateWordFrequencyButton";
+            this.calculateWordFrequencyButton.Size = new System.Drawing.Size(145, 23);
+            this.calculateWordFrequencyButton.TabIndex = 12;
+            this.calculateWordFrequencyButton.Text = "Calculate Word Frequency";
+            this.calculateWordFrequencyButton.UseVisualStyleBackColor = true;
+            this.calculateWordFrequencyButton.Click += new System.EventHandler(this.calculateWordFrequencyButton_Click);
+            // 
+            // useStopListCheckBox
+            // 
+            this.useStopListCheckBox.AutoSize = true;
+            this.useStopListCheckBox.Checked = true;
+            this.useStopListCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.useStopListCheckBox.Location = new System.Drawing.Point(6, 82);
+            this.useStopListCheckBox.Name = "useStopListCheckBox";
+            this.useStopListCheckBox.Size = new System.Drawing.Size(92, 17);
+            this.useStopListCheckBox.TabIndex = 6;
+            this.useStopListCheckBox.Text = "Use Stop List:";
+            this.useStopListCheckBox.UseVisualStyleBackColor = true;
+            this.useStopListCheckBox.CheckedChanged += new System.EventHandler(this.useStopListCheckBox_CheckedChanged);
+            // 
+            // ignoreNumericOnlyWordsCheckBox
+            // 
+            this.ignoreNumericOnlyWordsCheckBox.AutoSize = true;
+            this.ignoreNumericOnlyWordsCheckBox.Checked = true;
+            this.ignoreNumericOnlyWordsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.ignoreNumericOnlyWordsCheckBox.Location = new System.Drawing.Point(6, 105);
+            this.ignoreNumericOnlyWordsCheckBox.Name = "ignoreNumericOnlyWordsCheckBox";
+            this.ignoreNumericOnlyWordsCheckBox.Size = new System.Drawing.Size(149, 17);
+            this.ignoreNumericOnlyWordsCheckBox.TabIndex = 9;
+            this.ignoreNumericOnlyWordsCheckBox.Text = "Ignore numeric-only words";
+            this.ignoreNumericOnlyWordsCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // minFrequencyNumeric
+            // 
+            this.minFrequencyNumeric.Location = new System.Drawing.Point(173, 125);
+            this.minFrequencyNumeric.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.minFrequencyNumeric.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.minFrequencyNumeric.Name = "minFrequencyNumeric";
+            this.minFrequencyNumeric.Size = new System.Drawing.Size(46, 20);
+            this.minFrequencyNumeric.TabIndex = 11;
+            this.minFrequencyNumeric.Value = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(3, 127);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(101, 13);
+            this.label17.TabIndex = 10;
+            this.label17.Text = "Minimum frequency:";
             // 
             // MainForm
             // 
@@ -605,10 +816,15 @@
             this.tabAutocode.PerformLayout();
             this.tabRandomSelect.ResumeLayout(false);
             this.tabRandomSelect.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numberOfGroupsNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ceilingNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.floorNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.percentageNumeric)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numberOfGroupsNumeric)).EndInit();
+            this.tabWordFreq.ResumeLayout(false);
+            this.tabWordFreq.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.maxPhraseLengthNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.minPhraseLengthNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.minFrequencyNumeric)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -660,6 +876,20 @@
         private System.Windows.Forms.RadioButton multipleGroupRadioButton;
         private System.Windows.Forms.RadioButton oneGroupRadioButton;
         private System.Windows.Forms.NumericUpDown numberOfGroupsNumeric;
+        private System.Windows.Forms.TabPage tabWordFreq;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.ComboBox columnsForWordFreqComboBox;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Button calculateWordFrequencyButton;
+        private System.Windows.Forms.NumericUpDown maxPhraseLengthNumeric;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.NumericUpDown minPhraseLengthNumeric;
+        private System.Windows.Forms.Button selectStopListFileButton;
+        private System.Windows.Forms.TextBox stopListFileNameTextBox;
+        private System.Windows.Forms.CheckBox useStopListCheckBox;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.NumericUpDown minFrequencyNumeric;
+        private System.Windows.Forms.CheckBox ignoreNumericOnlyWordsCheckBox;
     }
 }
 

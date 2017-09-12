@@ -160,5 +160,25 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             return rc;
         }
 
+        public ReturnCode CalculateWordFrequency(string fileNameMentionFile, string sheetName, string columnNameWordText, string fileNameStopList, string fileNameOutput, int minPhraseLength, int maxPhraseLength, int minFrequency, bool ignoreNumericOnlyWords, bool ignoreFirstRow)
+        {
+            ReturnCode rc = ReturnCode.Failed;
+
+            try
+            {
+                rc = Model.CalculateWordFrequency(fileNameMentionFile, sheetName, columnNameWordText, fileNameStopList, fileNameOutput, minPhraseLength, maxPhraseLength, minFrequency, ignoreNumericOnlyWords, ignoreFirstRow);
+            }
+            catch (System.IO.FileNotFoundException e)
+            {
+                View.IsFileValid = false;
+            }
+            catch (Exception e)
+            {
+                View.UnhandledException = e.Message + "\n\nThis additional info should be passed on to your tech support:\n\n\n" + e.ToString();
+            }
+
+            return rc;
+        }
+
     }
 }

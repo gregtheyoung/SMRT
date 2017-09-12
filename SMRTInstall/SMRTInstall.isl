@@ -4369,9 +4369,9 @@ UwBpAG4AZwBsAGUASQBtAGEAZwBlAAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKAPPPOOLS</td><td>##IDS_PROGMSG_IIS_ROLLBACKAPPPOOLS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
-		<row><td>ProductCode</td><td>{59E27189-481D-459F-9FEE-0C698BDEF7C6}</td><td/></row>
+		<row><td>ProductCode</td><td>{226C096C-8889-48FE-9DFB-E30075D48611}</td><td/></row>
 		<row><td>ProductName</td><td>Social Media Research Tool</td><td/></row>
-		<row><td>ProductVersion</td><td>1.3.0000</td><td/></row>
+		<row><td>ProductVersion</td><td>1.4.0000</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>

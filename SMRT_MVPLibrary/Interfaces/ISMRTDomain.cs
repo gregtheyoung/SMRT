@@ -57,5 +57,6 @@ namespace TwinArch.SMRT_MVPLibrary.Interfaces
         ReturnCode Autocode(string fileNameMentionFile, string sheetName, string firstColumnName, string secondColumnName, string fileNameAutocodeFile, bool overwriteExistingData, bool ignoreFirstRow);
         ReturnCode RandomSelectOneGroup(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int percent, int floor, int ceiling, bool overwriteExistingData, bool ignoreFirstRow);
         ReturnCode RandomSelectMultipleGroups(string fileNameMentionFile, string sheetName, string columnNameAutocodeCounts, string columnNameRandomSelect, int numberOfGroups, bool overwriteExistingData, bool ignoreFirstRow);
+        ReturnCode CalculateWordFrequency(string fileNameMentionFile, string sheetName, string columnNameWordText, string fileNameStopList, string fileNameOutput, int minPhraseLength, int maxPhraseLength, int minFrequency, bool ignoreNumericOnlyWords, bool ignoreFirstRow);
     }
 }

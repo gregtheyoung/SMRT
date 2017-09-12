@@ -17,6 +17,7 @@ namespace TwinArch.SMRT
     {
         private string fileName;
         private string fileNameAutocodeFile;
+        private string fileNameStopListFile;
         private DataPresenter _presenter;
 
         public List<string> SheetNames
@@ -49,6 +50,10 @@ namespace TwinArch.SMRT
                     columnsForRandomSelectComboxBox.DataSource = new BindingSource(value, null);
                     columnsForRandomSelectComboxBox.DisplayMember = "Value";
                     columnsForRandomSelectComboxBox.ValueMember = "Key";
+
+                    columnsForWordFreqComboBox.DataSource = new BindingSource(value, null);
+                    columnsForWordFreqComboBox.DisplayMember = "Value";
+                    columnsForWordFreqComboBox.ValueMember = "Key";
                 }
             }
         }
@@ -96,6 +101,7 @@ namespace TwinArch.SMRT
             ignoreSecondColumnCheckbox.Enabled = false;
             columnsForAutocodeCountsComboxBox.Enabled = false;
             columnsForRandomSelectComboxBox.Enabled = false;
+            columnsForWordFreqComboBox.Enabled = false;
             splitSourceButton.Enabled = false;
             getSheetsAndColumnsButton.Enabled = false;
             testTwitterButton.Enabled = false;
@@ -130,6 +136,7 @@ namespace TwinArch.SMRT
             ignoreSecondColumnCheckbox.Enabled = true;
             columnsForAutocodeCountsComboxBox.Enabled = true;
             columnsForRandomSelectComboxBox.Enabled = true;
+            columnsForWordFreqComboBox.Enabled = true;
             testTwitterButton.Enabled = true;
             this.Cursor = Cursors.Default;
         }
@@ -356,6 +363,45 @@ namespace TwinArch.SMRT
         private void ignoreSecondColumnCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             columnsForHostStringTextComboBox.Enabled = !ignoreSecondColumnCheckbox.Checked;
+        }
+
+        private void calculateWordFrequencyButton_Click(object sender, EventArgs e)
+        {
+            SMRT_MVPLibrary.ReturnCode rc = SMRT_MVPLibrary.ReturnCode.Failed;
+
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.DefaultExt = ".csv";
+            sfd.Filter = "CSV Files (*.csv)|*.csv|All Files (*.*)|*.*";
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                this.Cursor = Cursors.WaitCursor;
+                rc = _presenter.CalculateWordFrequency(fileName, sheetNameCombo.Text, columnsForWordFreqComboBox.Text, useStopListCheckBox.Checked ? fileNameStopListFile : "", sfd.FileName, (int)minPhraseLengthNumeric.Value, (int)maxPhraseLengthNumeric.Value, (int)minFrequencyNumeric.Value, ignoreNumericOnlyWordsCheckBox.Checked, firstRowIsAColumnHeaderCheckBox.Checked);
+                this.Cursor = Cursors.Default;
+            }
+
+            if (rc == SMRT_MVPLibrary.ReturnCode.Success)
+                MessageBox.Show("Done!", "SMRT - Word Frequency", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void selectStopListFileButton_Click(object sender, EventArgs e)
+        {
+            fileOpenDialog.FileName = stopListFileNameTextBox.Text;
+
+            fileOpenDialog.CheckFileExists = true;
+            fileOpenDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            fileOpenDialog.Multiselect = false;
+
+            if (fileOpenDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                fileNameStopListFile = fileOpenDialog.FileName;
+                stopListFileNameTextBox.Text = fileNameStopListFile;
+            }
+        }
+
+        private void useStopListCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            stopListFileNameTextBox.Enabled = useStopListCheckBox.Checked;
+            selectStopListFileButton.Enabled = useStopListCheckBox.Checked;
         }
 
 
