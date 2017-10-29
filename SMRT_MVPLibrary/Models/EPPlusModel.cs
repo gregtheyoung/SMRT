@@ -9,12 +9,9 @@ using TwinArch.SMRT_MVPLibrary.Interfaces;
 using OfficeOpenXml;
 using Microsoft.Office.Core;
 using Microsoft.Office.Interop.Excel;
-using TweetinCore;
 using Tweetinvi;
-using TwitterToken;
 using System.Configuration;
 using System.Text.RegularExpressions;
-
 
 namespace TwinArch.SMRT_MVPLibrary.Models
 {
@@ -24,7 +21,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         string MaxRowID = "1000000"; // With Excel 2010+ there are a little more than 1 million rows available
 
         ExcelPackage _pkg = null;
-        TweetinCore.Interfaces.TwitterToken.IToken _token = null;
+        Tweetinvi.Models.ITwitterCredentials _twitterCreds = null;
 
         // Need a place to cache the user info that was already obtained to we don't ask Twitter
         // for the same info repeatedly - Twitter does have a rate limit on the API use
@@ -50,9 +47,11 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 // to the final destination. This is because all the other methods were far too slow for large files.
                 // Talking 10+ mins (didn't wait for it to finish) for files with 250k rows.
                 // Tried EPPlus, OLEDB with indiovidual Updates and parameterized from a DataTable, etc.
-                Application app = new Application();
-                app.Visible = false;
-                app.DisplayAlerts = false;
+                Application app = new Application
+                {
+                    Visible = false,
+                    DisplayAlerts = false
+                };
                 Workbook book = app.Workbooks.Open(fileName);
                 Worksheet sheetTo = book.Sheets[sheetName];
 
@@ -120,22 +119,31 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             }
         }
 
-        private TweetinCore.Interfaces.TwitterToken.IToken Token
+        private Tweetinvi.Models.ITwitterCredentials SetTwitterCredentials()
         {
-            get
+            if (_twitterCreds == null)
             {
-                if (_token == null)
-                {
-                    _token = new Token(
-                        ConfigurationManager.AppSettings["token_AccessToken"],
-                        ConfigurationManager.AppSettings["token_AccessTokenSecret"],
-                        ConfigurationManager.AppSettings["token_ConsumerKey"],
-                        ConfigurationManager.AppSettings["token_ConsumerSecret"]);
-                    TokenSingleton.Token = _token;
-                }
+                _twitterCreds = new Tweetinvi.Models.TwitterCredentials(
+                    ConfigurationManager.AppSettings["token_ConsumerKey"],
+                    ConfigurationManager.AppSettings["token_ConsumerSecret"],
+                    ConfigurationManager.AppSettings["token_AccessToken"],
+                    ConfigurationManager.AppSettings["token_AccessTokenSecret"]);
+                Tweetinvi.Auth.SetCredentials(_twitterCreds);
 
-                return _token;
+                Tweetinvi.RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackOnly;
+
+                TweetinviEvents.QueryBeforeExecute += TweetinviEvents_QueryBeforeExecute;
             }
+
+            return _twitterCreds;
+        }
+
+        private void TweetinviEvents_QueryBeforeExecute(object sender, Tweetinvi.Events.QueryBeforeExecuteEventArgs e)
+        {
+            var queryRateLimits = RateLimit.GetQueryRateLimit(e.QueryURL);
+
+            if ((queryRateLimits != null) && (queryRateLimits.Remaining == 0))
+                e.Cancel = true;
         }
 
         public List<string> GetSheetNames(string fileName)
@@ -364,9 +372,11 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 // to the final destination. This is because all the other methods were far too slow for large files.
                 // Talking 10+ mins (didn't wait for it to finish) for files with 250k rows.
                 // Tried EPPlus, OLEDB with indiovidual Updates and parameterized from a DataTable, etc.
-                Application app = new Application();
-                app.Visible = false;
-                app.DisplayAlerts = false;
+                Application app = new Application
+                {
+                    Visible = false,
+                    DisplayAlerts = false
+                };
                 Workbook book = app.Workbooks.Open(fileName);
                 Worksheet sheetTo = book.Sheets[sheetName];
                 Worksheet sheetFrom = book.Sheets[tempSheetName];
@@ -431,6 +441,8 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         {
             ReturnCode rc = ReturnCode.Failed;
 
+            SetTwitterCredentials();
+
             if (cachedUserInfo.ContainsKey(userID))
                 userInfo = cachedUserInfo[userID];
             //else if (Token.XRateLimitRemaining <= 170)
@@ -444,14 +456,13 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             {
                 try
                 {
-                    User user = new User(userID, Token);
+                    var user = User.GetUserFromScreenName(userID);
 
                     userInfo.Location = user.Location;
                     userInfo.Name = user.Name;
-                    userInfo.NumberOfFollowers = user.FollowersCount.HasValue ? user.FollowersCount.Value : 0;
-                    userInfo.NumberFollowing = user.FriendsCount.HasValue ? user.FriendsCount.Value : 0;
+                    userInfo.NumberOfFollowers = user.FollowersCount;
+                    userInfo.NumberFollowing = user.FriendsCount;
                     userInfo.Description = user.Description;
-
                 }
                 catch (System.Net.WebException e)
                 {
@@ -468,7 +479,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     else
                         userInfo.Name = "<error - " + e.Message + ">";
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     userInfo.Location = "";
                     userInfo.Name = "<error - unknown>";
