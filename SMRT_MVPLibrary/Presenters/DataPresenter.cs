@@ -25,7 +25,7 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             {
                 if (View != null) View.SheetNames = Model.GetSheetNames(filename);
             }
-            catch (System.IO.FileNotFoundException e)
+            catch (System.IO.FileNotFoundException)
             {
                 View.IsFileValid = false;
             }
@@ -41,7 +41,7 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             {
                 if (View != null) View.ColumnNames = Model.GetColumnNames(filename, sheetname);
             }
-            catch (System.IO.FileNotFoundException e)
+            catch (System.IO.FileNotFoundException)
             {
                 View.IsFileValid = false;
             }
@@ -69,7 +69,7 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             {
                 rc = Model.SplitURLs(fileName, sheetName, columnName, overwriteExistingData, ignoreFirstRow);
             }
-            catch (System.IO.FileNotFoundException e)
+            catch (System.IO.FileNotFoundException)
             {
                 View.IsFileValid = false;
             }
@@ -88,7 +88,7 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             {
                 rc = Model.AddTwitterInfo(fileName, sheetName, overwriteExistingData, ignoreFirstRow, numUsersToRetrieve);
             }
-            catch (System.IO.FileNotFoundException e)
+            catch (System.IO.FileNotFoundException)
             {
                 View.IsFileValid = false;
             }
@@ -108,7 +108,7 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             {
                 rc = Model.Autocode(fileNameMentionFile, sheetName, firstColumnName, secondColumnName, fileNameAutocodeFile, overwriteExistingData, ignoreFirstRow);
             }
-            catch (System.IO.FileNotFoundException e)
+            catch (System.IO.FileNotFoundException)
             {
                 View.IsFileValid = false;
             }
@@ -128,7 +128,7 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             {
                 rc = Model.RandomSelectOneGroup(fileNameMentionFile, sheetName, columnNameAutocodeCounts, columnNameRandomSelect, percent, floor, ceiling, overwriteExistingData, ignoreFirstRow);
             }
-            catch (System.IO.FileNotFoundException e)
+            catch (System.IO.FileNotFoundException)
             {
                 View.IsFileValid = false;
             }
@@ -148,7 +148,7 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             {
                 rc = Model.RandomSelectMultipleGroups(fileNameMentionFile, sheetName, columnNameAutocodeCounts, columnNameRandomSelect, numberOfGroups, overwriteExistingData, ignoreFirstRow);
             }
-            catch (System.IO.FileNotFoundException e)
+            catch (System.IO.FileNotFoundException)
             {
                 View.IsFileValid = false;
             }
@@ -168,7 +168,7 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             {
                 rc = Model.CalculateWordFrequency(fileNameMentionFile, sheetName, columnNameWordText, fileNameStopList, fileNameOutput, minPhraseLength, maxPhraseLength, minFrequency, ignoreNumericOnlyWords, ignoreFirstRow);
             }
-            catch (System.IO.FileNotFoundException e)
+            catch (System.IO.FileNotFoundException)
             {
                 View.IsFileValid = false;
             }
@@ -180,5 +180,24 @@ namespace TwinArch.SMRT_MVPLibrary.Presenters
             return rc;
         }
 
+        public ReturnCode GetTwitterConnections(string fileNameSourceIDsFile, string sheetName, string columnNameTwitterIDs, int maxConnections, string fileNameOutput)
+        {
+            ReturnCode rc = ReturnCode.Failed;
+
+            try
+            {
+                rc = Model.GetTwitterConnections(fileNameSourceIDsFile, sheetName, columnNameTwitterIDs, maxConnections, fileNameOutput);
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                View.IsFileValid = false;
+            }
+            catch (Exception e)
+            {
+                View.UnhandledException = e.Message + "\n\nThis additional info should be passed on to your tech support:\n\n\n" + e.ToString();
+            }
+
+            return rc;
+        }
     }
 }

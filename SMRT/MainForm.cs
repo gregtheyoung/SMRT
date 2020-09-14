@@ -54,6 +54,11 @@ namespace TwinArch.SMRT
                     columnsForWordFreqComboBox.DataSource = new BindingSource(value, null);
                     columnsForWordFreqComboBox.DisplayMember = "Value";
                     columnsForWordFreqComboBox.ValueMember = "Key";
+
+                    columnsForTwitterIDsComboBox.DataSource = new BindingSource(value, null);
+                    columnsForTwitterIDsComboBox.DisplayMember = "Value";
+                    columnsForTwitterIDsComboBox.ValueMember = "Key";
+
                 }
             }
         }
@@ -108,9 +113,10 @@ namespace TwinArch.SMRT
             _presenter = new DataPresenter(this, 3);
             if (!String.IsNullOrEmpty(ConfigurationManager.AppSettings["MaxTwitterUsersToPull"]))
                 numOfTopPostersTextBox.Text = ConfigurationManager.AppSettings["MaxTwitterUsersToPull"];
+            columnsForTwitterIDsComboBox.Enabled = false;
         }
 
-        private void selectFileButton_Click(object sender, EventArgs e)
+        private void SelectFileButton_Click(object sender, EventArgs e)
         {
             fileOpenDialog.FileName = excelFileNameTextBox.Text;
 
@@ -126,7 +132,7 @@ namespace TwinArch.SMRT
             }
         }
 
-        private void sheetNameCombo_SelectedIndexChanged(object sender, EventArgs e)
+        private void SheetNameCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
             _presenter.DisplayColumnNames(excelFileNameTextBox.Text, sheetNameCombo.Text);
@@ -138,10 +144,11 @@ namespace TwinArch.SMRT
             columnsForRandomSelectComboxBox.Enabled = true;
             columnsForWordFreqComboBox.Enabled = true;
             testTwitterButton.Enabled = true;
+            columnsForTwitterIDsComboBox.Enabled = true;
             this.Cursor = Cursors.Default;
         }
 
-        private void splitSourceButton_Click(object sender, EventArgs e)
+        private void SplitSourceButton_Click(object sender, EventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
             SMRT_MVPLibrary.ReturnCode rc = _presenter.ParseURLs(fileName, sheetNameCombo.Text, columnsComboBox.Text, false, firstRowIsAColumnHeaderCheckBox.Checked);
@@ -172,7 +179,7 @@ namespace TwinArch.SMRT
                 MessageBox.Show("Done!", "SMRT - Split Source Into Parts", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void getSheetsAndColumnsButton_Click(object sender, EventArgs e)
+        private void GetSheetsAndColumnsButton_Click(object sender, EventArgs e)
         {
             _presenter.EmptySheetNames();
             _presenter.EmptyColumnNames();
@@ -182,12 +189,12 @@ namespace TwinArch.SMRT
             sheetNameCombo.Enabled = true;
         }
 
-        private void columnsComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void ColumnsComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             splitSourceButton.Enabled = true;
         }
 
-        private void testTwitterButton_Click(object sender, EventArgs e)
+        private void TestTwitterButton_Click(object sender, EventArgs e)
         {
             if (NumOfTopPostersIsValid())
             {
@@ -222,11 +229,11 @@ namespace TwinArch.SMRT
             }
         }
 
-        private void numOfTopPostersTextBox_TextChanged(object sender, EventArgs e)
+        private void NumOfTopPostersTextBox_TextChanged(object sender, EventArgs e)
         {
         }
 
-        private void numOfTopPostersTextBox_Leave(object sender, EventArgs e)
+        private void NumOfTopPostersTextBox_Leave(object sender, EventArgs e)
         {
             try
             {
@@ -235,7 +242,7 @@ namespace TwinArch.SMRT
                     MessageBox.Show("The value you entered is not between 1 and 180. Twitter restricts the number of user info requests in a 15-minute period to 180.",
                         "Not in range", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
-            catch (Exception exc)
+            catch (Exception)
             {
                 MessageBox.Show("The value you entered is not a number. Please enter an integer value between 1 and 180.",
                     "Not a number", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -254,7 +261,7 @@ namespace TwinArch.SMRT
                 else
                     rc = true;
             }
-            catch (Exception exc)
+            catch (Exception)
             {
                 MessageBox.Show("The value you entered is not a number. Please enter an integer value between 1 and 180.",
                     "Not a number", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -262,16 +269,11 @@ namespace TwinArch.SMRT
             return rc;
         }
 
-        private void columnsForMentionTextComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void ColumnsForMentionTextComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
         }
 
-        private void label8_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void selectCodeFamilyFileButton_Click(object sender, EventArgs e)
+        private void SelectCodeFamilyFileButton_Click(object sender, EventArgs e)
         {
             fileOpenDialog.FileName = codeFamilyFileNameTextBox.Text;
 
@@ -286,7 +288,7 @@ namespace TwinArch.SMRT
             }
         }
 
-        private void buttonAutocode_Click(object sender, EventArgs e)
+        private void ButtonAutocode_Click(object sender, EventArgs e)
         {
             SMRT_MVPLibrary.ReturnCode rc;
             this.Cursor = Cursors.WaitCursor;
@@ -316,7 +318,7 @@ namespace TwinArch.SMRT
                 MessageBox.Show("Done!", "SMRT - Autocode", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void randomSelectButton_Click(object sender, EventArgs e)
+        private void RandomSelectButton_Click(object sender, EventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
             SMRT_MVPLibrary.ReturnCode rc;
@@ -360,18 +362,20 @@ namespace TwinArch.SMRT
                 MessageBox.Show("Done!", "SMRT - Random Select", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void ignoreSecondColumnCheckbox_CheckedChanged(object sender, EventArgs e)
+        private void IgnoreSecondColumnCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             columnsForHostStringTextComboBox.Enabled = !ignoreSecondColumnCheckbox.Checked;
         }
 
-        private void calculateWordFrequencyButton_Click(object sender, EventArgs e)
+        private void CalculateWordFrequencyButton_Click(object sender, EventArgs e)
         {
             SMRT_MVPLibrary.ReturnCode rc = SMRT_MVPLibrary.ReturnCode.Failed;
 
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.DefaultExt = ".csv";
-            sfd.Filter = "CSV Files (*.csv)|*.csv|All Files (*.*)|*.*";
+            SaveFileDialog sfd = new SaveFileDialog()
+            {
+                DefaultExt = ".csv",
+                Filter = "CSV Files (*.csv)|*.csv|All Files (*.*)|*.*"
+            };
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 this.Cursor = Cursors.WaitCursor;
@@ -383,7 +387,7 @@ namespace TwinArch.SMRT
                 MessageBox.Show("Done!", "SMRT - Word Frequency", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void selectStopListFileButton_Click(object sender, EventArgs e)
+        private void SelectStopListFileButton_Click(object sender, EventArgs e)
         {
             fileOpenDialog.FileName = stopListFileNameTextBox.Text;
 
@@ -398,12 +402,45 @@ namespace TwinArch.SMRT
             }
         }
 
-        private void useStopListCheckBox_CheckedChanged(object sender, EventArgs e)
+        private void UseStopListCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             stopListFileNameTextBox.Enabled = useStopListCheckBox.Checked;
             selectStopListFileButton.Enabled = useStopListCheckBox.Checked;
         }
 
+        private void ColumnsForTwitterIDsComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
 
+        }
+
+        private void ColumnsForFollowersFlagComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ColumnsForFollowingFlagComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void GetTwitterConnectionsButton_Click(object sender, EventArgs e)
+        {
+            SMRT_MVPLibrary.ReturnCode rc = SMRT_MVPLibrary.ReturnCode.Failed;
+
+            SaveFileDialog sfd = new SaveFileDialog()
+            {
+                DefaultExt = ".csv",
+                Filter = "CSV Files (*.csv)|*.csv|All Files (*.*)|*.*"
+            };
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                this.Cursor = Cursors.WaitCursor;
+                rc = _presenter.GetTwitterConnections(fileName, sheetNameCombo.Text, columnsForTwitterIDsComboBox.Text, (int)maxConnectionsNumeric.Value, sfd.FileName);
+                this.Cursor = Cursors.Default;
+            }
+
+            if (rc == SMRT_MVPLibrary.ReturnCode.Success)
+                MessageBox.Show("Done!", "SMRT - Twitter Connections", MessageBoxButtons.OK, MessageBoxIcon.Information);
+  }
     }
 }

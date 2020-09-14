@@ -8,10 +8,13 @@ namespace TwinArch.SMRT_MVPLibrary
 {
     public class TwitterUserInfo
     {
+        public string Screenname { get; set; }
         public string Name { get; set; }
         public string Location { get; set; }
         public int NumberOfFollowers { get; set; }
         public int NumberFollowing { get; set; }
         public string Description { get; set; }
     }
+
+    public enum TwitterConnectionType { Followers, Following }
 }

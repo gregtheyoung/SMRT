@@ -12,13 +12,14 @@ using Microsoft.Office.Interop.Excel;
 using Tweetinvi;
 using System.Configuration;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace TwinArch.SMRT_MVPLibrary.Models
 {
     public class EPPlusModel : ISMRTDataModel
     {
         string MaxColumnID = "XFD"; // With Excel 2010+ there are 16384 columns available
-        string MaxRowID = "1000000"; // With Excel 2010+ there are a little more than 1 million rows available
+        //string MaxRowID = "1000000"; // With Excel 2010+ there are a little more than 1 million rows available
 
         ExcelPackage _pkg = null;
         Tweetinvi.Models.ITwitterCredentials _twitterCreds = null;
@@ -119,7 +120,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             }
         }
 
-        private Tweetinvi.Models.ITwitterCredentials SetTwitterCredentials()
+        private Tweetinvi.Models.ITwitterCredentials SetupTwitterConnection()
         {
             if (_twitterCreds == null)
             {
@@ -130,9 +131,9 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     ConfigurationManager.AppSettings["token_AccessTokenSecret"]);
                 Tweetinvi.Auth.SetCredentials(_twitterCreds);
 
-                Tweetinvi.RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackOnly;
+                Tweetinvi.RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
 
-                TweetinviEvents.QueryBeforeExecute += TweetinviEvents_QueryBeforeExecute;
+                //TweetinviEvents.QueryBeforeExecute += TweetinviEvents_QueryBeforeExecute;
             }
 
             return _twitterCreds;
@@ -143,7 +144,10 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             var queryRateLimits = RateLimit.GetQueryRateLimit(e.QueryURL);
 
             if ((queryRateLimits != null) && (queryRateLimits.Remaining == 0))
-                e.Cancel = true;
+            {
+                Thread.Sleep((int)queryRateLimits.ResetDateTimeInMilliseconds + 1000);
+                //e.Cancel = true;
+            }
         }
 
         public List<string> GetSheetNames(string fileName)
@@ -441,10 +445,13 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         {
             ReturnCode rc = ReturnCode.Failed;
 
-            SetTwitterCredentials();
+            SetupTwitterConnection();
 
             if (cachedUserInfo.ContainsKey(userID))
+            {
                 userInfo = cachedUserInfo[userID];
+                rc = ReturnCode.Success;
+            }
             //else if (Token.XRateLimitRemaining <= 170)
             //{
             //    userInfo.Name = "<error - rate limit>";
@@ -458,14 +465,17 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 {
                     var user = User.GetUserFromScreenName(userID);
 
+                    userInfo.Screenname = user.ScreenName;
                     userInfo.Location = user.Location;
                     userInfo.Name = user.Name;
                     userInfo.NumberOfFollowers = user.FollowersCount;
                     userInfo.NumberFollowing = user.FriendsCount;
                     userInfo.Description = user.Description;
+                    rc = ReturnCode.Success;
                 }
                 catch (System.Net.WebException e)
                 {
+                    userInfo.Screenname = userID;
                     userInfo.Location = "";
                     userInfo.NumberOfFollowers = 0;
                     userInfo.NumberFollowing = 0;
@@ -481,6 +491,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 }
                 catch (Exception)
                 {
+                    userInfo.Screenname = userID;
                     userInfo.Location = "";
                     userInfo.Name = "<error - unknown>";
                     userInfo.NumberOfFollowers = 0;
@@ -496,6 +507,44 @@ namespace TwinArch.SMRT_MVPLibrary.Models
             return rc;
 
         }
+
+        public ReturnCode GetTwitterConnections(string userName, TwitterConnectionType connectionType, int maxConnections, ref TwitterUserInfo sourceUserInfo, ref List<TwitterUserInfo> connections)
+        {
+            ReturnCode rc = ReturnCode.Success;
+
+            SetupTwitterConnection();
+
+            RateLimitTrackerMode priorTrackerMode = RateLimit.RateLimitTrackerMode;
+            RateLimit.RateLimitTrackerMode = RateLimitTrackerMode.TrackAndAwait;
+            var rateLimits = RateLimit.GetCurrentCredentialsRateLimits();
+
+            sourceUserInfo = new TwitterUserInfo();
+            rc = GetTwitterUserInfo(userName, ref sourceUserInfo);
+
+            var connectionEnum = connectionType==TwitterConnectionType.Followers ? 
+                Tweetinvi.User.GetFollowers(userName, Math.Min(sourceUserInfo.NumberOfFollowers, maxConnections)) : 
+                Tweetinvi.User.GetFriends(userName, Math.Min(sourceUserInfo.NumberFollowing, maxConnections));
+
+            foreach (var user in connectionEnum)
+            {
+                TwitterUserInfo userInfo = new TwitterUserInfo
+                {
+                    Screenname = user.ScreenName,
+                    Location = user.Location,
+                    Name = user.Name,
+                    NumberOfFollowers = user.FollowersCount,
+                    NumberFollowing = user.FriendsCount,
+                    Description = user.Description
+                };
+                connections.Add(userInfo);
+            }
+
+            var rateLimitsAfter = RateLimit.GetCurrentCredentialsRateLimits();
+            RateLimit.RateLimitTrackerMode = priorTrackerMode;
+
+            return rc;
+        }
+
     }
 }
 

@@ -74,6 +74,10 @@
             this.randomSelectButton = new System.Windows.Forms.Button();
             this.columnsForAutocodeCountsComboxBox = new System.Windows.Forms.ComboBox();
             this.tabWordFreq = new System.Windows.Forms.TabPage();
+            this.label17 = new System.Windows.Forms.Label();
+            this.minFrequencyNumeric = new System.Windows.Forms.NumericUpDown();
+            this.ignoreNumericOnlyWordsCheckBox = new System.Windows.Forms.CheckBox();
+            this.useStopListCheckBox = new System.Windows.Forms.CheckBox();
             this.selectStopListFileButton = new System.Windows.Forms.Button();
             this.stopListFileNameTextBox = new System.Windows.Forms.TextBox();
             this.maxPhraseLengthNumeric = new System.Windows.Forms.NumericUpDown();
@@ -83,10 +87,12 @@
             this.columnsForWordFreqComboBox = new System.Windows.Forms.ComboBox();
             this.label15 = new System.Windows.Forms.Label();
             this.calculateWordFrequencyButton = new System.Windows.Forms.Button();
-            this.useStopListCheckBox = new System.Windows.Forms.CheckBox();
-            this.ignoreNumericOnlyWordsCheckBox = new System.Windows.Forms.CheckBox();
-            this.minFrequencyNumeric = new System.Windows.Forms.NumericUpDown();
-            this.label17 = new System.Windows.Forms.Label();
+            this.tabTwitterFriends = new System.Windows.Forms.TabPage();
+            this.label21 = new System.Windows.Forms.Label();
+            this.maxConnectionsNumeric = new System.Windows.Forms.NumericUpDown();
+            this.getTwitterConnectionsButton = new System.Windows.Forms.Button();
+            this.columnsForTwitterIDsComboBox = new System.Windows.Forms.ComboBox();
+            this.label18 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabSplit.SuspendLayout();
             this.tabTwitter.SuspendLayout();
@@ -97,9 +103,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.floorNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.percentageNumeric)).BeginInit();
             this.tabWordFreq.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.minFrequencyNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.maxPhraseLengthNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.minPhraseLengthNumeric)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.minFrequencyNumeric)).BeginInit();
+            this.tabTwitterFriends.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.maxConnectionsNumeric)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -117,19 +125,19 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.excelFileNameTextBox.Location = new System.Drawing.Point(107, 13);
             this.excelFileNameTextBox.Name = "excelFileNameTextBox";
-            this.excelFileNameTextBox.Size = new System.Drawing.Size(313, 20);
+            this.excelFileNameTextBox.Size = new System.Drawing.Size(414, 20);
             this.excelFileNameTextBox.TabIndex = 1;
             // 
             // selectFileButton
             // 
             this.selectFileButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.selectFileButton.Location = new System.Drawing.Point(426, 13);
+            this.selectFileButton.Location = new System.Drawing.Point(527, 13);
             this.selectFileButton.Name = "selectFileButton";
             this.selectFileButton.Size = new System.Drawing.Size(28, 23);
             this.selectFileButton.TabIndex = 2;
             this.selectFileButton.Text = "...";
             this.selectFileButton.UseVisualStyleBackColor = true;
-            this.selectFileButton.Click += new System.EventHandler(this.selectFileButton_Click);
+            this.selectFileButton.Click += new System.EventHandler(this.SelectFileButton_Click);
             // 
             // fileOpenDialog
             // 
@@ -142,9 +150,9 @@
             this.sheetNameCombo.FormattingEnabled = true;
             this.sheetNameCombo.Location = new System.Drawing.Point(107, 70);
             this.sheetNameCombo.Name = "sheetNameCombo";
-            this.sheetNameCombo.Size = new System.Drawing.Size(313, 21);
+            this.sheetNameCombo.Size = new System.Drawing.Size(414, 21);
             this.sheetNameCombo.TabIndex = 3;
-            this.sheetNameCombo.SelectedIndexChanged += new System.EventHandler(this.sheetNameCombo_SelectedIndexChanged);
+            this.sheetNameCombo.SelectedIndexChanged += new System.EventHandler(this.SheetNameCombo_SelectedIndexChanged);
             // 
             // label2
             // 
@@ -162,9 +170,9 @@
             this.columnsComboBox.FormattingEnabled = true;
             this.columnsComboBox.Location = new System.Drawing.Point(176, 12);
             this.columnsComboBox.Name = "columnsComboBox";
-            this.columnsComboBox.Size = new System.Drawing.Size(157, 21);
+            this.columnsComboBox.Size = new System.Drawing.Size(258, 21);
             this.columnsComboBox.TabIndex = 5;
-            this.columnsComboBox.SelectedIndexChanged += new System.EventHandler(this.columnsComboBox_SelectedIndexChanged);
+            this.columnsComboBox.SelectedIndexChanged += new System.EventHandler(this.ColumnsComboBox_SelectedIndexChanged);
             // 
             // label3
             // 
@@ -183,7 +191,7 @@
             this.splitSourceButton.TabIndex = 10;
             this.splitSourceButton.Text = "Split Source Into Parts";
             this.splitSourceButton.UseVisualStyleBackColor = true;
-            this.splitSourceButton.Click += new System.EventHandler(this.splitSourceButton_Click);
+            this.splitSourceButton.Click += new System.EventHandler(this.SplitSourceButton_Click);
             // 
             // getSheetsAndColumnsButton
             // 
@@ -193,7 +201,7 @@
             this.getSheetsAndColumnsButton.TabIndex = 11;
             this.getSheetsAndColumnsButton.Text = "Get Sheets/Columns";
             this.getSheetsAndColumnsButton.UseVisualStyleBackColor = true;
-            this.getSheetsAndColumnsButton.Click += new System.EventHandler(this.getSheetsAndColumnsButton_Click);
+            this.getSheetsAndColumnsButton.Click += new System.EventHandler(this.GetSheetsAndColumnsButton_Click);
             // 
             // firstRowIsAColumnHeaderCheckBox
             // 
@@ -215,7 +223,7 @@
             this.testTwitterButton.TabIndex = 13;
             this.testTwitterButton.Text = "Get Twitter Info";
             this.testTwitterButton.UseVisualStyleBackColor = true;
-            this.testTwitterButton.Click += new System.EventHandler(this.testTwitterButton_Click);
+            this.testTwitterButton.Click += new System.EventHandler(this.TestTwitterButton_Click);
             // 
             // tabControl1
             // 
@@ -227,10 +235,11 @@
             this.tabControl1.Controls.Add(this.tabAutocode);
             this.tabControl1.Controls.Add(this.tabRandomSelect);
             this.tabControl1.Controls.Add(this.tabWordFreq);
+            this.tabControl1.Controls.Add(this.tabTwitterFriends);
             this.tabControl1.Location = new System.Drawing.Point(16, 97);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(445, 207);
+            this.tabControl1.Size = new System.Drawing.Size(546, 207);
             this.tabControl1.TabIndex = 14;
             // 
             // tabSplit
@@ -243,7 +252,7 @@
             this.tabSplit.Location = new System.Drawing.Point(4, 22);
             this.tabSplit.Name = "tabSplit";
             this.tabSplit.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSplit.Size = new System.Drawing.Size(437, 181);
+            this.tabSplit.Size = new System.Drawing.Size(538, 181);
             this.tabSplit.TabIndex = 0;
             this.tabSplit.Text = "Split Source Into Parts";
             // 
@@ -257,7 +266,7 @@
             this.tabTwitter.Location = new System.Drawing.Point(4, 22);
             this.tabTwitter.Name = "tabTwitter";
             this.tabTwitter.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTwitter.Size = new System.Drawing.Size(437, 181);
+            this.tabTwitter.Size = new System.Drawing.Size(538, 181);
             this.tabTwitter.TabIndex = 1;
             this.tabTwitter.Text = "Get Twitter Info";
             // 
@@ -285,8 +294,8 @@
             this.numOfTopPostersTextBox.Name = "numOfTopPostersTextBox";
             this.numOfTopPostersTextBox.Size = new System.Drawing.Size(53, 20);
             this.numOfTopPostersTextBox.TabIndex = 14;
-            this.numOfTopPostersTextBox.TextChanged += new System.EventHandler(this.numOfTopPostersTextBox_TextChanged);
-            this.numOfTopPostersTextBox.Leave += new System.EventHandler(this.numOfTopPostersTextBox_Leave);
+            this.numOfTopPostersTextBox.TextChanged += new System.EventHandler(this.NumOfTopPostersTextBox_TextChanged);
+            this.numOfTopPostersTextBox.Leave += new System.EventHandler(this.NumOfTopPostersTextBox_Leave);
             // 
             // tabAutocode
             // 
@@ -303,7 +312,7 @@
             this.tabAutocode.Location = new System.Drawing.Point(4, 22);
             this.tabAutocode.Name = "tabAutocode";
             this.tabAutocode.Padding = new System.Windows.Forms.Padding(3);
-            this.tabAutocode.Size = new System.Drawing.Size(437, 181);
+            this.tabAutocode.Size = new System.Drawing.Size(538, 181);
             this.tabAutocode.TabIndex = 2;
             this.tabAutocode.Text = "Autocode";
             // 
@@ -316,7 +325,7 @@
             this.ignoreSecondColumnCheckbox.TabIndex = 4;
             this.ignoreSecondColumnCheckbox.Text = "Ignore";
             this.ignoreSecondColumnCheckbox.UseVisualStyleBackColor = true;
-            this.ignoreSecondColumnCheckbox.CheckedChanged += new System.EventHandler(this.ignoreSecondColumnCheckbox_CheckedChanged);
+            this.ignoreSecondColumnCheckbox.CheckedChanged += new System.EventHandler(this.IgnoreSecondColumnCheckbox_CheckedChanged);
             // 
             // columnsForHostStringTextComboBox
             // 
@@ -325,7 +334,7 @@
             this.columnsForHostStringTextComboBox.FormattingEnabled = true;
             this.columnsForHostStringTextComboBox.Location = new System.Drawing.Point(214, 35);
             this.columnsForHostStringTextComboBox.Name = "columnsForHostStringTextComboBox";
-            this.columnsForHostStringTextComboBox.Size = new System.Drawing.Size(157, 21);
+            this.columnsForHostStringTextComboBox.Size = new System.Drawing.Size(236, 21);
             this.columnsForHostStringTextComboBox.TabIndex = 3;
             // 
             // label13
@@ -345,7 +354,6 @@
             this.label8.Size = new System.Drawing.Size(127, 13);
             this.label8.TabIndex = 5;
             this.label8.Text = "Select Code Families file: ";
-            this.label8.Click += new System.EventHandler(this.label8_Click);
             // 
             // buttonAutocode
             // 
@@ -355,18 +363,18 @@
             this.buttonAutocode.TabIndex = 8;
             this.buttonAutocode.Text = "Autocode";
             this.buttonAutocode.UseVisualStyleBackColor = true;
-            this.buttonAutocode.Click += new System.EventHandler(this.buttonAutocode_Click);
+            this.buttonAutocode.Click += new System.EventHandler(this.ButtonAutocode_Click);
             // 
             // selectCodeFamilyFileButton
             // 
             this.selectCodeFamilyFileButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.selectCodeFamilyFileButton.Location = new System.Drawing.Point(406, 67);
+            this.selectCodeFamilyFileButton.Location = new System.Drawing.Point(485, 67);
             this.selectCodeFamilyFileButton.Name = "selectCodeFamilyFileButton";
             this.selectCodeFamilyFileButton.Size = new System.Drawing.Size(28, 23);
             this.selectCodeFamilyFileButton.TabIndex = 7;
             this.selectCodeFamilyFileButton.Text = "...";
             this.selectCodeFamilyFileButton.UseVisualStyleBackColor = true;
-            this.selectCodeFamilyFileButton.Click += new System.EventHandler(this.selectCodeFamilyFileButton_Click);
+            this.selectCodeFamilyFileButton.Click += new System.EventHandler(this.SelectCodeFamilyFileButton_Click);
             // 
             // codeFamilyFileNameTextBox
             // 
@@ -374,7 +382,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.codeFamilyFileNameTextBox.Location = new System.Drawing.Point(130, 67);
             this.codeFamilyFileNameTextBox.Name = "codeFamilyFileNameTextBox";
-            this.codeFamilyFileNameTextBox.Size = new System.Drawing.Size(270, 20);
+            this.codeFamilyFileNameTextBox.Size = new System.Drawing.Size(349, 20);
             this.codeFamilyFileNameTextBox.TabIndex = 6;
             // 
             // columnsForMentionTextComboBox
@@ -384,9 +392,9 @@
             this.columnsForMentionTextComboBox.FormattingEnabled = true;
             this.columnsForMentionTextComboBox.Location = new System.Drawing.Point(214, 10);
             this.columnsForMentionTextComboBox.Name = "columnsForMentionTextComboBox";
-            this.columnsForMentionTextComboBox.Size = new System.Drawing.Size(157, 21);
+            this.columnsForMentionTextComboBox.Size = new System.Drawing.Size(236, 21);
             this.columnsForMentionTextComboBox.TabIndex = 1;
-            this.columnsForMentionTextComboBox.SelectedIndexChanged += new System.EventHandler(this.columnsForMentionTextComboBox_SelectedIndexChanged);
+            this.columnsForMentionTextComboBox.SelectedIndexChanged += new System.EventHandler(this.ColumnsForMentionTextComboBox_SelectedIndexChanged);
             // 
             // label6
             // 
@@ -417,7 +425,7 @@
             this.tabRandomSelect.Controls.Add(this.columnsForAutocodeCountsComboxBox);
             this.tabRandomSelect.Location = new System.Drawing.Point(4, 22);
             this.tabRandomSelect.Name = "tabRandomSelect";
-            this.tabRandomSelect.Size = new System.Drawing.Size(437, 181);
+            this.tabRandomSelect.Size = new System.Drawing.Size(538, 181);
             this.tabRandomSelect.TabIndex = 3;
             this.tabRandomSelect.Text = "Random Select";
             // 
@@ -568,7 +576,7 @@
             this.columnsForRandomSelectComboxBox.FormattingEnabled = true;
             this.columnsForRandomSelectComboxBox.Location = new System.Drawing.Point(184, 28);
             this.columnsForRandomSelectComboxBox.Name = "columnsForRandomSelectComboxBox";
-            this.columnsForRandomSelectComboxBox.Size = new System.Drawing.Size(157, 21);
+            this.columnsForRandomSelectComboxBox.Size = new System.Drawing.Size(236, 21);
             this.columnsForRandomSelectComboxBox.TabIndex = 1;
             // 
             // label7
@@ -588,7 +596,7 @@
             this.randomSelectButton.TabIndex = 8;
             this.randomSelectButton.Text = "Random Select";
             this.randomSelectButton.UseVisualStyleBackColor = true;
-            this.randomSelectButton.Click += new System.EventHandler(this.randomSelectButton_Click);
+            this.randomSelectButton.Click += new System.EventHandler(this.RandomSelectButton_Click);
             // 
             // columnsForAutocodeCountsComboxBox
             // 
@@ -597,7 +605,7 @@
             this.columnsForAutocodeCountsComboxBox.FormattingEnabled = true;
             this.columnsForAutocodeCountsComboxBox.Location = new System.Drawing.Point(184, 7);
             this.columnsForAutocodeCountsComboxBox.Name = "columnsForAutocodeCountsComboxBox";
-            this.columnsForAutocodeCountsComboxBox.Size = new System.Drawing.Size(157, 21);
+            this.columnsForAutocodeCountsComboxBox.Size = new System.Drawing.Size(236, 21);
             this.columnsForAutocodeCountsComboxBox.TabIndex = 0;
             // 
             // tabWordFreq
@@ -618,20 +626,76 @@
             this.tabWordFreq.Controls.Add(this.calculateWordFrequencyButton);
             this.tabWordFreq.Location = new System.Drawing.Point(4, 22);
             this.tabWordFreq.Name = "tabWordFreq";
-            this.tabWordFreq.Size = new System.Drawing.Size(437, 181);
+            this.tabWordFreq.Size = new System.Drawing.Size(538, 181);
             this.tabWordFreq.TabIndex = 4;
             this.tabWordFreq.Text = "Word Frequency";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(3, 127);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(101, 13);
+            this.label17.TabIndex = 10;
+            this.label17.Text = "Minimum frequency:";
+            // 
+            // minFrequencyNumeric
+            // 
+            this.minFrequencyNumeric.Location = new System.Drawing.Point(173, 125);
+            this.minFrequencyNumeric.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.minFrequencyNumeric.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.minFrequencyNumeric.Name = "minFrequencyNumeric";
+            this.minFrequencyNumeric.Size = new System.Drawing.Size(46, 20);
+            this.minFrequencyNumeric.TabIndex = 11;
+            this.minFrequencyNumeric.Value = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            // 
+            // ignoreNumericOnlyWordsCheckBox
+            // 
+            this.ignoreNumericOnlyWordsCheckBox.AutoSize = true;
+            this.ignoreNumericOnlyWordsCheckBox.Checked = true;
+            this.ignoreNumericOnlyWordsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.ignoreNumericOnlyWordsCheckBox.Location = new System.Drawing.Point(6, 105);
+            this.ignoreNumericOnlyWordsCheckBox.Name = "ignoreNumericOnlyWordsCheckBox";
+            this.ignoreNumericOnlyWordsCheckBox.Size = new System.Drawing.Size(149, 17);
+            this.ignoreNumericOnlyWordsCheckBox.TabIndex = 9;
+            this.ignoreNumericOnlyWordsCheckBox.Text = "Ignore numeric-only words";
+            this.ignoreNumericOnlyWordsCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // useStopListCheckBox
+            // 
+            this.useStopListCheckBox.AutoSize = true;
+            this.useStopListCheckBox.Checked = true;
+            this.useStopListCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.useStopListCheckBox.Location = new System.Drawing.Point(6, 82);
+            this.useStopListCheckBox.Name = "useStopListCheckBox";
+            this.useStopListCheckBox.Size = new System.Drawing.Size(92, 17);
+            this.useStopListCheckBox.TabIndex = 6;
+            this.useStopListCheckBox.Text = "Use Stop List:";
+            this.useStopListCheckBox.UseVisualStyleBackColor = true;
+            this.useStopListCheckBox.CheckedChanged += new System.EventHandler(this.UseStopListCheckBox_CheckedChanged);
             // 
             // selectStopListFileButton
             // 
             this.selectStopListFileButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.selectStopListFileButton.Location = new System.Drawing.Point(406, 80);
+            this.selectStopListFileButton.Location = new System.Drawing.Point(485, 80);
             this.selectStopListFileButton.Name = "selectStopListFileButton";
             this.selectStopListFileButton.Size = new System.Drawing.Size(28, 23);
             this.selectStopListFileButton.TabIndex = 8;
             this.selectStopListFileButton.Text = "...";
             this.selectStopListFileButton.UseVisualStyleBackColor = true;
-            this.selectStopListFileButton.Click += new System.EventHandler(this.selectStopListFileButton_Click);
+            this.selectStopListFileButton.Click += new System.EventHandler(this.SelectStopListFileButton_Click);
             // 
             // stopListFileNameTextBox
             // 
@@ -639,7 +703,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.stopListFileNameTextBox.Location = new System.Drawing.Point(173, 80);
             this.stopListFileNameTextBox.Name = "stopListFileNameTextBox";
-            this.stopListFileNameTextBox.Size = new System.Drawing.Size(227, 20);
+            this.stopListFileNameTextBox.Size = new System.Drawing.Size(306, 20);
             this.stopListFileNameTextBox.TabIndex = 7;
             // 
             // maxPhraseLengthNumeric
@@ -714,7 +778,7 @@
             this.columnsForWordFreqComboBox.FormattingEnabled = true;
             this.columnsForWordFreqComboBox.Location = new System.Drawing.Point(173, 27);
             this.columnsForWordFreqComboBox.Name = "columnsForWordFreqComboBox";
-            this.columnsForWordFreqComboBox.Size = new System.Drawing.Size(157, 21);
+            this.columnsForWordFreqComboBox.Size = new System.Drawing.Size(236, 21);
             this.columnsForWordFreqComboBox.TabIndex = 2;
             // 
             // label15
@@ -734,69 +798,93 @@
             this.calculateWordFrequencyButton.TabIndex = 12;
             this.calculateWordFrequencyButton.Text = "Calculate Word Frequency";
             this.calculateWordFrequencyButton.UseVisualStyleBackColor = true;
-            this.calculateWordFrequencyButton.Click += new System.EventHandler(this.calculateWordFrequencyButton_Click);
+            this.calculateWordFrequencyButton.Click += new System.EventHandler(this.CalculateWordFrequencyButton_Click);
             // 
-            // useStopListCheckBox
+            // tabTwitterFriends
             // 
-            this.useStopListCheckBox.AutoSize = true;
-            this.useStopListCheckBox.Checked = true;
-            this.useStopListCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.useStopListCheckBox.Location = new System.Drawing.Point(6, 82);
-            this.useStopListCheckBox.Name = "useStopListCheckBox";
-            this.useStopListCheckBox.Size = new System.Drawing.Size(92, 17);
-            this.useStopListCheckBox.TabIndex = 6;
-            this.useStopListCheckBox.Text = "Use Stop List:";
-            this.useStopListCheckBox.UseVisualStyleBackColor = true;
-            this.useStopListCheckBox.CheckedChanged += new System.EventHandler(this.useStopListCheckBox_CheckedChanged);
+            this.tabTwitterFriends.BackColor = System.Drawing.SystemColors.Control;
+            this.tabTwitterFriends.Controls.Add(this.label21);
+            this.tabTwitterFriends.Controls.Add(this.maxConnectionsNumeric);
+            this.tabTwitterFriends.Controls.Add(this.getTwitterConnectionsButton);
+            this.tabTwitterFriends.Controls.Add(this.columnsForTwitterIDsComboBox);
+            this.tabTwitterFriends.Controls.Add(this.label18);
+            this.tabTwitterFriends.Location = new System.Drawing.Point(4, 22);
+            this.tabTwitterFriends.Name = "tabTwitterFriends";
+            this.tabTwitterFriends.Size = new System.Drawing.Size(538, 181);
+            this.tabTwitterFriends.TabIndex = 5;
+            this.tabTwitterFriends.Text = "Twitter Connections";
             // 
-            // ignoreNumericOnlyWordsCheckBox
+            // label21
             // 
-            this.ignoreNumericOnlyWordsCheckBox.AutoSize = true;
-            this.ignoreNumericOnlyWordsCheckBox.Checked = true;
-            this.ignoreNumericOnlyWordsCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.ignoreNumericOnlyWordsCheckBox.Location = new System.Drawing.Point(6, 105);
-            this.ignoreNumericOnlyWordsCheckBox.Name = "ignoreNumericOnlyWordsCheckBox";
-            this.ignoreNumericOnlyWordsCheckBox.Size = new System.Drawing.Size(149, 17);
-            this.ignoreNumericOnlyWordsCheckBox.TabIndex = 9;
-            this.ignoreNumericOnlyWordsCheckBox.Text = "Ignore numeric-only words";
-            this.ignoreNumericOnlyWordsCheckBox.UseVisualStyleBackColor = true;
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(3, 36);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(146, 13);
+            this.label21.TabIndex = 17;
+            this.label21.Text = "Maximum connections to pull:";
             // 
-            // minFrequencyNumeric
+            // maxConnectionsNumeric
             // 
-            this.minFrequencyNumeric.Location = new System.Drawing.Point(173, 125);
-            this.minFrequencyNumeric.Maximum = new decimal(new int[] {
+            this.maxConnectionsNumeric.Increment = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.maxConnectionsNumeric.Location = new System.Drawing.Point(173, 34);
+            this.maxConnectionsNumeric.Maximum = new decimal(new int[] {
             10000,
             0,
             0,
             0});
-            this.minFrequencyNumeric.Minimum = new decimal(new int[] {
-            1,
+            this.maxConnectionsNumeric.Minimum = new decimal(new int[] {
+            100,
             0,
             0,
             0});
-            this.minFrequencyNumeric.Name = "minFrequencyNumeric";
-            this.minFrequencyNumeric.Size = new System.Drawing.Size(46, 20);
-            this.minFrequencyNumeric.TabIndex = 11;
-            this.minFrequencyNumeric.Value = new decimal(new int[] {
-            2,
+            this.maxConnectionsNumeric.Name = "maxConnectionsNumeric";
+            this.maxConnectionsNumeric.Size = new System.Drawing.Size(63, 20);
+            this.maxConnectionsNumeric.TabIndex = 3;
+            this.maxConnectionsNumeric.Value = new decimal(new int[] {
+            1000,
             0,
             0,
             0});
             // 
-            // label17
+            // getTwitterConnectionsButton
             // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(3, 127);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(101, 13);
-            this.label17.TabIndex = 10;
-            this.label17.Text = "Minimum frequency:";
+            this.getTwitterConnectionsButton.Location = new System.Drawing.Point(6, 155);
+            this.getTwitterConnectionsButton.Name = "getTwitterConnectionsButton";
+            this.getTwitterConnectionsButton.Size = new System.Drawing.Size(145, 23);
+            this.getTwitterConnectionsButton.TabIndex = 4;
+            this.getTwitterConnectionsButton.Text = "Get Twitter Connections";
+            this.getTwitterConnectionsButton.UseVisualStyleBackColor = true;
+            this.getTwitterConnectionsButton.Click += new System.EventHandler(this.GetTwitterConnectionsButton_Click);
+            // 
+            // columnsForTwitterIDsComboBox
+            // 
+            this.columnsForTwitterIDsComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.columnsForTwitterIDsComboBox.FormattingEnabled = true;
+            this.columnsForTwitterIDsComboBox.Location = new System.Drawing.Point(173, 7);
+            this.columnsForTwitterIDsComboBox.Name = "columnsForTwitterIDsComboBox";
+            this.columnsForTwitterIDsComboBox.Size = new System.Drawing.Size(158, 21);
+            this.columnsForTwitterIDsComboBox.TabIndex = 0;
+            this.columnsForTwitterIDsComboBox.SelectedIndexChanged += new System.EventHandler(this.ColumnsForTwitterIDsComboBox_SelectedIndexChanged);
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(3, 10);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(153, 13);
+            this.label18.TabIndex = 8;
+            this.label18.Text = "Select column with Twitter IDs:";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(481, 316);
+            this.ClientSize = new System.Drawing.Size(582, 316);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.getSheetsAndColumnsButton);
             this.Controls.Add(this.label2);
@@ -822,9 +910,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.percentageNumeric)).EndInit();
             this.tabWordFreq.ResumeLayout(false);
             this.tabWordFreq.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.minFrequencyNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.maxPhraseLengthNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.minPhraseLengthNumeric)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.minFrequencyNumeric)).EndInit();
+            this.tabTwitterFriends.ResumeLayout(false);
+            this.tabTwitterFriends.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.maxConnectionsNumeric)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -890,6 +981,12 @@
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.NumericUpDown minFrequencyNumeric;
         private System.Windows.Forms.CheckBox ignoreNumericOnlyWordsCheckBox;
+        private System.Windows.Forms.TabPage tabTwitterFriends;
+        private System.Windows.Forms.ComboBox columnsForTwitterIDsComboBox;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Button getTwitterConnectionsButton;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.NumericUpDown maxConnectionsNumeric;
     }
 }
 

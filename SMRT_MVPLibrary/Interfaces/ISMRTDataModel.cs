@@ -74,5 +74,6 @@ namespace TwinArch.SMRT_MVPLibrary.Interfaces
         ReturnCode WriteColumnValuesToNewSheet(string fileName, string sheetName, DataTable newValuesTable, bool firstRowHasHeaders);
 
         ReturnCode GetTwitterUserInfo(string userID, ref TwitterUserInfo twitterUserInfo);
+        ReturnCode GetTwitterConnections(string userName, TwitterConnectionType connectionType, int maxConnections, ref TwitterUserInfo sourceUserInfo, ref List<TwitterUserInfo> connections);
     }
 }

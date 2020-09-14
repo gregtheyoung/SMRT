@@ -215,7 +215,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                             }
                         }
 
-                        catch (UriFormatException e)
+                        catch (UriFormatException)
                         {
                             newRow[(int)NewSplitColumnIndex.Domain] = null;
                             newRow[(int)NewSplitColumnIndex.MentionID] = null;
@@ -330,7 +330,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     newRow[(int)NewSplitColumnIndex.MentionID] = segments[3].Trim('/');
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 newRow[(int)NewSplitColumnIndex.MentionType] = "Facebook";
                 newRow[(int)NewSplitColumnIndex.Domain] = domain;
@@ -348,7 +348,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 newRow[(int)NewSplitColumnIndex.PosterID] = segments[1].Trim('/');
                 newRow[(int)NewSplitColumnIndex.MentionID] = segments[3].Trim('/');
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 newRow[(int)NewSplitColumnIndex.MentionType] = "Twitter";
                 newRow[(int)NewSplitColumnIndex.Domain] = domain;
@@ -367,7 +367,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 newRow[(int)NewSplitColumnIndex.PosterID] = uri.Host.Replace(".blogspot.com", "");
                 newRow[(int)NewSplitColumnIndex.MentionID] = uri.PathAndQuery;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 newRow[(int)NewSplitColumnIndex.MentionType] = "Blogger";
                 newRow[(int)NewSplitColumnIndex.Domain] = domain;
@@ -388,7 +388,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 newRow[(int)NewSplitColumnIndex.PosterID] = uri.Host.Replace(".tumblr.com", "");
                 newRow[(int)NewSplitColumnIndex.MentionID] = segments[2].Trim('/');
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 newRow[(int)NewSplitColumnIndex.MentionType] = "Tumblr";
                 newRow[(int)NewSplitColumnIndex.Domain] = domain;
@@ -407,7 +407,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 newRow[(int)NewSplitColumnIndex.PosterID] = segments[2].Trim('/'); // This contains the name of the Reddit group
                 newRow[(int)NewSplitColumnIndex.MentionID] = segments[5].Trim('/'); // This contains the name of the post that is commented on. Segment 4 contains the ID of the post.
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 newRow[(int)NewSplitColumnIndex.MentionType] = "Reddit";
                 newRow[(int)NewSplitColumnIndex.Domain] = domain;
@@ -428,7 +428,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 newRow[(int)NewSplitColumnIndex.PosterID] = domain;
                 newRow[(int)NewSplitColumnIndex.MentionID] = uri.PathAndQuery.Trim('/');
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 newRow[(int)NewSplitColumnIndex.MentionType] = "Unknown";
                 newRow[(int)NewSplitColumnIndex.Domain] = domain;
@@ -1038,7 +1038,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     // Remove non-ascii characters
                     text = Regex.Replace(text, @"[^\u0020-\u007E]", string.Empty);
 
-                    IEnumerable<string> ngrams = makeNgrams(text, ngramSize, ignoreNumericOnlyWords);
+                    IEnumerable<string> ngrams = MakeNgrams(text, ngramSize, ignoreNumericOnlyWords);
 
                     foreach (string ngram in ngrams)
                     {
@@ -1126,7 +1126,7 @@ namespace TwinArch.SMRT_MVPLibrary.Models
         //Created By - Jake Drew 
         //Version -    1.0, 04/22/2013
         //*********************************************************************************************************
-        public IEnumerable<string> makeNgrams(string text, int nGramSize, bool ignoreNumericOnlyWords)
+        public IEnumerable<string> MakeNgrams(string text, int nGramSize, bool ignoreNumericOnlyWords)
         {
             if (nGramSize == 0) throw new Exception("nGram size was not set");
 
@@ -1175,8 +1175,8 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     {
                         if (lastWordLen > 0)
                         {
-                            long isItAnInt;
                             // If it is just a number, ignore it
+                            long isItAnInt;
                             if (ignoreNumericOnlyWords && long.TryParse(nGram.ToString().Trim(), out isItAnInt))
                             {
                                 nGram.Remove(nGram.Length - lastWordLen, lastWordLen);
@@ -1206,6 +1206,178 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                 nGram.Append(text.Last());
                 yield return nGram.ToString().Trim();
             }
+        }
+
+        public ReturnCode GetTwitterConnections(string fileNameSourceIDsFile, string sheetName, string columnNameTwitterIDs, int maxConnections, string fileNameOutput)
+        {
+            ReturnCode rc = ReturnCode.Success;
+
+            // Check that the file is valid, throw exception if not
+            if (!dataModel.FileIsValid(fileNameSourceIDsFile))
+                throw new System.IO.FileNotFoundException();
+
+            // Get the contents of the column. This will provide the row/cell identifier (depends on the
+            // underlying data model implementation) and the value of column for that row/cell.
+            DataTable idsAndFlagsDataTable = dataModel.GetColumnValuesForColumnNames(fileNameSourceIDsFile, sheetName, new string[] { columnNameTwitterIDs }, true);
+
+            Dictionary<string, List<string>> followsDict = new Dictionary<string, List<string>>();
+            Dictionary<string, List<string>> followedbyDict = new Dictionary<string, List<string>>();
+
+            Dictionary<string, TwitterUserInfo> twitterInfo = new Dictionary<string, TwitterUserInfo>();
+            List<string> sourcePosters = new List<string>();
+
+            foreach (DataRow row in idsAndFlagsDataTable.Rows)
+            {
+                List<TwitterUserInfo> followers;
+                List<TwitterUserInfo> followedbys;
+                TwitterUserInfo sourceUserInfo = new TwitterUserInfo();
+                dataModel.GetTwitterUserInfo(row[columnNameTwitterIDs].ToString(), ref sourceUserInfo);
+                string screenName = sourceUserInfo.Screenname;
+                sourcePosters.Add(screenName);
+
+                followers = new List<TwitterUserInfo>();
+
+                // Get all the followers for this source poster
+                rc = dataModel.GetTwitterConnections(screenName, TwitterConnectionType.Followers, maxConnections, ref sourceUserInfo, ref followers);
+
+                if ((rc == ReturnCode.Success) && (followers.Count > 0))
+                {
+                    foreach (TwitterUserInfo follower in followers)
+                    {
+                        if (followsDict.ContainsKey(follower.Screenname))
+                            followsDict[follower.Screenname].Add(screenName);
+                        else
+                            followsDict.Add(follower.Screenname, new List<string>() { screenName });
+                        if (!twitterInfo.ContainsKey(follower.Screenname))
+                            twitterInfo.Add(follower.Screenname, follower);
+                    }
+                }
+
+                followedbys = new List<TwitterUserInfo>();
+
+                // Get all the users this source poster follows
+                rc = dataModel.GetTwitterConnections(screenName, TwitterConnectionType.Following, maxConnections, ref sourceUserInfo, ref followedbys);
+                if ((rc == ReturnCode.Success) && (followedbys.Count > 0))
+                {
+                    foreach (TwitterUserInfo followedby in followedbys)
+                    {
+                        if (followedbyDict.ContainsKey(followedby.Screenname))
+                            followedbyDict[followedby.Screenname].Add(screenName);
+                        else
+                            followedbyDict.Add(followedby.Screenname, new List<string>() { screenName });
+                        if (!twitterInfo.ContainsKey(followedby.Screenname))
+                            twitterInfo.Add(followedby.Screenname, followedby);
+                    }
+                }
+            }
+
+            // Now add up the number of followers+following each user has to the provided list of users
+            Dictionary<string, int> significantConnectionCount = new Dictionary<string, int>();
+            foreach (KeyValuePair<string, List<string>> kvp in followsDict)
+            {
+                if (significantConnectionCount.ContainsKey(kvp.Key))
+                    significantConnectionCount[kvp.Key] += kvp.Value.Count;
+                else
+                    significantConnectionCount.Add(kvp.Key, kvp.Value.Count);
+            }
+            foreach (KeyValuePair<string, List<string>> kvp in followedbyDict)
+            {
+                if (significantConnectionCount.ContainsKey(kvp.Key))
+                    significantConnectionCount[kvp.Key] += kvp.Value.Count;
+                else
+                    significantConnectionCount.Add(kvp.Key, kvp.Value.Count);
+            }
+
+
+            // We want to keep any IDs that are either a source poster or have connections to at least two source posters.
+            var keysToKeep = significantConnectionCount.Where(kvp => sourcePosters.Contains(kvp.Key) || kvp.Value >= 2).Select(kvp => kvp.Key);
+
+            var keysToRemove = followsDict.Keys.Except(keysToKeep).ToList();
+            foreach (var key in keysToRemove)
+                followsDict.Remove(key);
+            keysToRemove = followedbyDict.Keys.Except(keysToKeep).ToList();
+            foreach (var key in keysToRemove)
+                followedbyDict.Remove(key);
+            keysToRemove = twitterInfo.Keys.Except(keysToKeep).ToList();
+            foreach (var key in keysToRemove)
+                twitterInfo.Remove(key);
+
+
+            string csvOutput = string.Join(",",
+                "TwitterID From",
+                "TwitterID To",
+                "Are Both Source Posters?");
+            csvOutput += Environment.NewLine;
+
+            List<KeyValuePair<string, string>> pairs = new List<KeyValuePair<string, string>>();
+
+            foreach (KeyValuePair<string, List<string>> kvp in followsDict)
+                foreach (string follower in kvp.Value)
+                    pairs.Add(new KeyValuePair<string, string>(kvp.Key, follower));
+            foreach (KeyValuePair<string, List<string>> kvp in followedbyDict)
+                foreach (string followedby in kvp.Value)
+                    pairs.Add(new KeyValuePair<string, string>(followedby, kvp.Key));
+            pairs = pairs.Distinct().ToList();
+
+            foreach (KeyValuePair<string, string> kvp in pairs)
+            {
+                csvOutput += kvp.Key + "," + kvp.Value + ",";
+                if (sourcePosters.Contains(kvp.Key) && sourcePosters.Contains(kvp.Value))
+                    csvOutput += "Y";
+                else
+                    csvOutput += "N";
+                csvOutput += Environment.NewLine;
+            }
+
+
+            //foreach (KeyValuePair<string, List<string>> kvp in followsDict)
+            //{
+            //    string sourcePair = sourcePosters.Contains(kvp.Key) ? "Y" : "N";
+            //    csvOutput += string.Join(Environment.NewLine, kvp.Value.Select(follower => kvp.Key + "," + follower + "," + sourcePair));
+            //    csvOutput += Environment.NewLine;
+            //}
+            //foreach (KeyValuePair<string, List<string>> kvp in followedbyDict)
+            //{
+            //    string sourcePair = sourcePosters.Contains(kvp.Key) ? "Y" : "N";
+            //    csvOutput += string.Join(Environment.NewLine, kvp.Value.Select(followedby => followedby + "," + kvp.Key + "," + sourcePair));
+            //    csvOutput += Environment.NewLine;
+            //}
+
+            File.WriteAllText(fileNameOutput, csvOutput);
+
+
+            csvOutput = string.Join(",", 
+                "TwitterID",
+                "Source Poster?",
+                "Number of Source Posters Following ID", 
+                "Number of Source Posters Followed By ID", 
+                "Total Num Followers", 
+                "Total Num Following",
+                "Name",
+                "Location",
+                "Description");
+            csvOutput += Environment.NewLine;
+            foreach (string screenName in keysToKeep)
+            {
+                TwitterUserInfo tui = twitterInfo[screenName];
+                csvOutput += string.Join(",", 
+                    screenName,
+                    sourcePosters.Contains(screenName) ? "Y" : "",
+                    followedbyDict.ContainsKey(screenName) ? followedbyDict[screenName].Count : 0, 
+                    followsDict.ContainsKey(screenName) ? followsDict[screenName].Count : 0, 
+                    tui.NumberOfFollowers, 
+                    tui.NumberFollowing,
+                    "\"" + tui.Name + "\"",
+                    "\"" + tui.Location + "\"", 
+                    "\"" + tui.Description.Replace("\"","") + "\"");
+                csvOutput += Environment.NewLine;
+            }
+
+            FileInfo fi = new FileInfo(fileNameOutput);
+            File.WriteAllText(fi.DirectoryName+"\\"+fi.Name.Remove(fi.Name.Length-fi.Extension.Length) + " - Poster Stats" + fi.Extension, csvOutput);
+
+            return rc;
+
         }
     }
 }
