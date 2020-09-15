@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMRT", "SMRT\SMRT.csproj", "{FB68E1CD-1AAE-42A1-8EA9-645C630E680A}"
 EndProject
@@ -9,9 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMRT_MVPLibrary", "SMRT_MVP
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5060C650-A383-4C73-8B4F-534CB73D81F1}"
 EndProject
-Project("{6141683F-8A12-4E36-9623-2EB02B2C2303}") = "SMRTInstall", "SMRTInstall\SMRTInstall.isproj", "{78E007B6-9145-4835-989D-A65E228B6F19}"
-EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SMRT_Install", "SMRT_Install\SMRT_Install.vdproj", "{A978927B-5899-453E-9232-D024F7A101CE}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SMRT_Setup", "SMRT_Setup\SMRT_Setup.vdproj", "{DE3A5148-778D-465C-9A51-DEF95D2275B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,23 +40,11 @@ Global
 		{9C71F80C-216F-4314-BB6C-A68DA6A64351}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9C71F80C-216F-4314-BB6C-A68DA6A64351}.SingleImage|Any CPU.ActiveCfg = Release|Any CPU
 		{9C71F80C-216F-4314-BB6C-A68DA6A64351}.SingleImage|Any CPU.Build.0 = Release|Any CPU
-		{78E007B6-9145-4835-989D-A65E228B6F19}.CD_ROM|Any CPU.ActiveCfg = CD_ROM
-		{78E007B6-9145-4835-989D-A65E228B6F19}.CD_ROM|Any CPU.Build.0 = CD_ROM
-		{78E007B6-9145-4835-989D-A65E228B6F19}.Debug|Any CPU.ActiveCfg = DVD-5
-		{78E007B6-9145-4835-989D-A65E228B6F19}.Debug|Any CPU.Build.0 = DVD-5
-		{78E007B6-9145-4835-989D-A65E228B6F19}.DVD-5|Any CPU.ActiveCfg = DVD-5
-		{78E007B6-9145-4835-989D-A65E228B6F19}.DVD-5|Any CPU.Build.0 = DVD-5
-		{78E007B6-9145-4835-989D-A65E228B6F19}.Release|Any CPU.ActiveCfg = SingleImage
-		{78E007B6-9145-4835-989D-A65E228B6F19}.Release|Any CPU.Build.0 = SingleImage
-		{78E007B6-9145-4835-989D-A65E228B6F19}.SingleImage|Any CPU.ActiveCfg = SingleImage
-		{78E007B6-9145-4835-989D-A65E228B6F19}.SingleImage|Any CPU.Build.0 = SingleImage
-		{A978927B-5899-453E-9232-D024F7A101CE}.CD_ROM|Any CPU.ActiveCfg = Release
-		{A978927B-5899-453E-9232-D024F7A101CE}.Debug|Any CPU.ActiveCfg = Debug
-		{A978927B-5899-453E-9232-D024F7A101CE}.DVD-5|Any CPU.ActiveCfg = Debug
-		{A978927B-5899-453E-9232-D024F7A101CE}.Release|Any CPU.ActiveCfg = Release
-		{A978927B-5899-453E-9232-D024F7A101CE}.Release|Any CPU.Build.0 = Release
-		{A978927B-5899-453E-9232-D024F7A101CE}.SingleImage|Any CPU.ActiveCfg = Release
-		{A978927B-5899-453E-9232-D024F7A101CE}.SingleImage|Any CPU.Build.0 = Release
+		{DE3A5148-778D-465C-9A51-DEF95D2275B2}.CD_ROM|Any CPU.ActiveCfg = Debug
+		{DE3A5148-778D-465C-9A51-DEF95D2275B2}.Debug|Any CPU.ActiveCfg = Debug
+		{DE3A5148-778D-465C-9A51-DEF95D2275B2}.DVD-5|Any CPU.ActiveCfg = Debug
+		{DE3A5148-778D-465C-9A51-DEF95D2275B2}.Release|Any CPU.ActiveCfg = Release
+		{DE3A5148-778D-465C-9A51-DEF95D2275B2}.SingleImage|Any CPU.ActiveCfg = Debug
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
