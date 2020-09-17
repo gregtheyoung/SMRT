@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
+using Tweetinvi.Logic.TwitterEntities;
 
 namespace TwinArch.SMRT_MVPLibrary.Interfaces
 {
@@ -75,5 +77,6 @@ namespace TwinArch.SMRT_MVPLibrary.Interfaces
 
         ReturnCode GetTwitterUserInfo(string userID, ref TwitterUserInfo twitterUserInfo);
         ReturnCode GetTwitterConnections(string userName, TwitterConnectionType connectionType, int maxConnections, ref TwitterUserInfo sourceUserInfo, ref List<TwitterUserInfo> connections);
+        ReturnCode GetTwitterFriendship(string userName1, string userName2, ref bool followedBy, ref bool following);
     }
 }

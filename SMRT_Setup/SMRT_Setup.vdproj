@@ -1222,6 +1222,12 @@
         "Entry"
         {
         "MsmKey" = "8:_F42B59F79705595D0B404356A2A903C8"
+        "OwnerKey" = "8:_28E3F0581FF705F02F4501554E9A4480"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F42B59F79705595D0B404356A2A903C8"
         "OwnerKey" = "8:_821A930CC4444D3C80D9F6471EC2A22A"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -4329,8 +4335,8 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SMRT"
-        "ProductCode" = "8:{4BE5DA19-0B3E-498B-9B61-BDEF8E914109}"
-        "PackageCode" = "8:{C4F328B6-4955-48ED-94A6-3BAEDD82F19B}"
+        "ProductCode" = "8:{7C525D7E-469E-4181-80C2-E20225D2E028}"
+        "PackageCode" = "8:{2D8CFB0C-D031-4E9F-B804-321CFA118BAA}"
         "UpgradeCode" = "8:{B6D1A7A2-C741-45C8-8D43-F748CD48F401}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"

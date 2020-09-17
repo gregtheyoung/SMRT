@@ -13,6 +13,7 @@ using Tweetinvi;
 using System.Configuration;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Tweetinvi.Logic.TwitterEntities;
 
 namespace TwinArch.SMRT_MVPLibrary.Models
 {
@@ -544,6 +545,24 @@ namespace TwinArch.SMRT_MVPLibrary.Models
 
             return rc;
         }
+
+        public ReturnCode GetTwitterFriendship(string userName1, string userName2, ref bool followedBy, ref bool following)
+        {
+            ReturnCode rc = ReturnCode.Success;
+
+            SetupTwitterConnection();
+
+            var relationshipDetails = (RelationshipDetails)Tweetinvi.Friendship.GetRelationshipDetailsBetween(userName1, userName2);
+
+            if (relationshipDetails != null)
+            {
+                followedBy = relationshipDetails.FollowedBy;
+                following = relationshipDetails.Following;
+            }
+
+            return rc;
+        }
+
 
     }
 }

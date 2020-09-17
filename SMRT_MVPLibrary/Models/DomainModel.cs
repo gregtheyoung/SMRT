@@ -9,6 +9,9 @@ using System.Data;
 using System.Text.RegularExpressions;
 using System.IO;
 using TwinArch.SMRT_MVPLibrary.Interfaces;
+using Tweetinvi.Core.Extensions;
+using Tweetinvi.Logic.TwitterEntities;
+using Tweetinvi.Logic.DTO;
 
 namespace TwinArch.SMRT_MVPLibrary.Models
 {
@@ -176,53 +179,65 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                     foreach (DataRow row in urlStringTable.Rows)
                     {
                         DataRow newRow = newValuesTable.NewRow();
-                        try
-                        {
-                            // Try to parse it as a URI
-                            Uri uri = new Uri((string)row[0]);
-
-                            // Get the domain part.
-                            string domain = uri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
-                            domain = domain.Replace("www.","");
-
-                            // Get the segments of the URI - these are the slash-delimited pieces after the domain.
-                            string[] segments = uri.Segments;
-                            NameValueCollection queryCollection = HttpUtility.ParseQueryString(uri.Query);
-
-                            if (domain.EndsWith("twitter.com"))
-                            {
-                                GetTwitterParts(uri, domain, segments, queryCollection, ref newRow);
-                            }
-                            else if (domain.EndsWith("facebook.com"))
-                            {
-                                GetFacebookParts(uri, domain, segments, queryCollection, ref newRow);
-                            }
-                            else if (domain.EndsWith("blogspot.com"))
-                            {
-                                GetBloggerParts(uri, domain, segments, queryCollection, ref newRow);
-                            }
-                            else if (domain.EndsWith("tumblr.com"))
-                            {
-                                GetTumblrParts(uri, domain, segments, queryCollection, ref newRow);
-                            }
-                            else if (domain.EndsWith("reddit.com"))
-                            {
-                                GetRedditParts(uri, domain, segments, queryCollection, ref newRow);
-                            }
-                            else
-                            {
-                                GetUnknownParts(uri, domain, segments, queryCollection, ref newRow);
-                            }
-                        }
-
-                        catch (UriFormatException)
+                        if (row[0].ToString().IsNullOrEmpty())
                         {
                             newRow[(int)NewSplitColumnIndex.Domain] = null;
                             newRow[(int)NewSplitColumnIndex.MentionID] = null;
-                            newRow[(int)NewSplitColumnIndex.MentionType] = "Failed";
+                            newRow[(int)NewSplitColumnIndex.MentionType] = "Empty";
                             newRow[(int)NewSplitColumnIndex.NumPosts] = DBNull.Value;
                             newRow[(int)NewSplitColumnIndex.PosterID] = null;
                             numFailed++;
+                        }
+                        else
+                        {
+                            try
+                            {
+                                // Try to parse it as a URI
+                                Uri uri = new Uri((string)row[0]);
+
+                                // Get the domain part.
+                                string domain = uri.GetComponents(UriComponents.Host, UriFormat.Unescaped);
+                                domain = domain.Replace("www.", "");
+
+                                // Get the segments of the URI - these are the slash-delimited pieces after the domain.
+                                string[] segments = uri.Segments;
+                                NameValueCollection queryCollection = HttpUtility.ParseQueryString(uri.Query);
+
+                                if (domain.EndsWith("twitter.com"))
+                                {
+                                    GetTwitterParts(uri, domain, segments, queryCollection, ref newRow);
+                                }
+                                else if (domain.EndsWith("facebook.com"))
+                                {
+                                    GetFacebookParts(uri, domain, segments, queryCollection, ref newRow);
+                                }
+                                else if (domain.EndsWith("blogspot.com"))
+                                {
+                                    GetBloggerParts(uri, domain, segments, queryCollection, ref newRow);
+                                }
+                                else if (domain.EndsWith("tumblr.com"))
+                                {
+                                    GetTumblrParts(uri, domain, segments, queryCollection, ref newRow);
+                                }
+                                else if (domain.EndsWith("reddit.com"))
+                                {
+                                    GetRedditParts(uri, domain, segments, queryCollection, ref newRow);
+                                }
+                                else
+                                {
+                                    GetUnknownParts(uri, domain, segments, queryCollection, ref newRow);
+                                }
+                            }
+
+                            catch (UriFormatException)
+                            {
+                                newRow[(int)NewSplitColumnIndex.Domain] = null;
+                                newRow[(int)NewSplitColumnIndex.MentionID] = null;
+                                newRow[(int)NewSplitColumnIndex.MentionType] = "Failed";
+                                newRow[(int)NewSplitColumnIndex.NumPosts] = DBNull.Value;
+                                newRow[(int)NewSplitColumnIndex.PosterID] = null;
+                                numFailed++;
+                            }
                         }
                         numprocessed++;
 
@@ -1269,7 +1284,54 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                             twitterInfo.Add(followedby.Screenname, followedby);
                     }
                 }
+
+                // Get all the relationships between this source poster and all the other source posters
+                // Note: this is ok to do in this loop since the GetTwitterFriendship call gives us the bi-directional
+                //      relationship. So for A, B, C we only need to lookip AB, AC, and BC.
+                foreach (string otherPosterScreenName in sourcePosters)
+                {
+                    if (screenName != otherPosterScreenName)
+                    {
+                        bool followedBy = false;
+                        bool following = false;
+
+                        TwitterUserInfo otherPosterUserInfo = new TwitterUserInfo();
+                        dataModel.GetTwitterUserInfo(otherPosterScreenName, ref otherPosterUserInfo);
+
+                        rc = dataModel.GetTwitterFriendship(screenName, otherPosterScreenName, ref followedBy, ref following);
+
+                        if (!twitterInfo.ContainsKey(screenName))
+                            twitterInfo.Add(screenName, sourceUserInfo);
+                        if (!twitterInfo.ContainsKey(otherPosterUserInfo.Screenname))
+                            twitterInfo.Add(otherPosterUserInfo.Screenname, otherPosterUserInfo);
+
+                        if (followedBy)
+                        {
+                            if (followsDict.ContainsKey(otherPosterScreenName))
+                                followsDict[otherPosterScreenName].Add(screenName);
+                            else
+                                followsDict.Add(otherPosterScreenName, new List<string>() { screenName });
+                            if (followedbyDict.ContainsKey(screenName))
+                                followedbyDict[screenName].Add(otherPosterScreenName);
+                            else
+                                followedbyDict.Add(screenName, new List<string>() { otherPosterScreenName });
+                        }
+
+                        if (following)
+                        {
+                            if (followsDict.ContainsKey(screenName))
+                                followsDict[screenName].Add(otherPosterScreenName);
+                            else
+                                followsDict.Add(screenName, new List<string>() { otherPosterScreenName });
+                            if (followedbyDict.ContainsKey(otherPosterScreenName))
+                                followedbyDict[otherPosterScreenName].Add(screenName);
+                            else
+                                followedbyDict.Add(otherPosterScreenName, new List<string>() { screenName });
+                        }
+                    }
+                }
             }
+
 
             // Now add up the number of followers+following each user has to the provided list of users
             Dictionary<string, int> significantConnectionCount = new Dictionary<string, int>();
