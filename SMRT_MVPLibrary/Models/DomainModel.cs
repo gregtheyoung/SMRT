@@ -12,6 +12,7 @@ using TwinArch.SMRT_MVPLibrary.Interfaces;
 using Tweetinvi.Core.Extensions;
 using Tweetinvi.Logic.TwitterEntities;
 using Tweetinvi.Logic.DTO;
+using System.Drawing;
 
 namespace TwinArch.SMRT_MVPLibrary.Models
 {
@@ -695,7 +696,9 @@ namespace TwinArch.SMRT_MVPLibrary.Models
                             foreach (string termSetString in codeFamilyTermSets[codeFamilyName])
                             {
                                 int termCount = 0;
-                                string[] splitTerms = termSetString.Split(';');
+                                string cleanTermSetString = termSetString.Trim().Trim(';');
+
+                                string[] splitTerms = cleanTermSetString.Split(';');
                                 string firstTerm = splitTerms[0];
 
                                 // For each term in the term set...
